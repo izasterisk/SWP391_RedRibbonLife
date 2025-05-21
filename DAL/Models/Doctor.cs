@@ -9,43 +9,34 @@ namespace DAL.Models;
 public partial class Doctor
 {
     [Key]
-    [StringLength(20)]
-    [Unicode(false)]
-    public string DoctorCode { get; set; } = null!;
+    [Column("doctor_id")]
+    public int DoctorId { get; set; }
 
-    [Column("UserID")]
-    public int UserId { get; set; }
+    [Column("user_id")]
+    public int? UserId { get; set; }
 
-    [StringLength(100)]
-    public string? Specialization { get; set; }
+    [Column("doctor_image")]
+    public string? DoctorImage { get; set; }
 
-    [StringLength(50)]
-    [Unicode(false)]
-    public string? LicenseNumber { get; set; }
+    [Column("bio")]
+    public string? Bio { get; set; }
 
-    [StringLength(200)]
-    public string? Qualification { get; set; }
-
-    public int? Experience { get; set; }
-
-    public string? Biography { get; set; }
-
-    [Column(TypeName = "datetime")]
-    public DateTime? CreatedDate { get; set; }
-
-    [Column(TypeName = "datetime")]
-    public DateTime? ModifiedDate { get; set; }
-
-    [InverseProperty("DoctorCodeNavigation")]
+    [InverseProperty("Doctor")]
     public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
 
-    [InverseProperty("DoctorCodeNavigation")]
+    [InverseProperty("Doctor")]
+    public virtual ICollection<DoctorCertificate> DoctorCertificates { get; set; } = new List<DoctorCertificate>();
+
+    [InverseProperty("Doctor")]
     public virtual ICollection<DoctorSchedule> DoctorSchedules { get; set; } = new List<DoctorSchedule>();
 
-    [InverseProperty("DoctorCodeNavigation")]
-    public virtual ICollection<Hivtreatment> Hivtreatments { get; set; } = new List<Hivtreatment>();
+    [InverseProperty("Doctor")]
+    public virtual ICollection<TestResult> TestResults { get; set; } = new List<TestResult>();
+
+    [InverseProperty("Doctor")]
+    public virtual ICollection<TreatmentHistory> TreatmentHistories { get; set; } = new List<TreatmentHistory>();
 
     [ForeignKey("UserId")]
     [InverseProperty("Doctors")]
-    public virtual User User { get; set; } = null!;
+    public virtual User? User { get; set; }
 }

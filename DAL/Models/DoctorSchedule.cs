@@ -9,30 +9,23 @@ namespace DAL.Models;
 public partial class DoctorSchedule
 {
     [Key]
-    [Column("ScheduleID")]
+    [Column("schedule_id")]
     public int ScheduleId { get; set; }
 
-    [StringLength(20)]
-    [Unicode(false)]
-    public string DoctorCode { get; set; } = null!;
+    [Column("doctor_id")]
+    public int? DoctorId { get; set; }
 
-    public int? WeekDay { get; set; }
+    [Column("work_day")]
+    [StringLength(50)]
+    public string WorkDay { get; set; } = null!;
 
-    public TimeOnly? StartTime { get; set; }
+    [Column("start_time")]
+    public TimeOnly StartTime { get; set; }
 
-    public TimeOnly? EndTime { get; set; }
+    [Column("end_time")]
+    public TimeOnly EndTime { get; set; }
 
-    public int? MaxAppointments { get; set; }
-
-    public bool? IsAvailable { get; set; }
-
-    [Column(TypeName = "datetime")]
-    public DateTime? CreatedDate { get; set; }
-
-    [Column(TypeName = "datetime")]
-    public DateTime? ModifiedDate { get; set; }
-
-    [ForeignKey("DoctorCode")]
+    [ForeignKey("DoctorId")]
     [InverseProperty("DoctorSchedules")]
-    public virtual Doctor DoctorCodeNavigation { get; set; } = null!;
+    public virtual Doctor? Doctor { get; set; }
 }

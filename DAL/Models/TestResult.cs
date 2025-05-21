@@ -9,49 +9,46 @@ namespace DAL.Models;
 public partial class TestResult
 {
     [Key]
-    [Column("TestID")]
-    public int TestId { get; set; }
+    [Column("test_result_id")]
+    public int TestResultId { get; set; }
 
-    [StringLength(20)]
-    [Unicode(false)]
-    public string PatientCode { get; set; } = null!;
-
-    [Column("AppointmentID")]
+    [Column("appointment_id")]
     public int? AppointmentId { get; set; }
 
-    [StringLength(50)]
+    [Column("patient_id")]
+    public int PatientId { get; set; }
+
+    [Column("doctor_id")]
+    public int? DoctorId { get; set; }
+
+    [Column("test_type")]
+    [StringLength(100)]
     public string TestType { get; set; } = null!;
 
-    public DateOnly TestDate { get; set; }
+    [Column("result_value")]
+    [StringLength(255)]
+    public string? ResultValue { get; set; }
 
-    [StringLength(100)]
-    public string? Results { get; set; }
+    [Column("unit")]
+    [StringLength(50)]
+    public string? Unit { get; set; }
 
-    [StringLength(20)]
-    public string? Units { get; set; }
-
+    [Column("normal_range")]
     [StringLength(50)]
     public string? NormalRange { get; set; }
 
-    public string? Interpretation { get; set; }
-
-    public int? PerformedBy { get; set; }
-
-    [Column(TypeName = "datetime")]
-    public DateTime? CreatedDate { get; set; }
-
-    [Column(TypeName = "datetime")]
-    public DateTime? ModifiedDate { get; set; }
+    [Column("notes")]
+    public string? Notes { get; set; }
 
     [ForeignKey("AppointmentId")]
     [InverseProperty("TestResults")]
     public virtual Appointment? Appointment { get; set; }
 
-    [ForeignKey("PatientCode")]
+    [ForeignKey("DoctorId")]
     [InverseProperty("TestResults")]
-    public virtual Patient PatientCodeNavigation { get; set; } = null!;
+    public virtual Doctor? Doctor { get; set; }
 
-    [ForeignKey("PerformedBy")]
+    [ForeignKey("PatientId")]
     [InverseProperty("TestResults")]
-    public virtual User? PerformedByNavigation { get; set; }
+    public virtual Patient Patient { get; set; } = null!;
 }

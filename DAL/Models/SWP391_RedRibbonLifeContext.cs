@@ -17,29 +17,29 @@ public partial class SWP391_RedRibbonLifeContext : DbContext
 
     public virtual DbSet<Appointment> Appointments { get; set; }
 
-    public virtual DbSet<AppointmentReminder> AppointmentReminders { get; set; }
+    public virtual DbSet<Article> Articles { get; set; }
 
     public virtual DbSet<Arvregimen> Arvregimens { get; set; }
 
-    public virtual DbSet<BlogPost> BlogPosts { get; set; }
+    public virtual DbSet<Category> Categories { get; set; }
 
     public virtual DbSet<Doctor> Doctors { get; set; }
 
+    public virtual DbSet<DoctorCertificate> DoctorCertificates { get; set; }
+
     public virtual DbSet<DoctorSchedule> DoctorSchedules { get; set; }
 
-    public virtual DbSet<EducationalMaterial> EducationalMaterials { get; set; }
-
-    public virtual DbSet<Hivmonitoring> Hivmonitorings { get; set; }
-
-    public virtual DbSet<Hivtreatment> Hivtreatments { get; set; }
-
-    public virtual DbSet<MedicationReminder> MedicationReminders { get; set; }
+    public virtual DbSet<MedicationSchedule> MedicationSchedules { get; set; }
 
     public virtual DbSet<Patient> Patients { get; set; }
 
-    public virtual DbSet<Role> Roles { get; set; }
+    public virtual DbSet<Prescription> Prescriptions { get; set; }
+
+    public virtual DbSet<Reminder> Reminders { get; set; }
 
     public virtual DbSet<TestResult> TestResults { get; set; }
+
+    public virtual DbSet<TreatmentHistory> TreatmentHistories { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
 
@@ -48,195 +48,133 @@ public partial class SWP391_RedRibbonLifeContext : DbContext
     {
         modelBuilder.Entity<Appointment>(entity =>
         {
-            entity.HasKey(e => e.AppointmentId).HasName("PK__Appointm__8ECDFCA2BE7C935E");
+            entity.HasKey(e => e.AppointmentId).HasName("PK__Appointm__A50828FCE4F04665");
 
-            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.IsOnline).HasDefaultValue(false);
-            entity.Property(e => e.ModifiedDate).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.AppointmentType).HasDefaultValue("Appointment");
+            entity.Property(e => e.IsAnonymous).HasDefaultValue(false);
             entity.Property(e => e.Status).HasDefaultValue("Scheduled");
 
-            entity.HasOne(d => d.DoctorCodeNavigation).WithMany(p => p.Appointments)
+            entity.HasOne(d => d.Doctor).WithMany(p => p.Appointments)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Appointments_Doctors");
+                .HasConstraintName("fk_appointments_doctors");
 
-            entity.HasOne(d => d.PatientCodeNavigation).WithMany(p => p.Appointments)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Appointments_Patients");
+            entity.HasOne(d => d.Patient).WithMany(p => p.Appointments).HasConstraintName("fk_appointments_patients");
         });
 
-        modelBuilder.Entity<AppointmentReminder>(entity =>
+        modelBuilder.Entity<Article>(entity =>
         {
-            entity.HasKey(e => e.ReminderId).HasName("PK__Appointm__01A830A711910989");
+            entity.HasKey(e => e.ArticleId).HasName("PK__Articles__CC36F660149F5880");
 
-            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.IsSent).HasDefaultValue(false);
-            entity.Property(e => e.ModifiedDate).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
 
-            entity.HasOne(d => d.Appointment).WithMany(p => p.AppointmentReminders)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_AppointmentReminders_Appointments");
-
-            entity.HasOne(d => d.PatientCodeNavigation).WithMany(p => p.AppointmentReminders)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_AppointmentReminders_Patients");
+            entity.HasOne(d => d.Category).WithMany(p => p.Articles).HasConstraintName("fk_articles_category");
         });
 
         modelBuilder.Entity<Arvregimen>(entity =>
         {
-            entity.HasKey(e => e.RegimenId).HasName("PK__ARVRegim__4BAC09D107919452");
+            entity.HasKey(e => e.RegimenId).HasName("PK__ARVRegim__36DA3D9E1F6E7F6E");
 
-            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.ModifiedDate).HasDefaultValueSql("(getdate())");
         });
 
-        modelBuilder.Entity<BlogPost>(entity =>
+        modelBuilder.Entity<Category>(entity =>
         {
-            entity.HasKey(e => e.PostId).HasName("PK__BlogPost__AA1260387DB74AC9");
+            entity.HasKey(e => e.CategoryId).HasName("PK__Category__D54EE9B487C2DB60");
 
-            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.IsPublished).HasDefaultValue(false);
-            entity.Property(e => e.ModifiedDate).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.ViewCount).HasDefaultValue(0);
-
-            entity.HasOne(d => d.AuthorNavigation).WithMany(p => p.BlogPosts)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_BlogPosts_Users");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
         });
 
         modelBuilder.Entity<Doctor>(entity =>
         {
-            entity.HasKey(e => e.DoctorCode).HasName("PK__Doctors__2BDC63EA1A763E18");
+            entity.HasKey(e => e.DoctorId).HasName("PK__Doctors__F39935649A14A2E3");
 
-            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.ModifiedDate).HasDefaultValueSql("(getdate())");
+            entity.HasOne(d => d.User).WithMany(p => p.Doctors).HasConstraintName("fk_doctors_users");
+        });
 
-            entity.HasOne(d => d.User).WithMany(p => p.Doctors)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Doctors_Users");
+        modelBuilder.Entity<DoctorCertificate>(entity =>
+        {
+            entity.HasKey(e => e.CertificateId).HasName("PK__DoctorCe__E2256D315F9FE7E0");
+
+            entity.HasOne(d => d.Doctor).WithMany(p => p.DoctorCertificates).HasConstraintName("fk_certificates_doctors");
         });
 
         modelBuilder.Entity<DoctorSchedule>(entity =>
         {
-            entity.HasKey(e => e.ScheduleId).HasName("PK__DoctorSc__9C8A5B69244B322B");
+            entity.HasKey(e => e.ScheduleId).HasName("PK__DoctorSc__C46A8A6FAC4D967D");
 
-            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.IsAvailable).HasDefaultValue(true);
-            entity.Property(e => e.ModifiedDate).HasDefaultValueSql("(getdate())");
-
-            entity.HasOne(d => d.DoctorCodeNavigation).WithMany(p => p.DoctorSchedules)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_DoctorSchedules_Doctors");
+            entity.HasOne(d => d.Doctor).WithMany(p => p.DoctorSchedules).HasConstraintName("fk_schedules_doctors");
         });
 
-        modelBuilder.Entity<EducationalMaterial>(entity =>
+        modelBuilder.Entity<MedicationSchedule>(entity =>
         {
-            entity.HasKey(e => e.MaterialId).HasName("PK__Educatio__C50613171D6A3CFA");
+            entity.HasKey(e => e.ScheduleId).HasName("PK__Medicati__C46A8A6F90F7C4DC");
 
-            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.IsPublished).HasDefaultValue(true);
-            entity.Property(e => e.ModifiedDate).HasDefaultValueSql("(getdate())");
+            entity.HasOne(d => d.Patient).WithMany(p => p.MedicationSchedules).HasConstraintName("fk_medication_patients");
 
-            entity.HasOne(d => d.AuthorNavigation).WithMany(p => p.EducationalMaterials).HasConstraintName("FK_EducationalMaterials_Users");
-        });
-
-        modelBuilder.Entity<Hivmonitoring>(entity =>
-        {
-            entity.HasKey(e => e.MonitoringId).HasName("PK__HIVMonit__CAC3C0777AEBE520");
-
-            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.ModifiedDate).HasDefaultValueSql("(getdate())");
-
-            entity.HasOne(d => d.PatientCodeNavigation).WithMany(p => p.Hivmonitorings)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_HIVMonitoring_Patients");
-        });
-
-        modelBuilder.Entity<Hivtreatment>(entity =>
-        {
-            entity.HasKey(e => e.TreatmentId).HasName("PK__HIVTreat__1A57B71192EB71DB");
-
-            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.ModifiedDate).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.Status).HasDefaultValue("Active");
-
-            entity.HasOne(d => d.DoctorCodeNavigation).WithMany(p => p.Hivtreatments)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_HIVTreatments_Doctors");
-
-            entity.HasOne(d => d.PatientCodeNavigation).WithMany(p => p.Hivtreatments)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_HIVTreatments_Patients");
-
-            entity.HasOne(d => d.Regimen).WithMany(p => p.Hivtreatments)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_HIVTreatments_ARVRegimens");
-        });
-
-        modelBuilder.Entity<MedicationReminder>(entity =>
-        {
-            entity.HasKey(e => e.ReminderId).HasName("PK__Medicati__01A830A7FECC0BE5");
-
-            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.ModifiedDate).HasDefaultValueSql("(getdate())");
-
-            entity.HasOne(d => d.PatientCodeNavigation).WithMany(p => p.MedicationReminders)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_MedicationReminders_Patients");
-
-            entity.HasOne(d => d.Treatment).WithMany(p => p.MedicationReminders)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_MedicationReminders_HIVTreatments");
+            entity.HasOne(d => d.Prescription).WithMany(p => p.MedicationSchedules).HasConstraintName("fk_medication_prescriptions");
         });
 
         modelBuilder.Entity<Patient>(entity =>
         {
-            entity.HasKey(e => e.PatientCode).HasName("PK__Patients__B9C66DFF4A994B0E");
+            entity.HasKey(e => e.PatientId).HasName("PK__Patients__4D5CE47607FEA8DC");
 
-            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.IsHivpositive).HasDefaultValue(false);
-            entity.Property(e => e.ModifiedDate).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.IsPregnant).HasDefaultValue(false);
 
-            entity.HasOne(d => d.User).WithMany(p => p.Patients)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Patients_Users");
+            entity.HasOne(d => d.User).WithMany(p => p.Patients).HasConstraintName("fk_patients_users");
         });
 
-        modelBuilder.Entity<Role>(entity =>
+        modelBuilder.Entity<Prescription>(entity =>
         {
-            entity.HasKey(e => e.RoleId).HasName("PK__Roles__8AFACE3A4AA78EF3");
+            entity.HasKey(e => e.PrescriptionId).HasName("PK__Prescrip__3EE444F853B8118E");
 
-            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.ModifiedDate).HasDefaultValueSql("(getdate())");
+            entity.HasOne(d => d.Regimen).WithMany(p => p.Prescriptions)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_prescriptions_regimen");
+
+            entity.HasOne(d => d.Treatment).WithMany(p => p.Prescriptions).HasConstraintName("fk_prescriptions_treatment");
+        });
+
+        modelBuilder.Entity<Reminder>(entity =>
+        {
+            entity.HasKey(e => e.ReminderId).HasName("PK__Reminder__E27A3628D741ADDB");
+
+            entity.Property(e => e.ReminderType).HasDefaultValue("Appointment");
+            entity.Property(e => e.Status).HasDefaultValue("Pending");
+
+            entity.HasOne(d => d.Appointment).WithMany(p => p.Reminders).HasConstraintName("fk_reminders_appointments");
         });
 
         modelBuilder.Entity<TestResult>(entity =>
         {
-            entity.HasKey(e => e.TestId).HasName("PK__TestResu__8CC33100CD29A68B");
+            entity.HasKey(e => e.TestResultId).HasName("PK__TestResu__152BCEDAA4016B56");
 
-            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.ModifiedDate).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.Unit).HasDefaultValue("N/A");
 
-            entity.HasOne(d => d.Appointment).WithMany(p => p.TestResults).HasConstraintName("FK_TestResults_Appointments");
+            entity.HasOne(d => d.Appointment).WithMany(p => p.TestResults).HasConstraintName("fk_test_results_appointments");
 
-            entity.HasOne(d => d.PatientCodeNavigation).WithMany(p => p.TestResults)
+            entity.HasOne(d => d.Doctor).WithMany(p => p.TestResults).HasConstraintName("fk_test_results_doctors");
+
+            entity.HasOne(d => d.Patient).WithMany(p => p.TestResults)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_TestResults_Patients");
+                .HasConstraintName("fk_test_results_patients");
+        });
 
-            entity.HasOne(d => d.PerformedByNavigation).WithMany(p => p.TestResults).HasConstraintName("FK_TestResults_Users");
+        modelBuilder.Entity<TreatmentHistory>(entity =>
+        {
+            entity.HasKey(e => e.TreatmentId).HasName("PK__Treatmen__302D3CA0D596062B");
+
+            entity.Property(e => e.Status).HasDefaultValue("Active");
+
+            entity.HasOne(d => d.Doctor).WithMany(p => p.TreatmentHistories).HasConstraintName("fk_treatment_doctors");
+
+            entity.HasOne(d => d.Patient).WithMany(p => p.TreatmentHistories).HasConstraintName("fk_treatment_patients");
         });
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("PK__Users__1788CCAC081300B9");
+            entity.HasKey(e => e.UserId).HasName("PK__Users__B9BE370F569DA709");
 
-            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.IsAnonymous).HasDefaultValue(false);
-            entity.Property(e => e.ModifiedDate).HasDefaultValueSql("(getdate())");
-
-            entity.HasOne(d => d.Role).WithMany(p => p.Users).HasConstraintName("FK_Users_Roles");
         });
 
         OnModelCreatingPartial(modelBuilder);

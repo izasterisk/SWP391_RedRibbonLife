@@ -83,3 +83,4 @@ C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\SWP391_RedRibbonLife\
 C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\SWP391_RedRibbonLife\obj\Debug\net8.0\SWP391_RedRibbonLife.pdb
 C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\SWP391_RedRibbonLife\obj\Debug\net8.0\SWP391_RedRibbonLife.genruntimeconfig.cache
 C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\SWP391_RedRibbonLife\obj\Debug\net8.0\ref\SWP391_RedRibbonLife.dll
+C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\SWP391_RedRibbonLife\obj\Debug\net8.0\SWP391_RedRibbonLife.sourcelink.json

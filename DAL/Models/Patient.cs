@@ -9,65 +9,35 @@ namespace DAL.Models;
 public partial class Patient
 {
     [Key]
-    [StringLength(20)]
-    [Unicode(false)]
-    public string PatientCode { get; set; } = null!;
+    [Column("patient_id")]
+    public int PatientId { get; set; }
 
-    [Column("UserID")]
-    public int UserId { get; set; }
+    [Column("user_id")]
+    public int? UserId { get; set; }
 
-    [StringLength(50)]
-    [Unicode(false)]
-    public string? InsuranceNumber { get; set; }
-
-    [StringLength(100)]
-    public string? EmergencyContact { get; set; }
-
-    [StringLength(20)]
-    [Unicode(false)]
-    public string? EmergencyPhone { get; set; }
-
+    [Column("blood_type")]
     [StringLength(5)]
-    [Unicode(false)]
     public string? BloodType { get; set; }
 
-    [Column(TypeName = "decimal(5, 2)")]
-    public decimal? Weight { get; set; }
+    [Column("is_pregnant")]
+    public bool? IsPregnant { get; set; }
 
-    [Column(TypeName = "decimal(5, 2)")]
-    public decimal? Height { get; set; }
+    [Column("special_notes")]
+    public string? SpecialNotes { get; set; }
 
-    [Column("IsHIVPositive")]
-    public bool? IsHivpositive { get; set; }
-
-    [Column("HIVDiagnosisDate")]
-    public DateOnly? HivdiagnosisDate { get; set; }
-
-    [Column(TypeName = "datetime")]
-    public DateTime? CreatedDate { get; set; }
-
-    [Column(TypeName = "datetime")]
-    public DateTime? ModifiedDate { get; set; }
-
-    [InverseProperty("PatientCodeNavigation")]
-    public virtual ICollection<AppointmentReminder> AppointmentReminders { get; set; } = new List<AppointmentReminder>();
-
-    [InverseProperty("PatientCodeNavigation")]
+    [InverseProperty("Patient")]
     public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
 
-    [InverseProperty("PatientCodeNavigation")]
-    public virtual ICollection<Hivmonitoring> Hivmonitorings { get; set; } = new List<Hivmonitoring>();
+    [InverseProperty("Patient")]
+    public virtual ICollection<MedicationSchedule> MedicationSchedules { get; set; } = new List<MedicationSchedule>();
 
-    [InverseProperty("PatientCodeNavigation")]
-    public virtual ICollection<Hivtreatment> Hivtreatments { get; set; } = new List<Hivtreatment>();
-
-    [InverseProperty("PatientCodeNavigation")]
-    public virtual ICollection<MedicationReminder> MedicationReminders { get; set; } = new List<MedicationReminder>();
-
-    [InverseProperty("PatientCodeNavigation")]
+    [InverseProperty("Patient")]
     public virtual ICollection<TestResult> TestResults { get; set; } = new List<TestResult>();
+
+    [InverseProperty("Patient")]
+    public virtual ICollection<TreatmentHistory> TreatmentHistories { get; set; } = new List<TreatmentHistory>();
 
     [ForeignKey("UserId")]
     [InverseProperty("Patients")]
-    public virtual User User { get; set; } = null!;
+    public virtual User? User { get; set; }
 }

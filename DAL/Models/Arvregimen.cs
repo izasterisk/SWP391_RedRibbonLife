@@ -7,37 +7,39 @@ using Microsoft.EntityFrameworkCore;
 namespace DAL.Models;
 
 [Table("ARVRegimens")]
+[Index("RegimenCode", Name = "UQ__ARVRegim__A554D5B930E6B8FF", IsUnique = true)]
 public partial class Arvregimen
 {
     [Key]
-    [Column("RegimenID")]
+    [Column("regimen_id")]
     public int RegimenId { get; set; }
 
+    [Column("regimen_name")]
     [StringLength(100)]
     public string RegimenName { get; set; } = null!;
 
-    [StringLength(500)]
+    [Column("regimen_code")]
+    [StringLength(20)]
+    public string? RegimenCode { get; set; }
+
+    [Column("components")]
+    public string Components { get; set; } = null!;
+
+    [Column("description")]
     public string? Description { get; set; }
 
-    [StringLength(255)]
-    public string? Medications { get; set; }
+    [Column("suitable_for")]
+    public string? SuitableFor { get; set; }
 
-    [StringLength(200)]
-    public string? UseCase { get; set; }
-
-    [StringLength(500)]
+    [Column("side_effects")]
     public string? SideEffects { get; set; }
 
-    public string? Recommendations { get; set; }
+    [Column("usage_instructions")]
+    public string? UsageInstructions { get; set; }
 
+    [Column("isActive")]
     public bool? IsActive { get; set; }
 
-    [Column(TypeName = "datetime")]
-    public DateTime? CreatedDate { get; set; }
-
-    [Column(TypeName = "datetime")]
-    public DateTime? ModifiedDate { get; set; }
-
     [InverseProperty("Regimen")]
-    public virtual ICollection<Hivtreatment> Hivtreatments { get; set; } = new List<Hivtreatment>();
+    public virtual ICollection<Prescription> Prescriptions { get; set; } = new List<Prescription>();
 }

@@ -13,3 +13,4 @@ C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\BLL\obj\Debug\net8.0\
 C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\BLL\obj\Debug\net8.0\refint\BLL.dll
 C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\BLL\obj\Debug\net8.0\BLL.pdb
 C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\BLL\obj\Debug\net8.0\ref\BLL.dll
+C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\BLL\obj\Debug\net8.0\BLL.sourcelink.json

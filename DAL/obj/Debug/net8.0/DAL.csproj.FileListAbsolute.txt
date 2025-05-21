@@ -12,3 +12,4 @@ C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\DAL\obj\Debug\net8.0\
 C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\DAL\obj\Debug\net8.0\DAL.pdb
 C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\DAL\obj\Debug\net8.0\DAL.genruntimeconfig.cache
 C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\DAL\obj\Debug\net8.0\ref\DAL.dll
+C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\DAL\obj\Debug\net8.0\DAL.sourcelink.json
