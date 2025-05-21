@@ -6,291 +6,235 @@ GO
 USE SWP391_RedRibbonLife;
 GO
 
--- Phần 1: Tạo các bảng
+-- 1. Bảng Users (Lưu thông tin cơ bản của người dùng, thêm isActive)
+    CREATE TABLE Users (
+        user_id INT PRIMARY KEY IDENTITY(1,1),
+        username VARCHAR(50) NOT NULL UNIQUE,
+        password NVARCHAR(255) NOT NULL,
+        email NVARCHAR(100) UNIQUE,
+        phone_number VARCHAR(20),
+        full_name NVARCHAR(100),
+        date_of_birth DATE,
+        gender NVARCHAR(10),
+        address NVARCHAR(MAX),
+        user_role NVARCHAR(50) NOT NULL,
+        isActive BIT DEFAULT 1,
+        CONSTRAINT chk_user_role CHECK (user_role IN ('Customer', 'Staff', 'Doctor', 'Manager', 'Admin'))
+    );
 
--- Bảng vai trò người dùng
-CREATE TABLE Roles (
-    RoleID INT PRIMARY KEY IDENTITY(1,1),
-    RoleName NVARCHAR(50) NOT NULL,
-    Description NVARCHAR(200),
-    CreatedDate DATETIME DEFAULT GETDATE(),
-    ModifiedDate DATETIME DEFAULT GETDATE()
-);
+    -- 2. Bảng Patients (Lưu thông tin bệnh nhân)
+    CREATE TABLE Patients (
+        patient_id INT PRIMARY KEY IDENTITY(1,1),
+        user_id INT,
+        blood_type VARCHAR(5),
+        is_pregnant BIT DEFAULT 0,
+        special_notes NVARCHAR(MAX)
+    );
 
--- Bảng người dùng
-CREATE TABLE Users (
-    UserID INT PRIMARY KEY IDENTITY(1,1),
-    RoleID INT,
-    Username NVARCHAR(50) NOT NULL UNIQUE,
-    Password NVARCHAR(255) NOT NULL,
-    FullName NVARCHAR(100) NOT NULL,
-    DateOfBirth DATE,
-    Gender NVARCHAR(10),
-    Address NVARCHAR(200),
-    Phone VARCHAR(20),
-    Email VARCHAR(100),
-    IsAnonymous BIT DEFAULT 0,
-    IsActive BIT DEFAULT 1,
-    CreatedDate DATETIME DEFAULT GETDATE(),
-    ModifiedDate DATETIME DEFAULT GETDATE()
-);
+    -- 3. Bảng Doctors (Lưu thông tin bác sĩ)
+    CREATE TABLE Doctors (
+        doctor_id INT PRIMARY KEY IDENTITY(1,1),
+        user_id INT,
+        doctor_image NVARCHAR(MAX),
+        bio NVARCHAR(MAX)
+    );
 
--- Bảng thông tin bác sĩ
-CREATE TABLE Doctors (
-    DoctorCode VARCHAR(20) PRIMARY KEY,
-    UserID INT NOT NULL,
-    Specialization NVARCHAR(100),
-    LicenseNumber VARCHAR(50),
-    Qualification NVARCHAR(200),
-    Experience INT, -- Số năm kinh nghiệm
-    Biography NVARCHAR(MAX),
-    CreatedDate DATETIME DEFAULT GETDATE(),
-    ModifiedDate DATETIME DEFAULT GETDATE()
-);
+    -- 4. Bảng DoctorCertificates (Bằng cấp chuyên môn của bác sĩ)
+    CREATE TABLE DoctorCertificates (
+        certificate_id INT PRIMARY KEY IDENTITY(1,1),
+        doctor_id INT,
+        certificate_name NVARCHAR(100),
+        issued_by NVARCHAR(100),
+        issue_date DATE,
+        expiry_date DATE,
+        certificate_image NVARCHAR(MAX)
+    );
 
--- Bảng bệnh nhân
-CREATE TABLE Patients (
-    PatientCode VARCHAR(20) PRIMARY KEY,
-    UserID INT NOT NULL,
-    InsuranceNumber VARCHAR(50),
-    EmergencyContact NVARCHAR(100),
-    EmergencyPhone VARCHAR(20),
-    BloodType VARCHAR(5),
-    Weight DECIMAL(5,2),
-    Height DECIMAL(5,2),
-    IsHIVPositive BIT DEFAULT 0,
-    HIVDiagnosisDate DATE,
-    CreatedDate DATETIME DEFAULT GETDATE(),
-    ModifiedDate DATETIME DEFAULT GETDATE()
-);
+    -- 5. Bảng Category (Phân loại bài viết)
+    CREATE TABLE Category (
+        category_id INT PRIMARY KEY IDENTITY(1,1),
+        category_name NVARCHAR(100) NOT NULL,
+        isActive BIT DEFAULT 1
+    );
 
--- Bảng lịch làm việc của bác sĩ
-CREATE TABLE DoctorSchedules (
-    ScheduleID INT PRIMARY KEY IDENTITY(1,1),
-    DoctorCode VARCHAR(20) NOT NULL,
-    WeekDay INT, -- 1: Thứ hai, 2: Thứ ba, ...
-    StartTime TIME,
-    EndTime TIME,
-    MaxAppointments INT,
-    IsAvailable BIT DEFAULT 1,
-    CreatedDate DATETIME DEFAULT GETDATE(),
-    ModifiedDate DATETIME DEFAULT GETDATE()
-);
+    -- 6. Bảng Articles (Lưu tất cả các bài viết trên trang)
+    CREATE TABLE Articles (
+        article_id INT PRIMARY KEY IDENTITY(1,1),
+        title NVARCHAR(200) NOT NULL,
+        content NVARCHAR(MAX),
+        thumbnail_image NVARCHAR(MAX),
+        category_id INT,
+        isActive BIT DEFAULT 1
+    );
 
--- Bảng phác đồ ARV
-CREATE TABLE ARVRegimens (
-    RegimenID INT PRIMARY KEY IDENTITY(1,1),
-    RegimenName NVARCHAR(100) NOT NULL,
-    Description NVARCHAR(500),
-    Medications NVARCHAR(255),
-    UseCase NVARCHAR(200), -- Ví dụ: phụ nữ mang thai, trẻ em...
-    SideEffects NVARCHAR(500),
-    Recommendations NVARCHAR(MAX),
-    IsActive BIT DEFAULT 1,
-    CreatedDate DATETIME DEFAULT GETDATE(),
-    ModifiedDate DATETIME DEFAULT GETDATE()
-);
+    -- 7. Bảng Appointments (Lưu thông tin lịch hẹn)
+    CREATE TABLE Appointments (
+        appointment_id INT PRIMARY KEY IDENTITY(1,1),
+        patient_id INT,
+        doctor_id INT NOT NULL,
+        appointment_date DATE NOT NULL,
+        appointment_time TIME NOT NULL,
+        appointment_type NVARCHAR(50) DEFAULT 'Appointment',
+        status NVARCHAR(50) DEFAULT 'Scheduled',
+        isAnonymous BIT DEFAULT 0,
+        CONSTRAINT chk_appointment_type CHECK (appointment_type IN ('Appointment', 'Medication')),
+        CONSTRAINT chk_appointment_status CHECK (status IN ('Scheduled', 'Confirmed', 'Completed', 'Cancelled'))
+    );
 
--- Bảng lịch khám điều trị
-CREATE TABLE Appointments (
-    AppointmentID INT PRIMARY KEY IDENTITY(1,1),
-    PatientCode VARCHAR(20) NOT NULL,
-    DoctorCode VARCHAR(20) NOT NULL,
-    AppointmentDate DATE NOT NULL,
-    AppointmentTime TIME NOT NULL,
-    Purpose NVARCHAR(200),
-    Status NVARCHAR(20) DEFAULT 'Scheduled', -- Scheduled, Completed, Cancelled
-    Notes NVARCHAR(MAX),
-    IsOnline BIT DEFAULT 0,
-    CreatedDate DATETIME DEFAULT GETDATE(),
-    ModifiedDate DATETIME DEFAULT GETDATE()
-);
+    -- 8. Bảng Reminders (Lưu thông tin nhắc nhở lịch hẹn)
+    CREATE TABLE Reminders (
+        reminder_id INT PRIMARY KEY IDENTITY(1,1),
+        appointment_id INT,
+        reminder_time DATETIME NOT NULL,
+        reminder_type NVARCHAR(50) DEFAULT 'Appointment',
+        status NVARCHAR(50) DEFAULT 'Pending',
+        sent_at DATETIME NULL,
+        CONSTRAINT chk_reminder_type CHECK (reminder_type IN ('Appointment', 'Medication')),
+        CONSTRAINT chk_reminder_status CHECK (status IN ('Pending', 'Sent', 'Failed'))
+    );
 
--- Bảng kết quả xét nghiệm
-CREATE TABLE TestResults (
-    TestID INT PRIMARY KEY IDENTITY(1,1),
-    PatientCode VARCHAR(20) NOT NULL,
-    AppointmentID INT,
-    TestType NVARCHAR(50) NOT NULL, -- CD4, Viral Load, etc.
-    TestDate DATE NOT NULL,
-    Results NVARCHAR(100),
-    Units NVARCHAR(20),
-    NormalRange NVARCHAR(50),
-    Interpretation NVARCHAR(MAX),
-    PerformedBy INT, -- UserID của người thực hiện xét nghiệm
-    CreatedDate DATETIME DEFAULT GETDATE(),
-    ModifiedDate DATETIME DEFAULT GETDATE()
-);
+    -- 9. Bảng ARVRegimens (Các phác đồ điều trị ARV có sẵn)
+    CREATE TABLE ARVRegimens (
+        regimen_id INT PRIMARY KEY IDENTITY(1,1),
+        regimen_name NVARCHAR(100) NOT NULL,
+        regimen_code NVARCHAR(20) UNIQUE,
+        components NVARCHAR(MAX) NOT NULL,
+        description NVARCHAR(MAX),
+        suitable_for NVARCHAR(MAX),
+        side_effects NVARCHAR(MAX),
+        usage_instructions NVARCHAR(MAX),
+        isActive BIT DEFAULT 1
+    );
 
--- Bảng hồ sơ điều trị HIV
-CREATE TABLE HIVTreatments (
-    TreatmentID INT PRIMARY KEY IDENTITY(1,1),
-    PatientCode VARCHAR(20) NOT NULL,
-    DoctorCode VARCHAR(20) NOT NULL,
-    RegimenID INT NOT NULL,
-    StartDate DATE NOT NULL,
-    EndDate DATE,
-    Status NVARCHAR(20) DEFAULT 'Active', -- Active, Completed, Changed
-    Dosage NVARCHAR(100),
-    Frequency NVARCHAR(50),
-    SideEffectsObserved NVARCHAR(500),
-    Notes NVARCHAR(MAX),
-    CreatedDate DATETIME DEFAULT GETDATE(),
-    ModifiedDate DATETIME DEFAULT GETDATE()
-);
+    -- 10. Bảng TestResults (Lưu trữ kết quả xét nghiệm của bệnh nhân)
+    CREATE TABLE TestResults (
+        test_result_id INT PRIMARY KEY IDENTITY(1,1),
+        appointment_id INT, -- Dùng để check ngày làm xét nghiệm
+        patient_id INT NOT NULL,
+        doctor_id INT,
+        test_type NVARCHAR(100) NOT NULL,
+        result_value NVARCHAR(255),
+        unit NVARCHAR(50) DEFAULT 'N/A',
+        normal_range NVARCHAR(50),
+        notes NVARCHAR(MAX),
+        CONSTRAINT chk_unit CHECK (unit IN ('cells/mm³', 'copies/mL', 'mg/dL', 'g/L', 'IU/L', '%', 'mmHg', 'N/A'))
+    );
 
--- Bảng theo dõi CD4 và tải lượng HIV
-CREATE TABLE HIVMonitoring (
-    MonitoringID INT PRIMARY KEY IDENTITY(1,1),
-    PatientCode VARCHAR(20) NOT NULL,
-    TestDate DATE NOT NULL,
-    CD4Count INT,
-    ViralLoad DECIMAL(10,2),
-    Notes NVARCHAR(MAX),
-    CreatedDate DATETIME DEFAULT GETDATE(),
-    ModifiedDate DATETIME DEFAULT GETDATE()
-);
+    -- 11. Bảng DoctorSchedules (Lưu lịch làm việc của bác sĩ, work_date đổi thành work_day ENUM)
+    CREATE TABLE DoctorSchedules (
+        schedule_id INT PRIMARY KEY IDENTITY(1,1),
+        doctor_id INT, -- Liên kết với bác sĩ
+        work_day NVARCHAR(50) NOT NULL,
+        start_time TIME NOT NULL,
+        end_time TIME NOT NULL,
+        CONSTRAINT chk_work_day CHECK (work_day IN ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'))
+    );
 
--- Bảng nhắc nhở uống thuốc
-CREATE TABLE MedicationReminders (
-    ReminderID INT PRIMARY KEY IDENTITY(1,1),
-    PatientCode VARCHAR(20) NOT NULL,
-    TreatmentID INT NOT NULL,
-    ReminderTime TIME NOT NULL,
-    Frequency NVARCHAR(50), -- Daily, Twice daily, etc.
-    IsActive BIT DEFAULT 1,
-    LastSent DATETIME,
-    CreatedDate DATETIME DEFAULT GETDATE(),
-    ModifiedDate DATETIME DEFAULT GETDATE()
-);
+    -- 12. Bảng TreatmentHistories (Lưu lịch sử phác đồ điều trị của bệnh nhân cùng đơn thuốc đi kèm nếu có)
+    CREATE TABLE TreatmentHistories (
+        treatment_id INT PRIMARY KEY IDENTITY(1,1),
+        prescription_id INT, -- Đơn thuốc liên kết với bảng Prescriptions
+        patient_id INT, -- Liên kết với bệnh nhân
+        doctor_id INT, -- Liên kết với bác sĩ chỉ định
+        start_date DATE NOT NULL,
+        end_date DATE,
+        status NVARCHAR(50) DEFAULT 'Active',
+        notes NVARCHAR(MAX),
+        CONSTRAINT chk_treatment_status CHECK (status IN ('Active', 'Stopped', 'Paused'))
+    );
 
--- Bảng nhắc nhở tái khám
-CREATE TABLE AppointmentReminders (
-    ReminderID INT PRIMARY KEY IDENTITY(1,1),
-    AppointmentID INT NOT NULL,
-    PatientCode VARCHAR(20) NOT NULL,
-    ReminderDate DATE NOT NULL,
-    IsSent BIT DEFAULT 0,
-    SentDate DATETIME,
-    CreatedDate DATETIME DEFAULT GETDATE(),
-    ModifiedDate DATETIME DEFAULT GETDATE()
-);
+    -- 13. Bảng Prescriptions (Lưu chi tiết đơn thuốc trong phác đồ)
+    CREATE TABLE Prescriptions (
+        prescription_id INT PRIMARY KEY IDENTITY(1,1),
+        treatment_id INT, -- Liên kết với lịch sử phác đồ
+        regimen_id INT NOT NULL -- Tên phác đồ (Liên kết với bảng phác đồ)
+    );
 
--- Bảng tài liệu giáo dục HIV
-CREATE TABLE EducationalMaterials (
-    MaterialID INT PRIMARY KEY IDENTITY(1,1),
-    Title NVARCHAR(200) NOT NULL,
-    Content NVARCHAR(MAX),
-    Category NVARCHAR(50), -- Prevention, Treatment, Awareness
-    PublishedDate DATE,
-    Author INT, -- UserID
-    IsPublished BIT DEFAULT 1,
-    CreatedDate DATETIME DEFAULT GETDATE(),
-    ModifiedDate DATETIME DEFAULT GETDATE()
-);
+    -- 14. Bảng này sử dụng để báo người dùng uống thuốc
+    CREATE TABLE MedicationSchedules (
+        schedule_id INT PRIMARY KEY IDENTITY(1,1),
+        prescription_id INT, -- Liên kết với đơn thuốc
+        patient_id INT, -- Liên kết với bệnh nhân
+        medication_time INT NOT NULL,
+        sent_at DATETIME NULL
+    );
 
--- Bảng bài viết blog
-CREATE TABLE BlogPosts (
-    PostID INT PRIMARY KEY IDENTITY(1,1),
-    Title NVARCHAR(200) NOT NULL,
-    Content NVARCHAR(MAX),
-    Author INT NOT NULL, -- UserID
-    PublishedDate DATETIME,
-    IsPublished BIT DEFAULT 0,
-    ViewCount INT DEFAULT 0,
-    Tags NVARCHAR(200),
-    CreatedDate DATETIME DEFAULT GETDATE(),
-    ModifiedDate DATETIME DEFAULT GETDATE()
-);
+    -- FOREIGN KEY
+    -- Adding foreign keys to Patients table
+    ALTER TABLE Patients
+    ADD CONSTRAINT fk_patients_users
+    FOREIGN KEY (user_id) REFERENCES Users(user_id);
 
--- Phần 2: Tạo các khóa ngoại
+    -- Adding foreign keys to Doctors table
+    ALTER TABLE Doctors
+    ADD CONSTRAINT fk_doctors_users
+    FOREIGN KEY (user_id) REFERENCES Users(user_id);
 
--- Khóa ngoại cho bảng Users
-ALTER TABLE Users
-ADD CONSTRAINT FK_Users_Roles
-FOREIGN KEY (RoleID) REFERENCES Roles(RoleID);
+    -- Adding foreign keys to DoctorCertificates table
+    ALTER TABLE DoctorCertificates
+    ADD CONSTRAINT fk_certificates_doctors
+    FOREIGN KEY (doctor_id) REFERENCES Doctors(doctor_id);
 
--- Khóa ngoại cho bảng Doctors
-ALTER TABLE Doctors
-ADD CONSTRAINT FK_Doctors_Users
-FOREIGN KEY (UserID) REFERENCES Users(UserID);
+    -- Adding foreign keys to Articles table
+    ALTER TABLE Articles
+    ADD CONSTRAINT fk_articles_category
+    FOREIGN KEY (category_id) REFERENCES Category(category_id);
 
--- Khóa ngoại cho bảng Patients
-ALTER TABLE Patients
-ADD CONSTRAINT FK_Patients_Users
-FOREIGN KEY (UserID) REFERENCES Users(UserID);
+    -- Adding foreign keys to Appointments table
+    ALTER TABLE Appointments
+    ADD CONSTRAINT fk_appointments_patients
+    FOREIGN KEY (patient_id) REFERENCES Patients(patient_id);
 
--- Khóa ngoại cho bảng DoctorSchedules
-ALTER TABLE DoctorSchedules
-ADD CONSTRAINT FK_DoctorSchedules_Doctors
-FOREIGN KEY (DoctorCode) REFERENCES Doctors(DoctorCode);
+    ALTER TABLE Appointments
+    ADD CONSTRAINT fk_appointments_doctors
+    FOREIGN KEY (doctor_id) REFERENCES Doctors(doctor_id);
 
--- Khóa ngoại cho bảng Appointments
-ALTER TABLE Appointments
-ADD CONSTRAINT FK_Appointments_Patients
-FOREIGN KEY (PatientCode) REFERENCES Patients(PatientCode);
+    -- Adding foreign keys to Reminders table
+    ALTER TABLE Reminders
+    ADD CONSTRAINT fk_reminders_appointments
+    FOREIGN KEY (appointment_id) REFERENCES Appointments(appointment_id);
 
--- Khóa ngoại cho bảng Appointments
-ALTER TABLE Appointments
-ADD CONSTRAINT FK_Appointments_Doctors
-FOREIGN KEY (DoctorCode) REFERENCES Doctors(DoctorCode);
+    -- Adding foreign keys to TestResults table
+    ALTER TABLE TestResults
+    ADD CONSTRAINT fk_test_results_appointments
+    FOREIGN KEY (appointment_id) REFERENCES Appointments(appointment_id);
 
--- Khóa ngoại cho bảng TestResults
-ALTER TABLE TestResults
-ADD CONSTRAINT FK_TestResults_Patients
-FOREIGN KEY (PatientCode) REFERENCES Patients(PatientCode);
+    ALTER TABLE TestResults
+    ADD CONSTRAINT fk_test_results_patients
+    FOREIGN KEY (patient_id) REFERENCES Patients(patient_id);
 
-ALTER TABLE TestResults
-ADD CONSTRAINT FK_TestResults_Appointments
-FOREIGN KEY (AppointmentID) REFERENCES Appointments(AppointmentID);
+    ALTER TABLE TestResults
+    ADD CONSTRAINT fk_test_results_doctors
+    FOREIGN KEY (doctor_id) REFERENCES Doctors(doctor_id);
 
-ALTER TABLE TestResults
-ADD CONSTRAINT FK_TestResults_Users
-FOREIGN KEY (PerformedBy) REFERENCES Users(UserID);
+    -- Adding foreign keys to DoctorSchedules table
+    ALTER TABLE DoctorSchedules
+    ADD CONSTRAINT fk_schedules_doctors
+    FOREIGN KEY (doctor_id) REFERENCES Doctors(doctor_id);
 
--- Khóa ngoại cho bảng HIVTreatments
-ALTER TABLE HIVTreatments
-ADD CONSTRAINT FK_HIVTreatments_Patients
-FOREIGN KEY (PatientCode) REFERENCES Patients(PatientCode);
+    -- Adding foreign keys to TreatmentHistories table
+    ALTER TABLE TreatmentHistories
+    ADD CONSTRAINT fk_treatment_patients
+    FOREIGN KEY (patient_id) REFERENCES Patients(patient_id);
 
--- Khóa ngoại cho bảng HIVTreatments
-ALTER TABLE HIVTreatments
-ADD CONSTRAINT FK_HIVTreatments_Doctors
-FOREIGN KEY (DoctorCode) REFERENCES Doctors(DoctorCode);
+    ALTER TABLE TreatmentHistories
+    ADD CONSTRAINT fk_treatment_doctors
+    FOREIGN KEY (doctor_id) REFERENCES Doctors(doctor_id);
 
-ALTER TABLE HIVTreatments
-ADD CONSTRAINT FK_HIVTreatments_ARVRegimens
-FOREIGN KEY (RegimenID) REFERENCES ARVRegimens(RegimenID);
+    -- Adding foreign keys to Prescriptions table
+    ALTER TABLE Prescriptions
+    ADD CONSTRAINT fk_prescriptions_treatment
+    FOREIGN KEY (treatment_id) REFERENCES TreatmentHistories(treatment_id);
 
--- Khóa ngoại cho bảng HIVMonitoring
-ALTER TABLE HIVMonitoring
-ADD CONSTRAINT FK_HIVMonitoring_Patients
-FOREIGN KEY (PatientCode) REFERENCES Patients(PatientCode);
+    ALTER TABLE Prescriptions
+    ADD CONSTRAINT fk_prescriptions_regimen
+    FOREIGN KEY (regimen_id) REFERENCES ARVRegimens(regimen_id);
 
--- Khóa ngoại cho bảng MedicationReminders
-ALTER TABLE MedicationReminders
-ADD CONSTRAINT FK_MedicationReminders_Patients
-FOREIGN KEY (PatientCode) REFERENCES Patients(PatientCode);
+    -- Adding foreign keys to MedicationSchedules table
+    ALTER TABLE MedicationSchedules
+    ADD CONSTRAINT fk_medication_prescriptions
+    FOREIGN KEY (prescription_id) REFERENCES Prescriptions(prescription_id);
 
-ALTER TABLE MedicationReminders
-ADD CONSTRAINT FK_MedicationReminders_HIVTreatments
-FOREIGN KEY (TreatmentID) REFERENCES HIVTreatments(TreatmentID);
-
--- Khóa ngoại cho bảng AppointmentReminders
-ALTER TABLE AppointmentReminders
-ADD CONSTRAINT FK_AppointmentReminders_Appointments
-FOREIGN KEY (AppointmentID) REFERENCES Appointments(AppointmentID);
-
-ALTER TABLE AppointmentReminders
-ADD CONSTRAINT FK_AppointmentReminders_Patients
-FOREIGN KEY (PatientCode) REFERENCES Patients(PatientCode);
-
--- Khóa ngoại cho bảng EducationalMaterials
-ALTER TABLE EducationalMaterials
-ADD CONSTRAINT FK_EducationalMaterials_Users
-FOREIGN KEY (Author) REFERENCES Users(UserID);
-
--- Khóa ngoại cho bảng BlogPosts
-ALTER TABLE BlogPosts
-ADD CONSTRAINT FK_BlogPosts_Users
-FOREIGN KEY (Author) REFERENCES Users(UserID);
+    ALTER TABLE MedicationSchedules
+    ADD CONSTRAINT fk_medication_patients
+    FOREIGN KEY (patient_id) REFERENCES Patients(patient_id);
