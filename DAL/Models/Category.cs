@@ -1,0 +1,25 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+namespace DAL.Models;
+
+[Table("Category")]
+public partial class Category
+{
+    [Key]
+    [Column("category_id")]
+    public int CategoryId { get; set; }
+
+    [Column("category_name")]
+    [StringLength(100)]
+    public string CategoryName { get; set; } = null!;
+
+    [Column("isActive")]
+    public bool? IsActive { get; set; }
+
+    [InverseProperty("Category")]
+    public virtual ICollection<Article> Articles { get; set; } = new List<Article>();
+}
