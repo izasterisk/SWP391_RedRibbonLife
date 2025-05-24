@@ -17,6 +17,7 @@ public partial class Patient
 
     [Column("blood_type")]
     [StringLength(5)]
+    [Unicode(false)]
     public string? BloodType { get; set; }
 
     [Column("is_pregnant")]
