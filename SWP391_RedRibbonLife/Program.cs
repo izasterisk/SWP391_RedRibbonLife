@@ -16,7 +16,7 @@ builder.Services.AddAutoMapper(typeof(AutoMapperConfig));
 
 //Dependency Injection
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped(typeof(IUserRepository<>), typeof(UserRepository<>));
+builder.Services.AddScoped<IUserRepository<User>, UserRepository<User>>();
 
 //CORS
 builder.Services.AddCors(options =>
@@ -49,6 +49,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors();
 
 app.UseAuthorization();
 

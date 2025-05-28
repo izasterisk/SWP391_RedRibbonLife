@@ -51,7 +51,7 @@ public partial class User
     public string UserRole { get; set; } = null!;
 
     [Column("isActive")]
-    public bool? IsActive { get; set; }
+    public bool IsActive { get; set; }
 
     [InverseProperty("User")]
     public virtual ICollection<Doctor> Doctors { get; set; } = new List<Doctor>();

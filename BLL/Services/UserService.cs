@@ -56,5 +56,52 @@ namespace BLL.Services
             await _userRepository.CreateAsync(user);
             return true;
         }
+        public async Task<List<UserReadonlyDTO>> GetAllUserAsync()
+        {
+            var users = await _userRepository.GetAllByFilterAsync(u => u.IsActive);
+            return _mapper.Map<List<UserReadonlyDTO>>(users);
+        }
+        public async Task<UserReadonlyDTO> GetUserByFullnameAsync(string fullname)
+        {
+            ArgumentNullException.ThrowIfNull(fullname, $"{nameof(fullname)} is null");
+            var user = await _userRepository.GetAsync(u => u.IsActive && u.FullName.Equals(fullname));
+            if (user == null)
+            {
+                throw new KeyNotFoundException($"User with fullname {fullname} not found.");
+            }
+            return _mapper.Map<UserReadonlyDTO>(user);
+        }
+        public async Task<bool> UpdateUserAsync(UserDTO dto)
+        {
+            ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
+            var existingUser = await _userRepository.GetAsync(u => u.IsActive && u.UserId == dto.UserId, true);
+            if (existingUser == null)
+            {
+                throw new KeyNotFoundException($"User with ID {dto.UserId} not found.");
+            }
+            var userWithSameUsername = await _userRepository.GetAsync(u => u.Username.Equals(dto.Username) && u.UserId != dto.UserId);
+            if (userWithSameUsername != null)
+            {
+                throw new Exception($"Username {dto.Username} already exists.");
+            }
+            existingUser.Username = dto.Username;
+
+            // Update other user properties
+            existingUser.Email = dto.Email;
+            existingUser.PhoneNumber = dto.PhoneNumber;
+            existingUser.FullName = dto.FullName;
+            existingUser.DateOfBirth = dto.DateOfBirth;
+            existingUser.Gender = dto.Gender;
+            existingUser.Address = dto.Address;
+            
+            // Only update password if provided
+            if (!string.IsNullOrEmpty(dto.Password))
+            {
+                existingUser.Password = CreatePasswordHash(dto.Password);
+            }
+            
+            await _userRepository.UpdateAsync(existingUser);
+            return true;
+        }
     }
 }

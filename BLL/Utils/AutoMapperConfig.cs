@@ -16,6 +16,7 @@ namespace BLL.Utils
         public AutoMapperConfig()
         {
             CreateMap<UserDTO, User>().ReverseMap();
+            CreateMap<User, UserReadonlyDTO>().ReverseMap();
 
             //Khi có 2 trường khác tên, ví dụ: studentName và Name
             //CreateMap<StudentDTO, Student>().ForMember(n => n.studentName, opt => opt.MapFrom(x => x.Name)).ReverseMap();
