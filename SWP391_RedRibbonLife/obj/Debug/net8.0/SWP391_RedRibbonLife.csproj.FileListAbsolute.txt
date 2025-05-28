@@ -84,3 +84,7 @@ C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\SWP391_RedRibbonLife\
 C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\SWP391_RedRibbonLife\obj\Debug\net8.0\SWP391_RedRibbonLife.genruntimeconfig.cache
 C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\SWP391_RedRibbonLife\obj\Debug\net8.0\ref\SWP391_RedRibbonLife.dll
 C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\SWP391_RedRibbonLife\obj\Debug\net8.0\SWP391_RedRibbonLife.sourcelink.json
+C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\SWP391_RedRibbonLife\bin\Debug\net8.0\AutoMapper.dll
+C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\SWP391_RedRibbonLife\bin\Debug\net8.0\BCrypt.Net-Next.dll
+C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\SWP391_RedRibbonLife\bin\Debug\net8.0\Microsoft.AspNetCore.Cryptography.Internal.dll
+C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\SWP391_RedRibbonLife\bin\Debug\net8.0\Microsoft.AspNetCore.Cryptography.KeyDerivation.dll

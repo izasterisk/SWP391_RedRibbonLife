@@ -7,11 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DAL\DAL.csproj" />
-  </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="DTO\" />
+	<PackageReference Include="AutoMapper" Version="14.0.0" />
+
+	<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+
+	<PackageReference Include="Microsoft.AspNetCore.Cryptography.KeyDerivation" Version="9.0.5" />
+    <ProjectReference Include="..\DAL\DAL.csproj" />
   </ItemGroup>
 
 </Project>
