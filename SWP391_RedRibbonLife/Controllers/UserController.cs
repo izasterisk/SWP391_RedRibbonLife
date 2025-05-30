@@ -2,6 +2,7 @@
 using AutoMapper;
 using BLL.DTO;
 using BLL.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,6 +26,7 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin")]
         public async Task<ActionResult<APIResponse>> CreateUserAsync(UserDTO dto)
         {
             var apiResponse = new APIResponse();
@@ -52,6 +54,7 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin")]
         public async Task<ActionResult<APIResponse>> GetAllUsersAsync()
         {
             var apiResponse = new APIResponse();
@@ -79,6 +82,7 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin")]
         public async Task<ActionResult<APIResponse>> GetUserByUsernameAsync(string fullname)
         {
             var apiResponse = new APIResponse();
@@ -120,6 +124,7 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin")]
         public async Task<ActionResult<APIResponse>> UpdateUserAsync(UserDTO dto)
         {
             var apiResponse = new APIResponse();

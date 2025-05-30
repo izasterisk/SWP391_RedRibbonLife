@@ -1,5 +1,21 @@
 [
   {
+    "ContainingType": "SWP391_RedRibbonLife.Controllers.LoginController",
+    "Method": "Login",
+    "RelativePath": "api/Login",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "model",
+        "Type": "BLL.DTO.LoginDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "SWP391_RedRibbonLife.Controllers.UserController",
     "Method": "GetUserByUsernameAsync",
     "RelativePath": "api/User/{fullname}",

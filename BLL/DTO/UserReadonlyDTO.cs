@@ -16,6 +16,7 @@ namespace BLL.DTO
         public DateOnly? DateOfBirth { get; set; }
         public string? Gender { get; set; }
         public string? Address { get; set; }
+        public string UserRole { get; set; }
         public bool IsActive { get; set; } = true;
     }
 }
