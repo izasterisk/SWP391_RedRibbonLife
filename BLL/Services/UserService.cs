@@ -37,22 +37,41 @@ namespace BLL.Services
         public async Task<bool> CreateUserAsync(UserDTO dto)
         {
             ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
+            
+            // Validate required fields
+            if (string.IsNullOrWhiteSpace(dto.Username))
+                throw new ArgumentNullException(nameof(dto.Username), "Username is required.");
+            if (string.IsNullOrWhiteSpace(dto.Password))
+                throw new ArgumentNullException(nameof(dto.Password), "Password is required.");
+            if (string.IsNullOrWhiteSpace(dto.FullName))
+                throw new ArgumentNullException(nameof(dto.FullName), "Full name is required.");
+            if (string.IsNullOrWhiteSpace(dto.Gender))
+                throw new ArgumentNullException(nameof(dto.Gender), "Gender is required.");
+            if (string.IsNullOrWhiteSpace(dto.PhoneNumber))
+                throw new ArgumentNullException(nameof(dto.PhoneNumber), "Phone number is required.");
+            
+            // Check if username already exists
             var existingUser = await _userRepository.GetAsync(u => u.Username.Equals(dto.Username));
             if (existingUser != null)
             {
                 throw new Exception($"Username {dto.Username} already exists.");
             }
+            
+            // Check if email already exists (only if email is provided)
+            if (!string.IsNullOrWhiteSpace(dto.Email))
+            {
+                var existingUserByEmail = await _userRepository.GetAsync(u => u.Email.Equals(dto.Email));
+                if (existingUserByEmail != null)
+                {
+                    throw new Exception($"Email {dto.Email} already exists.");
+                }
+            }
+            
             User user = _mapper.Map<User>(dto);
             user.IsActive = true; // Set default value for IsActive
             user.UserRole = "Customer"; // Set default value for UserRole
-            if (!string.IsNullOrEmpty(dto.Password))
-            {
-                user.Password = CreatePasswordHash(dto.Password);
-            }
-            else
-            {
-                throw new ArgumentNullException(nameof(dto.Password), "Password cannot be null or empty.");
-            }
+            user.Password = CreatePasswordHash(dto.Password);
+            
             await _userRepository.CreateAsync(user);
             return true;
         }

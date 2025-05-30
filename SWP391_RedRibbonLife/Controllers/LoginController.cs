@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using System.Net;
 
 namespace SWP391_RedRibbonLife.Controllers
 {
@@ -17,14 +18,16 @@ namespace SWP391_RedRibbonLife.Controllers
     {
         private readonly IConfiguration _configuration;
         private readonly ILoginService _loginService;
+        private readonly IUserService _userService;
         
-        public LoginController(IConfiguration configuration, ILoginService loginService)
+        public LoginController(IConfiguration configuration, ILoginService loginService, IUserService userService)
         {
             _configuration = configuration;
             _loginService = loginService;
+            _userService = userService;
         }
         
-        [HttpPost]
+        [HttpPost("login")]
         public async Task<ActionResult> Login(LoginDTO model)
         {
             if (!ModelState.IsValid)
@@ -131,6 +134,47 @@ namespace SWP391_RedRibbonLife.Controllers
                     message = "An error occurred while getting user info",
                     error = ex.Message
                 });
+            }
+        }
+
+        [HttpPost("register")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<APIResponse>> Register(UserDTO model)
+        {
+            var apiResponse = new APIResponse();
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    apiResponse.Status = false;
+                    apiResponse.StatusCode = HttpStatusCode.BadRequest;
+                    apiResponse.Errors.AddRange(ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage));
+                    return BadRequest(apiResponse);
+                }
+
+                var result = await _userService.CreateUserAsync(model);
+                
+                apiResponse.Data = new
+                {
+                    message = "User registered successfully",
+                    username = model.Username,
+                    email = model.Email
+                };
+                apiResponse.Status = true;
+                apiResponse.StatusCode = HttpStatusCode.Created;
+                
+                return StatusCode(201, apiResponse);
+            }
+            catch (Exception ex)
+            {
+                apiResponse.Errors.Add(ex.Message);
+                apiResponse.StatusCode = HttpStatusCode.InternalServerError;
+                apiResponse.Status = false;
+                return StatusCode(500, apiResponse);
             }
         }
     }

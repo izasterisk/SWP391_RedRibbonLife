@@ -2,7 +2,7 @@
   {
     "ContainingType": "SWP391_RedRibbonLife.Controllers.LoginController",
     "Method": "Login",
-    "RelativePath": "api/Login",
+    "RelativePath": "api/Login/login",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,

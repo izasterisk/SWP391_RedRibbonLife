@@ -76,7 +76,6 @@ C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\SWP391_RedRibbonLife\
 C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\SWP391_RedRibbonLife\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.SWP391_RedRibbonLife.props
 C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\SWP391_RedRibbonLife\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.SWP391_RedRibbonLife.props
 C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\SWP391_RedRibbonLife\obj\Debug\net8.0\staticwebassets.pack.json
-C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\SWP391_RedRibbonLife\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\SWP391_RedRibbonLife\obj\Debug\net8.0\SWP391_R.9178750F.Up2Date
 C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\SWP391_RedRibbonLife\obj\Debug\net8.0\SWP391_RedRibbonLife.dll
 C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\SWP391_RedRibbonLife\obj\Debug\net8.0\refint\SWP391_RedRibbonLife.dll
