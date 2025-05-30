@@ -70,5 +70,68 @@ namespace SWP391_RedRibbonLife.Controllers
             
             return Ok(response);
         }
+
+        [HttpPost("logout")]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser")]
+        public ActionResult Logout()
+        {
+            try
+            {
+                // Lấy thông tin user từ token claims
+                var username = User.FindFirst(ClaimTypes.Name)?.Value;
+                var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                // Log thông tin logout (có thể ghi vào database hoặc log file)
+                // TODO: Có thể implement token blacklist ở đây nếu cần
+
+                return Ok(new
+                {
+                    message = "Logout successful",
+                    username = username,
+                    timestamp = DateTime.UtcNow
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    message = "An error occurred during logout",
+                    error = ex.Message
+                });
+            }
+        }
+
+        [HttpGet("me")]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser")]
+        public ActionResult GetCurrentUser()
+        {
+            try
+            {
+                // Lấy thông tin user từ token claims
+                var username = User.FindFirst(ClaimTypes.Name)?.Value;
+                var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                if (string.IsNullOrEmpty(username))
+                {
+                    return Unauthorized("Invalid token");
+                }
+
+                return Ok(new
+                {
+                    username = username,
+                    userRole = userRole,
+                    tokenValid = true,
+                    timestamp = DateTime.UtcNow
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    message = "An error occurred while getting user info",
+                    error = ex.Message
+                });
+            }
+        }
     }
 }

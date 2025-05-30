@@ -16,6 +16,26 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "SWP391_RedRibbonLife.Controllers.LoginController",
+    "Method": "Logout",
+    "RelativePath": "api/Login/logout",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "SWP391_RedRibbonLife.Controllers.LoginController",
+    "Method": "GetCurrentUser",
+    "RelativePath": "api/Login/me",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "SWP391_RedRibbonLife.Controllers.UserController",
     "Method": "GetUserByUsernameAsync",
     "RelativePath": "api/User/{fullname}",

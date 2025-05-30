@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SWP391_RedRibbonLife")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c560e349b40ad316164058afa4ab9aae7615978f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2d6306b6c482121ce08efab6a89536318091b544")]
 [assembly: System.Reflection.AssemblyProductAttribute("SWP391_RedRibbonLife")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SWP391_RedRibbonLife")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
