@@ -19,9 +19,12 @@ builder.Services.AddDbContext<DAL.Models.SWP391_RedRibbonLifeContext>(options =>
 builder.Services.AddAutoMapper(typeof(AutoMapperConfig));
 
 //Dependency Injection
+builder.Services.AddScoped<IUserUtils, UserUtils>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
+builder.Services.AddScoped<IDoctorService, DoctorService>();
 builder.Services.AddScoped<IUserRepository<User>, UserRepository<User>>();
+builder.Services.AddScoped<IUserRepository<Doctor>, UserRepository<Doctor>>();
 
 //CORS
 builder.Services.AddCors(options =>

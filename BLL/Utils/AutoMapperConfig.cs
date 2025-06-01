@@ -17,6 +17,8 @@ namespace BLL.Utils
         {
             CreateMap<UserDTO, User>().ReverseMap();
             CreateMap<User, UserReadonlyDTO>().ReverseMap();
+            CreateMap<Doctor, DoctorDTO>().ReverseMap().ForMember(n => n.UserId, opt => opt.Ignore());
+            CreateMap<User, DoctorDTO>().ReverseMap();
 
             //Khi có 2 trường khác tên, ví dụ: studentName và Name
             //CreateMap<StudentDTO, Student>().ForMember(n => n.studentName, opt => opt.MapFrom(x => x.Name)).ReverseMap();

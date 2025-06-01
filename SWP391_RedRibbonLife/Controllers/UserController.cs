@@ -12,11 +12,12 @@ namespace SWP391_RedRibbonLife.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly IMapper _mapper;
+        //private readonly IMapper _mapper;
         private readonly IUserService _userService;
-        public UserController(ILogger<UserController> logger, IMapper mapper, IUserService userService)
+        public UserController(//ILogger<UserController> logger, IMapper mapper, 
+            IUserService userService)
         {
-            _mapper = mapper;
+            //_mapper = mapper;
             _userService = userService;
         }
         [HttpPost]
@@ -26,7 +27,7 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin, Manager")]
         public async Task<ActionResult<APIResponse>> CreateUserAsync(UserDTO dto)
         {
             var apiResponse = new APIResponse();
@@ -54,7 +55,7 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin, Manager")]
         public async Task<ActionResult<APIResponse>> GetAllUsersAsync()
         {
             var apiResponse = new APIResponse();
@@ -82,7 +83,7 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin, Manager")]
         public async Task<ActionResult<APIResponse>> GetUserByUsernameAsync(string fullname)
         {
             var apiResponse = new APIResponse();
@@ -124,7 +125,7 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin, Manager")]
         public async Task<ActionResult<APIResponse>> UpdateUserAsync(UserDTO dto)
         {
             var apiResponse = new APIResponse();
