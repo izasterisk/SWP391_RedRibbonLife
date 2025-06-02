@@ -1,5 +1,4 @@
 C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\SWP391_RedRibbonLife\bin\Debug\net8.0\appsettings.Development.json
-C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\SWP391_RedRibbonLife\bin\Debug\net8.0\appsettings.json
 C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\SWP391_RedRibbonLife\bin\Debug\net8.0\SWP391_RedRibbonLife.staticwebassets.endpoints.json
 C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\SWP391_RedRibbonLife\bin\Debug\net8.0\SWP391_RedRibbonLife.exe
 C:\Users\Admin\Documents\source\repos\SWP391_RedRibbonLife\SWP391_RedRibbonLife\bin\Debug\net8.0\SWP391_RedRibbonLife.deps.json

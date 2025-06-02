@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
-using BLL.DTO;
 using BLL.Interfaces;
 using DAL.IRepository;
 using DAL.Models;
 using BLL.Utils;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using BLL.DTO.User;
 
 namespace BLL.Services
 {

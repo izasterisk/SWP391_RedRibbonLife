@@ -1,4 +1,4 @@
-using BLL.DTO;
+using BLL.DTO.User;
 
 namespace BLL.Interfaces
 {

@@ -4,10 +4,11 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BLL.DTO;
 using DAL.Models;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using AutoMapper;
+using BLL.DTO.Doctor;
+using BLL.DTO.User;
 
 namespace BLL.Utils
 {
@@ -19,6 +20,8 @@ namespace BLL.Utils
             CreateMap<User, UserReadonlyDTO>().ReverseMap();
             CreateMap<Doctor, DoctorDTO>().ReverseMap().ForMember(n => n.UserId, opt => opt.Ignore());
             CreateMap<User, DoctorDTO>().ReverseMap();
+            CreateMap<User, DoctorReadOnlyDTO>().ReverseMap();
+            CreateMap<Doctor, DoctorReadOnlyDTO>().ReverseMap().ForMember(n => n.UserId, opt => opt.Ignore());
 
             //Khi có 2 trường khác tên, ví dụ: studentName và Name
             //CreateMap<StudentDTO, Student>().ForMember(n => n.studentName, opt => opt.MapFrom(x => x.Name)).ReverseMap();

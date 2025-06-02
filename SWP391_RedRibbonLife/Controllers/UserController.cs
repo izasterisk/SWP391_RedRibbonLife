@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using AutoMapper;
 using BLL.DTO;
+using BLL.DTO.User;
 using BLL.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

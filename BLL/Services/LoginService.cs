@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
-using BLL.DTO;
+using BLL.DTO.User;
 using BLL.Interfaces;
 using DAL.IRepository;
 using DAL.Models;

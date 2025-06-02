@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.Net;
+using BLL.DTO.Login;
+using BLL.DTO.User;
 
 namespace SWP391_RedRibbonLife.Controllers
 {

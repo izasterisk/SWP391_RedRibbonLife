@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
-using BLL.DTO;
+using BLL.DTO.Doctor;
 using BLL.Interfaces;
 using DAL.IRepository;
 using DAL.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BLL.Services
 {
@@ -24,6 +25,16 @@ namespace BLL.Services
             _doctorRepository = doctorRepository;
             _mapper = mapper;
             _userUtils = userUtils;
+        }
+
+        public int GetDoctorIdByUserId(int id)
+        {            
+            var doctor = _doctorRepository.GetAsync(d => d.UserId == id).Result;
+            if (doctor == null)
+            {
+                throw new Exception($"Doctor with {id} not found!!!.");
+            }
+            return doctor.DoctorId;
         }
 
         public async Task<bool> CreateDoctorAsync(DoctorDTO dto)
@@ -80,6 +91,107 @@ namespace BLL.Services
             await _doctorRepository.CreateAsync(doctor);
 
             return true;
+        }
+
+        public async Task<bool> UpdateDoctorAsync(DoctorDTO dto)
+        {
+            ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
+
+            // Validate required fields
+            if (string.IsNullOrWhiteSpace(dto.Username))
+                throw new ArgumentNullException(nameof(dto.Username), "Username is required.");
+            if (string.IsNullOrWhiteSpace(dto.FullName))
+                throw new ArgumentNullException(nameof(dto.FullName), "Full name is required.");
+
+            // Get user first
+            var user = await _userRepository.GetAsync(u => u.UserId == dto.UserId);
+            if (user == null)
+            {
+                throw new Exception($"User associated with Doctor ID {dto.UserId} not found.");
+            }
+
+            // Get existing doctor
+            var doctor = await _doctorRepository.GetAsync(d => d.DoctorId == GetDoctorIdByUserId(dto.UserId));
+            if (doctor == null)
+            {
+                throw new Exception($"Doctor not found.");
+            }            
+
+            // Check if username already exists (excluding current user)
+            var userWithSameUsername = await _userRepository.GetAsync(u => u.Username.Equals(dto.Username) && u.UserId != user.UserId);
+            if (userWithSameUsername != null)
+            {
+                throw new Exception($"Username {dto.Username} already exists.");
+            }
+
+            // Check if email already exists (only if email is provided and excluding current user)
+            if (!string.IsNullOrWhiteSpace(dto.Email))
+            {
+                var userWithSameEmail = await _userRepository.GetAsync(u => u.Email.Equals(dto.Email) && u.UserId != user.UserId);
+                if (userWithSameEmail != null)
+                {
+                    throw new Exception($"Email {dto.Email} already exists.");
+                }
+            }
+
+            // Update User entity
+            user.Username = dto.Username;
+            user.Email = dto.Email;
+            user.PhoneNumber = dto.PhoneNumber;
+            user.FullName = dto.FullName;
+            user.DateOfBirth = dto.DateOfBirth;
+            user.Gender = dto.Gender;
+            user.Address = dto.Address;
+
+            // Update Doctor entity
+            doctor.DoctorImage = dto.DoctorImage;
+            doctor.Bio = dto.Bio;
+
+            // Save changes
+            await _userRepository.UpdateAsync(user);
+            await _doctorRepository.UpdateAsync(doctor);
+            return true;
+        }
+
+        public async Task<List<DoctorReadOnlyDTO>> GetAllDoctorsAsync()
+        {
+            // Get all doctors with their associated users
+            var users = await _userRepository.GetAllByFilterAsync(d => d.IsActive, true);
+            
+            var doctorReadOnlyDTOs = new List<DoctorReadOnlyDTO>();
+
+            foreach (var user in users)
+            {
+                // Get the associated user
+                var doctor = await _doctorRepository.GetAsync(u => u.UserId == user.UserId, true);
+                if (doctor != null)
+                {
+                    // Create a combined DTO manually to ensure proper mapping
+                    var doctorReadOnlyDTO = new DoctorReadOnlyDTO
+                    {
+                        // User properties (excluding password)
+                        UserId = user.UserId,
+                        Username = user.Username,
+                        Email = user.Email,
+                        PhoneNumber = user.PhoneNumber,
+                        FullName = user.FullName,
+                        DateOfBirth = user.DateOfBirth,
+                        Gender = user.Gender,
+                        Address = user.Address,
+                        UserRole = user.UserRole,
+                        IsActive = user.IsActive,
+
+                        // Doctor properties
+                        DoctorId = doctor.DoctorId,
+                        DoctorImage = doctor.DoctorImage,
+                        Bio = doctor.Bio
+                    };
+
+                    doctorReadOnlyDTOs.Add(doctorReadOnlyDTO);
+                }
+            }
+
+            return doctorReadOnlyDTOs;
         }
     }
 }
