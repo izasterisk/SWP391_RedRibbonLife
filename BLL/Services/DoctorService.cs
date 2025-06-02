@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using BLL.DTO.Doctor;
+using BLL.DTO.User;
 using BLL.Interfaces;
 using DAL.IRepository;
 using DAL.Models;
@@ -28,7 +30,7 @@ namespace BLL.Services
         }
 
         public int GetDoctorIdByUserId(int id)
-        {            
+        {
             var doctor = _doctorRepository.GetAsync(d => d.UserId == id).Result;
             if (doctor == null)
             {
@@ -93,9 +95,39 @@ namespace BLL.Services
             return true;
         }
 
-        public async Task<bool> UpdateDoctorAsync(DoctorDTO dto)
+        public async Task<bool> UpdateDoctorAsync(DoctorDTO dto, ClaimsPrincipal userClaims)
         {
             ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
+            ArgumentNullException.ThrowIfNull(userClaims, $"{nameof(userClaims)} is null");
+
+            // Lấy thông tin từ token claims
+            var currentUserRole = userClaims.FindFirst(ClaimTypes.Role)?.Value;
+            var currentUserIdStr = userClaims.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(currentUserRole))
+            {
+                throw new UnauthorizedAccessException("User role not found in token claims.");
+            }
+
+            if (string.IsNullOrEmpty(currentUserIdStr) || !int.TryParse(currentUserIdStr, out int currentUserId))
+            {
+                throw new UnauthorizedAccessException("User ID not found or invalid in token claims.");
+            }
+
+            // Nếu role là "Doctor", tự động sử dụng userId từ token claims
+            if (currentUserRole.Equals("Doctor", StringComparison.OrdinalIgnoreCase))
+            {
+                dto.UserId = currentUserId;
+            }
+            // Nếu role khác "Doctor" (Admin, Manager), giữ nguyên userId từ DTO
+            else
+            {
+                // Validate that non-Doctor roles provide a valid UserId
+                if (dto.UserId <= 0)
+                {
+                    throw new ArgumentException("User ID must be provided and greater than 0 for Admin/Manager roles.");
+                }
+            }
 
             // Validate required fields
             if (string.IsNullOrWhiteSpace(dto.Username))
@@ -115,7 +147,7 @@ namespace BLL.Services
             if (doctor == null)
             {
                 throw new Exception($"Doctor not found.");
-            }            
+            }
 
             // Check if username already exists (excluding current user)
             var userWithSameUsername = await _userRepository.GetAsync(u => u.Username.Equals(dto.Username) && u.UserId != user.UserId);
@@ -157,7 +189,53 @@ namespace BLL.Services
         {
             // Get all doctors with their associated users
             var users = await _userRepository.GetAllByFilterAsync(d => d.IsActive, true);
-            
+            if (users == null || !users.Any())
+            {
+                throw new Exception("No active doctors found.");
+            }
+            var doctorReadOnlyDTOs = new List<DoctorReadOnlyDTO>();
+
+            foreach (var user in users)
+            {
+                // Get the associated user
+                var doctor = await _doctorRepository.GetAsync(u => u.UserId == user.UserId, true);
+                if (doctor != null)
+                {
+                    // Create a combined DTO manually to ensure proper mapping
+                    var doctorReadOnlyDTO = new DoctorReadOnlyDTO
+                    {
+                        // User properties (excluding password)
+                        UserId = user.UserId,
+                        Username = user.Username,
+                        Email = user.Email,
+                        PhoneNumber = user.PhoneNumber,
+                        FullName = user.FullName,
+                        DateOfBirth = user.DateOfBirth,
+                        Gender = user.Gender,
+                        Address = user.Address,
+                        UserRole = user.UserRole,
+                        IsActive = user.IsActive,
+
+                        // Doctor properties
+                        DoctorId = doctor.DoctorId,
+                        DoctorImage = doctor.DoctorImage,
+                        Bio = doctor.Bio
+                    };
+
+                    doctorReadOnlyDTOs.Add(doctorReadOnlyDTO);
+                }
+            }
+
+            return doctorReadOnlyDTOs;
+        }
+        public async Task<List<DoctorReadOnlyDTO>> GetDoctorByFullnameAsync(string fullname)
+        {
+            // Get all doctors with their associated users
+            var users = await _userRepository.GetAllByFilterAsync(u => u.IsActive && u.FullName.Equals(fullname), true);
+            if (users == null || !users.Any())
+            {
+                throw new Exception("No active doctors found.");
+            }
             var doctorReadOnlyDTOs = new List<DoctorReadOnlyDTO>();
 
             foreach (var user in users)

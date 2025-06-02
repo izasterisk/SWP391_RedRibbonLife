@@ -21,14 +21,14 @@ namespace SWP391_RedRibbonLife.Controllers
         private readonly IConfiguration _configuration;
         private readonly ILoginService _loginService;
         private readonly IUserService _userService;
-        
+
         public LoginController(IConfiguration configuration, ILoginService loginService, IUserService userService)
         {
             _configuration = configuration;
             _loginService = loginService;
             _userService = userService;
         }
-        
+
         [HttpPost("login")]
         public async Task<ActionResult> Login(LoginDTO model)
         {
@@ -36,10 +36,10 @@ namespace SWP391_RedRibbonLife.Controllers
             {
                 return BadRequest("Please enter username and password");
             }
-            
+
             // Validate user từ database
             var user = await _loginService.ValidateUserAsync(model.Username, model.Password);
-            
+
             if (user == null)
             {
                 return BadRequest("Invalid username or password");
@@ -49,7 +49,7 @@ namespace SWP391_RedRibbonLife.Controllers
             {
                 Username = user.Username
             };
-            
+
             string audience = _configuration.GetValue<string>("LocalAudience");
             string issuer = _configuration.GetValue<string>("LocalIssuer");
             byte[] key = Encoding.ASCII.GetBytes(_configuration.GetValue<string>("JWTSecretforLocaluser"));
@@ -61,6 +61,8 @@ namespace SWP391_RedRibbonLife.Controllers
                 Audience = audience,
                 Subject = new ClaimsIdentity(new Claim[]
                 {
+                    //UserId
+                    new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                     //Username
                     new Claim(ClaimTypes.Name, user.Username),
                     //Roles
@@ -72,7 +74,7 @@ namespace SWP391_RedRibbonLife.Controllers
             //Generate Token
             var token = tokenHandler.CreateToken(tokenDescriptor);
             response.token = tokenHandler.WriteToken(token);
-            
+
             return Ok(response);
         }
 
@@ -83,6 +85,7 @@ namespace SWP391_RedRibbonLife.Controllers
             try
             {
                 // Lấy thông tin user từ token claims
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 var username = User.FindFirst(ClaimTypes.Name)?.Value;
                 var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
@@ -113,6 +116,7 @@ namespace SWP391_RedRibbonLife.Controllers
             try
             {
                 // Lấy thông tin user từ token claims
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 var username = User.FindFirst(ClaimTypes.Name)?.Value;
                 var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
@@ -123,6 +127,7 @@ namespace SWP391_RedRibbonLife.Controllers
 
                 return Ok(new
                 {
+                    userId = userId,
                     username = username,
                     userRole = userRole,
                     tokenValid = true,
@@ -159,7 +164,7 @@ namespace SWP391_RedRibbonLife.Controllers
                 }
 
                 var result = await _userService.CreateUserAsync(model);
-                
+
                 apiResponse.Data = new
                 {
                     message = "User registered successfully",
@@ -168,7 +173,7 @@ namespace SWP391_RedRibbonLife.Controllers
                 };
                 apiResponse.Status = true;
                 apiResponse.StatusCode = HttpStatusCode.Created;
-                
+
                 return StatusCode(201, apiResponse);
             }
             catch (Exception ex)

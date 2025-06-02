@@ -102,8 +102,75 @@
   },
   {
     "ContainingType": "SWP391_RedRibbonLife.Controllers.DoctorController",
+    "Method": "GetDoctorByFullnameAsync",
+    "RelativePath": "api/Doctor/GetByFullname/{fullname}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "fullname",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "BLL.DTO.APIResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      },
+      {
+        "Type": "Microsoft.AspNetCore.Mvc.ProblemDetails",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 400
+      },
+      {
+        "Type": "Microsoft.AspNetCore.Mvc.ProblemDetails",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 404
+      },
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 500
+      },
+      {
+        "Type": "Microsoft.AspNetCore.Mvc.ProblemDetails",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 401
+      },
+      {
+        "Type": "Microsoft.AspNetCore.Mvc.ProblemDetails",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 403
+      }
+    ]
+  },
+  {
+    "ContainingType": "SWP391_RedRibbonLife.Controllers.DoctorController",
     "Method": "UpdateDoctorAsync",
-    "RelativePath": "api/Doctor/Update/{doctorId}",
+    "RelativePath": "api/Doctor/Update",
     "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
@@ -111,11 +178,6 @@
       {
         "Name": "dto",
         "Type": "BLL.DTO.Doctor.DoctorDTO",
-        "IsRequired": true
-      },
-      {
-        "Name": "doctorId",
-        "Type": "",
         "IsRequired": true
       }
     ],
