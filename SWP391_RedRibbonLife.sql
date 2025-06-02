@@ -278,3 +278,88 @@ INSERT INTO Doctors (user_id, doctor_image, bio)
 VALUES
 (3, 'doctor1.jpg', N'Bác sĩ chuyên khoa HIV'),
 (4, 'doctor2.jpg', N'Bác sĩ có kinh nghiệm trong điều trị HIV');
+
+-- Chèn dữ liệu vào bảng DoctorCertificates (cho Doctor)
+INSERT INTO DoctorCertificates (doctor_id, certificate_name, issued_by, issue_date, expiry_date, certificate_image)
+VALUES
+(1, N'Bằng cấp Y khoa', N'Đại học Y Hà Nội', '2005-06-15', NULL, 'cert1.jpg'),
+(1, N'Chứng chỉ chuyên khoa HIV', N'Bộ Y tế', '2010-09-20', '2025-09-20', 'cert2.jpg'),
+(2, N'Bằng cấp Y khoa', N'Đại học Y Hồ Chí Minh', '2007-07-10', NULL, 'cert3.jpg'),
+(2, N'Chứng chỉ điều trị HIV', N'Hội Y học Việt Nam', '2012-11-15', '2027-11-15', 'cert4.jpg');
+
+-- Chèn dữ liệu vào bảng Category
+INSERT INTO Category (category_name, isActive)
+VALUES
+(N'About Us', 1),
+(N'HIV Education', 1),
+(N'Stigma Reduction', 1),
+(N'Experience Blog', 1);
+
+-- Chèn dữ liệu vào bảng Articles
+INSERT INTO Articles (title, content, thumbnail_image, category_id, isActive)
+VALUES
+(N'Giới thiệu về Red Ribbon Life', N'Red Ribbon Life là tổ chức hỗ trợ bệnh nhân HIV/AIDS với sứ mệnh cung cấp dịch vụ y tế, giáo dục và giảm kỳ thị. Chúng tôi cam kết mang lại cuộc sống tốt đẹp hơn cho cộng đồng.', 'about_us.jpg', 1, 1),
+(N'Dịch vụ y tế tại Red Ribbon Life', N'Chúng tôi cung cấp tư vấn, xét nghiệm và điều trị HIV/AIDS với đội ngũ bác sĩ chuyên môn cao và cơ sở vật chất hiện đại.', 'services.jpg', 1, 1),
+(N'Hiểu biết cơ bản về HIV/AIDS', N'HIV là virus gây suy giảm miễn dịch ở người. Bài viết này giải thích cách lây truyền, phòng ngừa và điều trị HIV.', 'hiv_education.jpg', 2, 1),
+(N'Phòng ngừa HIV trong cộng đồng', N'Hướng dẫn các biện pháp phòng ngừa HIV như sử dụng bao cao su, xét nghiệm định kỳ và sử dụng PrEP.', 'prevention.jpg', 2, 1),
+(N'Vượt qua kỳ thị: Câu chuyện của một bệnh nhân', N'Một bệnh nhân chia sẻ hành trình sống chung với HIV và cách họ vượt qua định kiến xã hội.', 'stigma_reduction.jpg', 3, 1),
+(N'Tại sao cần nói không với kỳ thị HIV', N'Bài viết thảo luận về tác động của kỳ thị và cách cộng đồng có thể hỗ trợ bệnh nhân HIV.', 'no_stigma.jpg', 3, 1),
+(N'Hành trình sống chung với HIV', N'Một bệnh nhân kể về trải nghiệm cá nhân, từ khi phát hiện bệnh đến việc duy trì lối sống tích cực.', 'blog1.jpg', 4, 1),
+(N'Kinh nghiệm hỗ trợ bệnh nhân HIV từ bác sĩ', N'Bác sĩ chia sẻ những bài học và câu chuyện từ quá trình làm việc với bệnh nhân HIV.', 'doctor_blog.jpg', 4, 1);
+
+-- Chèn dữ liệu vào bảng ARVRegimens
+INSERT INTO ARVRegimens (regimen_name, regimen_code, components, description, suitable_for, side_effects, usage_instructions, isActive)
+VALUES
+(N'Phác đồ TDF + 3TC + DTG', 'TDF-3TC-DTG', N'Tenofovir (TDF), Lamivudine (3TC), Dolutegravir (DTG)', N'Phác đồ điều trị HIV cho người lớn và trẻ em trên 10 tuổi.', N'Người lớn, trẻ em trên 10 tuổi', N'Buồn nôn, nhức đầu, mệt mỏi', N'Uống 1 viên/ngày vào buổi sáng.', 1),
+(N'Phác đồ AZT + 3TC + NVP', 'AZT-3TC-NVP', N'Zidovudine (AZT), Lamivudine (3TC), Nevirapine (NVP)', N'Phác đồ điều trị HIV cho phụ nữ mang thai.', N'Phụ nữ mang thai', N'Tiêu chảy, phát ban, thiếu máu', N'Uống 2 viên/ngày, sáng và tối.', 1),
+(N'Phác đồ ABC + 3TC + EFV', 'ABC-3TC-EFV', N'Abacavir (ABC), Lamivudine (3TC), Efavirenz (EFV)', N'Phác đồ điều trị HIV cho trẻ em.', N'Trẻ em dưới 10 tuổi', N'Phát ban, nhức đầu, chóng mặt', N'Uống 1 viên/ngày vào buổi tối.', 1);
+
+-- Chèn dữ liệu vào bảng DoctorSchedules
+INSERT INTO DoctorSchedules (doctor_id, work_day, start_time, end_time)
+VALUES
+(1, 'Monday', '08:00:00', '12:00:00'),
+(1, 'Wednesday', '13:00:00', '17:00:00'),
+(2, 'Tuesday', '09:00:00', '12:00:00'),
+(2, 'Thursday', '14:00:00', '18:00:00');
+
+-- Chèn dữ liệu vào bảng Appointments
+INSERT INTO Appointments (patient_id, doctor_id, appointment_date, appointment_time, appointment_type, status, isAnonymous)
+VALUES
+(1, 1, '2025-06-10', '09:00:00', 'Appointment', 'Scheduled', 0),
+(2, 2, '2025-06-11', '10:00:00', 'Appointment', 'Scheduled', 1),
+(1, 2, '2025-06-15', '14:00:00', 'Medication', 'Scheduled', 0);
+
+-- Chèn dữ liệu vào bảng Reminders
+INSERT INTO Reminders (appointment_id, reminder_time, reminder_type, status, sent_at)
+VALUES
+(1, '2025-06-09 09:00:00', 'Appointment', 'Pending', NULL),
+(2, '2025-06-10 10:00:00', 'Appointment', 'Pending', NULL),
+(3, '2025-06-14 14:00:00', 'Medication', 'Pending', NULL);
+
+-- Chèn dữ liệu vào bảng TestResults
+INSERT INTO TestResults (appointment_id, patient_id, doctor_id, test_type, result_value, unit, normal_range, notes)
+VALUES
+(1, 1, 1, N'Tải lượng HIV', '500', 'copies/mL', 'Dưới 200', N'Tải lượng virus cao, cần theo dõi'),
+(1, 1, 1, N'CD4', '350', 'cells/mm³', '500-1500', N'Số lượng CD4 thấp'),
+(2, 2, 2, N'Tải lượng HIV', '100', 'copies/mL', 'Dưới 200', N'Tải lượng virus trong ngưỡng kiểm soát'),
+(2, 2, 2, N'CD4', '600', 'cells/mm³', '500-1500', N'Số lượng CD4 bình thường');
+
+-- Chèn dữ liệu vào bảng TreatmentHistories
+INSERT INTO TreatmentHistories (patient_id, doctor_id, start_date, end_date, status, notes)
+VALUES
+(1, 1, '2025-06-01', NULL, 'Active', N'Đang điều trị với phác đồ TDF + 3TC + DTG'),
+(2, 2, '2025-06-05', NULL, 'Active', N'Đang điều trị với phác đồ AZT + 3TC + NVP');
+
+-- Chèn dữ liệu vào bảng Prescriptions
+INSERT INTO Prescriptions (treatment_id, regimen_id)
+VALUES
+(1, 1),  -- Phác đồ TDF + 3TC + DTG cho bệnh nhân 1
+(2, 2);  -- Phác đồ AZT + 3TC + NVP cho bệnh nhân 2
+
+-- Chèn dữ liệu vào bảng MedicationSchedules
+INSERT INTO MedicationSchedules (prescription_id, patient_id, medication_time, sent_at)
+VALUES
+(1, 1, 8, NULL),  -- Uống thuốc lúc 8h sáng
+(1, 1, 20, NULL), -- Uống thuốc lúc 8h tối
+(2, 2, 7, NULL),  -- Uống thuốc lúc 7h sáng
+(2, 2, 19, NULL); -- Uống thuốc lúc 7h tối
