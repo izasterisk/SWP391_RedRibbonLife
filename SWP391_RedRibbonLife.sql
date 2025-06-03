@@ -50,20 +50,19 @@ CREATE TABLE DoctorCertificates (
     certificate_image NVARCHAR(MAX)
 );
 
--- 5. Bảng Category (Phân loại bài viết)
+-- 5. Bảng Category (Phân loại bài viết, đã xóa isActive)
 CREATE TABLE Category (
     category_id INT PRIMARY KEY IDENTITY(1,1),
-    category_name NVARCHAR(100) NOT NULL,
-    isActive BIT DEFAULT 1
+    category_name NVARCHAR(100) NOT NULL UNIQUE -- Thêm UNIQUE để sử dụng làm khóa ngoại
 );
 
--- 6. Bảng Articles (Lưu tất cả các bài viết trên trang)
+-- 6. Bảng Articles (Lưu tất cả các bài viết trên trang, thay category_id bằng category_name)
 CREATE TABLE Articles (
     article_id INT PRIMARY KEY IDENTITY(1,1),
     title NVARCHAR(200) NOT NULL,
     content NVARCHAR(MAX),
     thumbnail_image NVARCHAR(MAX),
-    category_id INT,
+    category_name NVARCHAR(100), -- Thay category_id bằng category_name
     isActive BIT DEFAULT 1
 );
 
@@ -120,7 +119,7 @@ CREATE TABLE TestResults (
     CONSTRAINT chk_unit CHECK (unit IN ('cells/mm³', 'copies/mL', 'mg/dL', 'g/L', 'IU/L', '%', 'mmHg', 'N/A'))
 );
 
--- 11. Bảng DoctorSchedules (Lưu lịch làm việc của bác sĩ, work_date đổi thành work_day ENUM)
+-- 11. Bảng DoctorSchedules (Lưu lịch làm việc của bác sĩ)
 CREATE TABLE DoctorSchedules (
     schedule_id INT PRIMARY KEY IDENTITY(1,1),
     doctor_id INT,
@@ -130,7 +129,7 @@ CREATE TABLE DoctorSchedules (
     CONSTRAINT chk_work_day CHECK (work_day IN ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'))
 );
 
--- 12. Bảng TreatmentHistories (Lưu lịch sử phác đồ điều trị của bệnh nhân cùng đơn thuốc đi kèm nếu có)
+-- 12. Bảng TreatmentHistories (Lưu lịch sử phác đồ điều trị của bệnh nhân)
 CREATE TABLE TreatmentHistories (
     treatment_id INT PRIMARY KEY IDENTITY(1,1),
     prescription_id INT,
@@ -150,7 +149,7 @@ CREATE TABLE Prescriptions (
     regimen_id INT NOT NULL
 );
 
--- 14. Bảng này sử dụng để báo người dùng uống thuốc
+-- 14. Bảng MedicationSchedules (Sử dụng để báo người dùng uống thuốc)
 CREATE TABLE MedicationSchedules (
     schedule_id INT PRIMARY KEY IDENTITY(1,1),
     prescription_id INT,
@@ -160,27 +159,22 @@ CREATE TABLE MedicationSchedules (
 );
 
 -- FOREIGN KEY
--- Adding foreign keys to Patients table
 ALTER TABLE Patients
 ADD CONSTRAINT fk_patients_users
 FOREIGN KEY (user_id) REFERENCES Users(user_id);
 
--- Adding foreign keys to Doctors table
 ALTER TABLE Doctors
 ADD CONSTRAINT fk_doctors_users
 FOREIGN KEY (user_id) REFERENCES Users(user_id);
 
--- Adding foreign keys to DoctorCertificates table
 ALTER TABLE DoctorCertificates
 ADD CONSTRAINT fk_certificates_doctors
 FOREIGN KEY (doctor_id) REFERENCES Doctors(doctor_id);
 
--- Adding foreign keys to Articles table
 ALTER TABLE Articles
 ADD CONSTRAINT fk_articles_category
-FOREIGN KEY (category_id) REFERENCES Category(category_id);
+FOREIGN KEY (category_name) REFERENCES Category(category_name);
 
--- Adding foreign keys to Appointments table
 ALTER TABLE Appointments
 ADD CONSTRAINT fk_appointments_patients
 FOREIGN KEY (patient_id) REFERENCES Patients(patient_id);
@@ -189,12 +183,10 @@ ALTER TABLE Appointments
 ADD CONSTRAINT fk_appointments_doctors
 FOREIGN KEY (doctor_id) REFERENCES Doctors(doctor_id);
 
--- Adding foreign keys to Reminders table
 ALTER TABLE Reminders
 ADD CONSTRAINT fk_reminders_appointments
 FOREIGN KEY (appointment_id) REFERENCES Appointments(appointment_id);
 
--- Adding foreign keys to TestResults table
 ALTER TABLE TestResults
 ADD CONSTRAINT fk_test_results_appointments
 FOREIGN KEY (appointment_id) REFERENCES Appointments(appointment_id);
@@ -207,12 +199,10 @@ ALTER TABLE TestResults
 ADD CONSTRAINT fk_test_results_doctors
 FOREIGN KEY (doctor_id) REFERENCES Doctors(doctor_id);
 
--- Adding foreign keys to DoctorSchedules table
 ALTER TABLE DoctorSchedules
 ADD CONSTRAINT fk_schedules_doctors
 FOREIGN KEY (doctor_id) REFERENCES Doctors(doctor_id);
 
--- Adding foreign keys to TreatmentHistories table
 ALTER TABLE TreatmentHistories
 ADD CONSTRAINT fk_treatment_patients
 FOREIGN KEY (patient_id) REFERENCES Patients(patient_id);
@@ -221,7 +211,6 @@ ALTER TABLE TreatmentHistories
 ADD CONSTRAINT fk_treatment_doctors
 FOREIGN KEY (doctor_id) REFERENCES Doctors(doctor_id);
 
--- Adding foreign keys to Prescriptions table
 ALTER TABLE Prescriptions
 ADD CONSTRAINT fk_prescriptions_treatment
 FOREIGN KEY (treatment_id) REFERENCES TreatmentHistories(treatment_id);
@@ -230,7 +219,6 @@ ALTER TABLE Prescriptions
 ADD CONSTRAINT fk_prescriptions_regimen
 FOREIGN KEY (regimen_id) REFERENCES ARVRegimens(regimen_id);
 
--- Adding foreign keys to MedicationSchedules table
 ALTER TABLE MedicationSchedules
 ADD CONSTRAINT fk_medication_prescriptions
 FOREIGN KEY (prescription_id) REFERENCES Prescriptions(prescription_id);
@@ -288,24 +276,24 @@ VALUES
 (2, N'Chứng chỉ điều trị HIV', N'Hội Y học Việt Nam', '2012-11-15', '2027-11-15', 'cert4.jpg');
 
 -- Chèn dữ liệu vào bảng Category
-INSERT INTO Category (category_name, isActive)
+INSERT INTO Category (category_name)
 VALUES
-(N'About Us', 1),
-(N'HIV Education', 1),
-(N'Stigma Reduction', 1),
-(N'Experience Blog', 1);
+(N'About Us'),
+(N'HIV Education'),
+(N'Stigma Reduction'),
+(N'Experience Blog');
 
 -- Chèn dữ liệu vào bảng Articles
-INSERT INTO Articles (title, content, thumbnail_image, category_id, isActive)
+INSERT INTO Articles (title, content, thumbnail_image, category_name, isActive)
 VALUES
-(N'Giới thiệu về Red Ribbon Life', N'Red Ribbon Life là tổ chức hỗ trợ bệnh nhân HIV/AIDS với sứ mệnh cung cấp dịch vụ y tế, giáo dục và giảm kỳ thị. Chúng tôi cam kết mang lại cuộc sống tốt đẹp hơn cho cộng đồng.', 'about_us.jpg', 1, 1),
-(N'Dịch vụ y tế tại Red Ribbon Life', N'Chúng tôi cung cấp tư vấn, xét nghiệm và điều trị HIV/AIDS với đội ngũ bác sĩ chuyên môn cao và cơ sở vật chất hiện đại.', 'services.jpg', 1, 1),
-(N'Hiểu biết cơ bản về HIV/AIDS', N'HIV là virus gây suy giảm miễn dịch ở người. Bài viết này giải thích cách lây truyền, phòng ngừa và điều trị HIV.', 'hiv_education.jpg', 2, 1),
-(N'Phòng ngừa HIV trong cộng đồng', N'Hướng dẫn các biện pháp phòng ngừa HIV như sử dụng bao cao su, xét nghiệm định kỳ và sử dụng PrEP.', 'prevention.jpg', 2, 1),
-(N'Vượt qua kỳ thị: Câu chuyện của một bệnh nhân', N'Một bệnh nhân chia sẻ hành trình sống chung với HIV và cách họ vượt qua định kiến xã hội.', 'stigma_reduction.jpg', 3, 1),
-(N'Tại sao cần nói không với kỳ thị HIV', N'Bài viết thảo luận về tác động của kỳ thị và cách cộng đồng có thể hỗ trợ bệnh nhân HIV.', 'no_stigma.jpg', 3, 1),
-(N'Hành trình sống chung với HIV', N'Một bệnh nhân kể về trải nghiệm cá nhân, từ khi phát hiện bệnh đến việc duy trì lối sống tích cực.', 'blog1.jpg', 4, 1),
-(N'Kinh nghiệm hỗ trợ bệnh nhân HIV từ bác sĩ', N'Bác sĩ chia sẻ những bài học và câu chuyện từ quá trình làm việc với bệnh nhân HIV.', 'doctor_blog.jpg', 4, 1);
+(N'Giới thiệu về Red Ribbon Life', N'Red Ribbon Life là tổ chức hỗ trợ bệnh nhân HIV/AIDS với sứ mệnh cung cấp dịch vụ y tế, giáo dục và giảm kỳ thị. Chúng tôi cam kết mang lại cuộc sống tốt đẹp hơn cho cộng đồng.', 'about_us.jpg', N'About Us', 1),
+(N'Dịch vụ y tế tại Red Ribbon Life', N'Chúng tôi cung cấp tư vấn, xét nghiệm và điều trị HIV/AIDS với đội ngũ bác sĩ chuyên môn cao và cơ sở vật chất hiện đại.', 'services.jpg', N'About Us', 1),
+(N'Hiểu biết cơ bản về HIV/AIDS', N'HIV là virus gây suy giảm miễn dịch ở người. Bài viết này giải thích cách lây truyền, phòng ngừa và điều trị HIV.', 'hiv_education.jpg', N'HIV Education', 1),
+(N'Phòng ngừa HIV trong cộng đồng', N'Hướng dẫn các biện pháp phòng ngừa HIV như sử dụng bao cao su, xét nghiệm định kỳ và sử dụng PrEP.', 'prevention.jpg', N'HIV Education', 1),
+(N'Vượt qua kỳ thị: Câu chuyện của một bệnh nhân', N'Một bệnh nhân chia sẻ hành trình sống chung với HIV và cách họ vượt qua định kiến xã hội.', 'stigma_reduction.jpg', N'Stigma Reduction', 1),
+(N'Tại sao cần nói không với kỳ thị HIV', N'Bài viết thảo luận về tác động của kỳ thị và cách cộng đồng có thể hỗ trợ bệnh nhân HIV.', 'no_stigma.jpg', N'Stigma Reduction', 1),
+(N'Hành trình sống chung với HIV', N'Một bệnh nhân kể về trải nghiệm cá nhân, từ khi phát hiện bệnh đến việc duy trì lối sống tích cực.', 'blog1.jpg', N'Experience Blog', 1),
+(N'Kinh nghiệm hỗ trợ bệnh nhân HIV từ bác sĩ', N'Bác sĩ chia sẻ những bài học và câu chuyện từ quá trình làm việc với bệnh nhân HIV.', 'doctor_blog.jpg', N'Experience Blog', 1);
 
 -- Chèn dữ liệu vào bảng ARVRegimens
 INSERT INTO ARVRegimens (regimen_name, regimen_code, components, description, suitable_for, side_effects, usage_instructions, isActive)

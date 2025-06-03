@@ -9,6 +9,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 using AutoMapper;
 using BLL.DTO.Doctor;
 using BLL.DTO.User;
+using BLL.DTO.Article;
 
 namespace BLL.Utils
 {
@@ -22,6 +23,8 @@ namespace BLL.Utils
             CreateMap<User, DoctorDTO>().ReverseMap();
             CreateMap<User, DoctorReadOnlyDTO>().ReverseMap();
             CreateMap<Doctor, DoctorReadOnlyDTO>().ReverseMap().ForMember(n => n.UserId, opt => opt.Ignore());
+            CreateMap<Article, ArticleDTO>().ReverseMap();
+            CreateMap<Category, CategoryDTO>().ReverseMap();
 
             //Khi có 2 trường khác tên, ví dụ: studentName và Name
             //CreateMap<StudentDTO, Student>().ForMember(n => n.studentName, opt => opt.MapFrom(x => x.Name)).ReverseMap();

@@ -22,13 +22,14 @@ public partial class Article
     [Column("thumbnail_image")]
     public string? ThumbnailImage { get; set; }
 
-    [Column("category_id")]
-    public int? CategoryId { get; set; }
+    [Column("category_name")]
+    [StringLength(100)]
+    public string CategoryName { get; set; } = null!;
 
     [Column("isActive")]
     public bool? IsActive { get; set; }
 
-    [ForeignKey("CategoryId")]
+    [ForeignKey("CategoryName")]
     [InverseProperty("Articles")]
     public virtual Category? Category { get; set; }
 }
