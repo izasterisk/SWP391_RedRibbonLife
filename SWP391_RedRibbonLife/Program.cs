@@ -1,4 +1,4 @@
-using DAL.Models;
+//using DAL.Models;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -11,8 +11,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 var app = builder.Build();
-builder.Services.AddDbContext<DAL.Models.SWP391_RedRibbonLifeContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+//builder.Services.AddDbContext<DAL.Models.SWP391_RedRibbonLifeContext>(options =>
+    //options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
