@@ -3,16 +3,16 @@
   "WorkspaceRootPath": "C:\\Users\\Admin\\Documents\\source\\repos\\SWP391_RedRibbonLife\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Admin\\Documents\\source\\repos\\SWP391_RedRibbonLife\\DAL\\Models\\SWP391_RedRibbonLifeContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:DAL\\Models\\SWP391_RedRibbonLifeContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{395EE68F-76E2-44B8-9CBC-FCC3D4B01C3F}|SWP391_RedRibbonLife\\SWP391_RedRibbonLife.csproj|c:\\users\\admin\\documents\\source\\repos\\swp391_redribbonlife\\swp391_redribbonlife\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{395EE68F-76E2-44B8-9CBC-FCC3D4B01C3F}|SWP391_RedRibbonLife\\SWP391_RedRibbonLife.csproj|solutionrelative:swp391_redribbonlife\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{395EE68F-76E2-44B8-9CBC-FCC3D4B01C3F}|SWP391_RedRibbonLife\\SWP391_RedRibbonLife.csproj|c:\\users\\admin\\documents\\source\\repos\\swp391_redribbonlife\\swp391_redribbonlife\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{395EE68F-76E2-44B8-9CBC-FCC3D4B01C3F}|SWP391_RedRibbonLife\\SWP391_RedRibbonLife.csproj|solutionrelative:swp391_redribbonlife\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CFE463F5-158E-4D8A-A29A-70A8B5F83C52}|DAL\\DAL.csproj|c:\\users\\admin\\documents\\source\\repos\\swp391_redribbonlife\\dal\\dal.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
-      "RelativeMoniker": "D:0:0:{CFE463F5-158E-4D8A-A29A-70A8B5F83C52}|DAL\\DAL.csproj|solutionrelative:dal\\dal.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
     }
   ],
   "DocumentGroupContainers": [
@@ -22,45 +22,49 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 1,
           "Children": [
             {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "DAL.csproj",
-              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\source\\repos\\SWP391_RedRibbonLife\\DAL\\DAL.csproj",
-              "RelativeDocumentMoniker": "DAL\\DAL.csproj",
-              "ToolTip": "C:\\Users\\Admin\\Documents\\source\\repos\\SWP391_RedRibbonLife\\DAL\\DAL.csproj",
-              "RelativeToolTip": "DAL\\DAL.csproj",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2025-05-17T07:18:00.424Z",
+              "DocumentIndex": 0,
+              "Title": "SWP391_RedRibbonLifeContext.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\source\\repos\\SWP391_RedRibbonLife\\DAL\\Models\\SWP391_RedRibbonLifeContext.cs",
+              "RelativeDocumentMoniker": "DAL\\Models\\SWP391_RedRibbonLifeContext.cs",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\source\\repos\\SWP391_RedRibbonLife\\DAL\\Models\\SWP391_RedRibbonLifeContext.cs",
+              "RelativeToolTip": "DAL\\Models\\SWP391_RedRibbonLifeContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-03T16:00:22.485Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\source\\repos\\SWP391_RedRibbonLife\\SWP391_RedRibbonLife\\Program.cs",
-              "RelativeDocumentMoniker": "SWP391_RedRibbonLife\\Program.cs",
-              "ToolTip": "C:\\Users\\Admin\\Documents\\source\\repos\\SWP391_RedRibbonLife\\SWP391_RedRibbonLife\\Program.cs",
-              "RelativeToolTip": "SWP391_RedRibbonLife\\Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-17T06:12:20.451Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\Admin\\Documents\\source\\repos\\SWP391_RedRibbonLife\\SWP391_RedRibbonLife\\appsettings.json",
               "RelativeDocumentMoniker": "SWP391_RedRibbonLife\\appsettings.json",
               "ToolTip": "C:\\Users\\Admin\\Documents\\source\\repos\\SWP391_RedRibbonLife\\SWP391_RedRibbonLife\\appsettings.json",
               "RelativeToolTip": "SWP391_RedRibbonLife\\appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAADxAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-05-17T06:10:47.442Z",
+              "WhenOpened": "2025-06-03T09:31:13.632Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\source\\repos\\SWP391_RedRibbonLife\\SWP391_RedRibbonLife\\Program.cs",
+              "RelativeDocumentMoniker": "SWP391_RedRibbonLife\\Program.cs",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\source\\repos\\SWP391_RedRibbonLife\\SWP391_RedRibbonLife\\Program.cs",
+              "RelativeToolTip": "SWP391_RedRibbonLife\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-17T06:12:20.451Z",
               "EditorCaption": ""
             }
           ]
