@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace DAL.Models;
 
 [Table("ARVRegimens")]
-[Index("RegimenCode", Name = "UQ__ARVRegim__A554D5B91C7CCAD0", IsUnique = true)]
+[Index("RegimenCode", Name = "UQ__ARVRegim__A554D5B969191ED9", IsUnique = true)]
 public partial class Arvregimen
 {
     [Key]

@@ -18,7 +18,7 @@ CREATE TABLE Users (
     gender NVARCHAR(10),
     address NVARCHAR(MAX),
     user_role NVARCHAR(50) NOT NULL,
-    isActive BIT DEFAULT 1,
+    isActive BIT DEFAULT 1 NOT NULL,
     CONSTRAINT chk_user_role CHECK (user_role IN ('Customer', 'Staff', 'Doctor', 'Manager', 'Admin'))
 );
 
@@ -50,19 +50,19 @@ CREATE TABLE DoctorCertificates (
     certificate_image NVARCHAR(MAX)
 );
 
--- 5. Bảng Category (Phân loại bài viết, đã xóa isActive)
+-- 5. Bảng Category (Phân loại bài viết)
 CREATE TABLE Category (
     category_id INT PRIMARY KEY IDENTITY(1,1),
-    category_name NVARCHAR(100) NOT NULL UNIQUE -- Thêm UNIQUE để sử dụng làm khóa ngoại
+    category_name NVARCHAR(100) NOT NULL
 );
 
--- 6. Bảng Articles (Lưu tất cả các bài viết trên trang, thay category_id bằng category_name)
+-- 6. Bảng Articles (Lưu tất cả các bài viết trên trang)
 CREATE TABLE Articles (
     article_id INT PRIMARY KEY IDENTITY(1,1),
     title NVARCHAR(200) NOT NULL,
     content NVARCHAR(MAX),
     thumbnail_image NVARCHAR(MAX),
-    category_name NVARCHAR(100), -- Thay category_id bằng category_name
+    category_id INT,
     isActive BIT DEFAULT 1
 );
 
@@ -173,7 +173,7 @@ FOREIGN KEY (doctor_id) REFERENCES Doctors(doctor_id);
 
 ALTER TABLE Articles
 ADD CONSTRAINT fk_articles_category
-FOREIGN KEY (category_name) REFERENCES Category(category_name);
+FOREIGN KEY (category_id) REFERENCES Category(category_id);
 
 ALTER TABLE Appointments
 ADD CONSTRAINT fk_appointments_patients
@@ -284,16 +284,16 @@ VALUES
 (N'Experience Blog');
 
 -- Chèn dữ liệu vào bảng Articles
-INSERT INTO Articles (title, content, thumbnail_image, category_name, isActive)
+INSERT INTO Articles (title, content, thumbnail_image, category_id, isActive)
 VALUES
-(N'Giới thiệu về Red Ribbon Life', N'Red Ribbon Life là tổ chức hỗ trợ bệnh nhân HIV/AIDS với sứ mệnh cung cấp dịch vụ y tế, giáo dục và giảm kỳ thị. Chúng tôi cam kết mang lại cuộc sống tốt đẹp hơn cho cộng đồng.', 'about_us.jpg', N'About Us', 1),
-(N'Dịch vụ y tế tại Red Ribbon Life', N'Chúng tôi cung cấp tư vấn, xét nghiệm và điều trị HIV/AIDS với đội ngũ bác sĩ chuyên môn cao và cơ sở vật chất hiện đại.', 'services.jpg', N'About Us', 1),
-(N'Hiểu biết cơ bản về HIV/AIDS', N'HIV là virus gây suy giảm miễn dịch ở người. Bài viết này giải thích cách lây truyền, phòng ngừa và điều trị HIV.', 'hiv_education.jpg', N'HIV Education', 1),
-(N'Phòng ngừa HIV trong cộng đồng', N'Hướng dẫn các biện pháp phòng ngừa HIV như sử dụng bao cao su, xét nghiệm định kỳ và sử dụng PrEP.', 'prevention.jpg', N'HIV Education', 1),
-(N'Vượt qua kỳ thị: Câu chuyện của một bệnh nhân', N'Một bệnh nhân chia sẻ hành trình sống chung với HIV và cách họ vượt qua định kiến xã hội.', 'stigma_reduction.jpg', N'Stigma Reduction', 1),
-(N'Tại sao cần nói không với kỳ thị HIV', N'Bài viết thảo luận về tác động của kỳ thị và cách cộng đồng có thể hỗ trợ bệnh nhân HIV.', 'no_stigma.jpg', N'Stigma Reduction', 1),
-(N'Hành trình sống chung với HIV', N'Một bệnh nhân kể về trải nghiệm cá nhân, từ khi phát hiện bệnh đến việc duy trì lối sống tích cực.', 'blog1.jpg', N'Experience Blog', 1),
-(N'Kinh nghiệm hỗ trợ bệnh nhân HIV từ bác sĩ', N'Bác sĩ chia sẻ những bài học và câu chuyện từ quá trình làm việc với bệnh nhân HIV.', 'doctor_blog.jpg', N'Experience Blog', 1);
+(N'Giới thiệu về Red Ribbon Life', N'Red Ribbon Life là tổ chức hỗ trợ bệnh nhân HIV/AIDS với sứ mệnh cung cấp dịch vụ y tế, giáo dục và giảm kỳ thị. Chúng tôi cam kết mang lại cuộc sống tốt đẹp hơn cho cộng đồng.', 'about_us.jpg', 1, 1),
+(N'Dịch vụ y tế tại Red Ribbon Life', N'Chúng tôi cung cấp tư vấn, xét nghiệm và điều trị HIV/AIDS với đội ngũ bác sĩ chuyên môn cao và cơ sở vật chất hiện đại.', 'services.jpg', 1, 1),
+(N'Hiểu biết cơ bản về HIV/AIDS', N'HIV là virus gây suy giảm miễn dịch ở người. Bài viết này giải thích cách lây truyền, phòng ngừa và điều trị HIV.', 'hiv_education.jpg', 2, 1),
+(N'Phòng ngừa HIV trong cộng đồng', N'Hướng dẫn các biện pháp phòng ngừa HIV như sử dụng bao cao su, xét nghiệm định kỳ và sử dụng PrEP.', 'prevention.jpg', 2, 1),
+(N'Vượt qua kỳ thị: Câu chuyện của một bệnh nhân', N'Một bệnh nhân chia sẻ hành trình sống chung với HIV và cách họ vượt qua định kiến xã hội.', 'stigma_reduction.jpg', 3, 1),
+(N'Tại sao cần nói không với kỳ thị HIV', N'Bài viết thảo luận về tác động của kỳ thị và cách cộng đồng có thể hỗ trợ bệnh nhân HIV.', 'no_stigma.jpg', 3, 1),
+(N'Hành trình sống chung với HIV', N'Một bệnh nhân kể về trải nghiệm cá nhân, từ khi phát hiện bệnh đến việc duy trì lối sống tích cực.', 'blog1.jpg', 4, 1),
+(N'Kinh nghiệm hỗ trợ bệnh nhân HIV từ bác sĩ', N'Bác sĩ chia sẻ những bài học và câu chuyện từ quá trình làm việc với bệnh nhân HIV.', 'doctor_blog.jpg', 4, 1);
 
 -- Chèn dữ liệu vào bảng ARVRegimens
 INSERT INTO ARVRegimens (regimen_name, regimen_code, components, description, suitable_for, side_effects, usage_instructions, isActive)

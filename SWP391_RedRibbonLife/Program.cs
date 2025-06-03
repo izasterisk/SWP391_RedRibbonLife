@@ -23,8 +23,13 @@ builder.Services.AddScoped<IUserUtils, UserUtils>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IDoctorService, DoctorService>();
+builder.Services.AddScoped<IArticleService, ArticleService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+
 builder.Services.AddScoped<IUserRepository<User>, UserRepository<User>>();
 builder.Services.AddScoped<IUserRepository<Doctor>, UserRepository<Doctor>>();
+builder.Services.AddScoped<IUserRepository<Article>, UserRepository<Article>>();
+builder.Services.AddScoped<IUserRepository<Category>, UserRepository<Category>>();
 
 //CORS
 builder.Services.AddCors(options =>
