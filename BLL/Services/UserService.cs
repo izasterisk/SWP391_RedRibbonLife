@@ -70,6 +70,7 @@ namespace BLL.Services
             User user = _mapper.Map<User>(dto);
             user.IsActive = true; // Set default value for IsActive
             user.UserRole = "Customer"; // Set default value for UserRole
+            user.IsVerified = dto.IsVerified; // Set IsVerified from DTO
             user.Password = CreatePasswordHash(dto.Password);
             
             await _userRepository.CreateAsync(user);
@@ -112,6 +113,7 @@ namespace BLL.Services
             existingUser.DateOfBirth = dto.DateOfBirth;
             existingUser.Gender = dto.Gender;
             existingUser.Address = dto.Address;
+            existingUser.IsVerified = dto.IsVerified;
             
             // Only update password if provided
             if (!string.IsNullOrEmpty(dto.Password))

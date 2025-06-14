@@ -29,12 +29,12 @@ namespace BLL.Services
             ArgumentNullException.ThrowIfNull(username, $"{nameof(username)} is null");
             ArgumentNullException.ThrowIfNull(password, $"{nameof(password)} is null");
 
-            // Tìm user theo username và isActive = true
-            var user = await _userRepository.GetAsync(u => u.Username.Equals(username) && u.IsActive);
+            // Tìm user theo username, isActive = true và isVerified = true
+            var user = await _userRepository.GetAsync(u => u.Username.Equals(username) && u.IsActive && u.IsVerified);
             
             if (user == null)
             {
-                return null; // User không tồn tại
+                return null; // User không tồn tại hoặc chưa được verify
             }
 
             // Kiểm tra password sử dụng method từ UserService

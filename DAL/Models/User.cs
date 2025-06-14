@@ -6,8 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Models;
 
-[Index("Email", Name = "UQ__Users__AB6E6164CFFEB4F7", IsUnique = true)]
-[Index("Username", Name = "UQ__Users__F3DBC57239AC3CB6", IsUnique = true)]
+[Index("Email", Name = "UQ__Users__AB6E6164A96FEB96", IsUnique = true)]
+[Index("Username", Name = "UQ__Users__F3DBC572CB15E34F", IsUnique = true)]
 public partial class User
 {
     [Key]
@@ -52,6 +52,9 @@ public partial class User
 
     [Column("isActive")]
     public bool IsActive { get; set; }
+
+    [Column("isVerified")]
+    public bool IsVerified { get; set; }
 
     [InverseProperty("User")]
     public virtual ICollection<Doctor> Doctors { get; set; } = new List<Doctor>();

@@ -19,6 +19,7 @@ CREATE TABLE Users (
     address NVARCHAR(MAX),
     user_role NVARCHAR(50) NOT NULL,
     isActive BIT DEFAULT 1 NOT NULL,
+	isVerified BIT DEFAULT 0 NOT NULL,
     CONSTRAINT chk_user_role CHECK (user_role IN ('Customer', 'Staff', 'Doctor', 'Manager', 'Admin'))
 );
 
@@ -228,32 +229,32 @@ ADD CONSTRAINT fk_medication_patients
 FOREIGN KEY (patient_id) REFERENCES Patients(patient_id);
 
 -- Chèn dữ liệu cho vai trò Customer
-INSERT INTO Users (username, password, email, phone_number, full_name, date_of_birth, gender, address, user_role, isActive)
+INSERT INTO Users (username, password, email, phone_number, full_name, date_of_birth, gender, address, user_role, isActive, isVerified)
 VALUES
-('customer1', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'customer1@example.com', '0123456789', N'Nguyễn Văn A', '1990-01-01', 'Male', N'Hà Nội', 'Customer', 1),
-('customer2', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'customer2@example.com', '0987654321', N'Trần Thị B', '1995-05-05', 'Female', N'Hồ Chí Minh', 'Customer', 1);
+('customer1', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'customer1@example.com', '0123456789', N'Nguyễn Văn A', '1990-01-01', 'Male', N'Hà Nội', 'Customer', 1, 0),
+('customer2', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'customer2@example.com', '0987654321', N'Trần Thị B', '1995-05-05', 'Female', N'Hồ Chí Minh', 'Customer', 1, 1);
 
 -- Chèn dữ liệu cho vai trò Doctor
-INSERT INTO Users (username, password, email, phone_number, full_name, date_of_birth, gender, address, user_role, isActive)
+INSERT INTO Users (username, password, email, phone_number, full_name, date_of_birth, gender, address, user_role, isActive, isVerified)
 VALUES
-('doctor1', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'doctor1@example.com', '0123456780', N'Lê Văn C', '1980-02-02', 'Male', N'Đà Nẵng', 'Doctor', 1),
-('doctor2', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'doctor2@example.com', '0987654320', N'Phạm Thị D', '1985-06-06', 'Female', N'Hải Phòng', 'Doctor', 1);
+('doctor1', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'doctor1@example.com', '0123456780', N'Lê Văn C', '1980-02-02', 'Male', N'Đà Nẵng', 'Doctor', 1, 1),
+('doctor2', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'doctor2@example.com', '0987654320', N'Phạm Thị D', '1985-06-06', 'Female', N'Hải Phòng', 'Doctor', 1, 1);
 
 -- Chèn dữ liệu cho vai trò Staff
-INSERT INTO Users (username, password, email, phone_number, full_name, date_of_birth, gender, address, user_role, isActive)
+INSERT INTO Users (username, password, email, phone_number, full_name, date_of_birth, gender, address, user_role, isActive, isVerified)
 VALUES
-('staff1', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'staff1@example.com', '0123456781', N'Nguyễn Văn E', '1992-03-03', 'Male', N'Cần Thơ', 'Staff', 1),
-('staff2', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'staff2@example.com', '0987654322', N'Trần Thị F', '1997-07-07', 'Female', N'Vũng Tàu', 'Staff', 1);
+('staff1', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'staff1@example.com', '0123456781', N'Nguyễn Văn E', '1992-03-03', 'Male', N'Cần Thơ', 'Staff', 1, 1),
+('staff2', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'staff2@example.com', '0987654322', N'Trần Thị F', '1997-07-07', 'Female', N'Vũng Tàu', 'Staff', 1, 1);
 
 -- Chèn dữ liệu cho vai trò Manager
-INSERT INTO Users (username, password, email, phone_number, full_name, date_of_birth, gender, address, user_role, isActive)
+INSERT INTO Users (username, password, email, phone_number, full_name, date_of_birth, gender, address, user_role, isActive, isVerified)
 VALUES
-('manager1', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'manager1@example.com', '0123456782', N'Lê Văn G', '1988-04-04', 'Male', N'Nha Trang', 'Manager', 1);
+('manager1', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'manager1@example.com', '0123456782', N'Lê Văn G', '1988-04-04', 'Male', N'Nha Trang', 'Manager', 1, 1);
 
 -- Chèn dữ liệu cho vai trò Admin
-INSERT INTO Users (username, password, email, phone_number, full_name, date_of_birth, gender, address, user_role, isActive)
+INSERT INTO Users (username, password, email, phone_number, full_name, date_of_birth, gender, address, user_role, isActive, isVerified)
 VALUES
-('admin1', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'admin1@example.com', '0987654323', N'Phạm Thị H', '1990-08-08', 'Female', N'Huế', 'Admin', 1);
+('admin1', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'admin1@example.com', '0987654323', N'Phạm Thị H', '1990-08-08', 'Female', N'Huế', 'Admin', 1, 1);
 
 -- Chèn dữ liệu vào bảng Patients (cho Customer)
 INSERT INTO Patients (user_id, blood_type, is_pregnant, special_notes)

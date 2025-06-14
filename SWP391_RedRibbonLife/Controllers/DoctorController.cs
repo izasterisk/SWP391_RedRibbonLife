@@ -57,12 +57,12 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Doctor, Admin, Manager")]
-        public async Task<ActionResult<APIResponse>> UpdateDoctorAsync(DoctorDTO dto)
+        public async Task<ActionResult<APIResponse>> UpdateDoctorAsync(DoctorUpdateDTO dto)
         {
             var apiResponse = new APIResponse();
             try
             {
-                var doctorUpdated = await _doctorService.UpdateDoctorAsync(dto, User);
+                var doctorUpdated = await _doctorService.UpdateDoctorAsync(dto);
                 apiResponse.Data = doctorUpdated;
                 apiResponse.Status = true;
                 apiResponse.StatusCode = HttpStatusCode.OK;
@@ -120,7 +120,7 @@ namespace SWP391_RedRibbonLife.Controllers
         }
 
         [HttpGet]
-        [Route("GetByFullname/{fullname}")]
+        [Route("GetByID/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -128,28 +128,28 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Customer, Admin, Manager, Doctor")]
-        public async Task<ActionResult<APIResponse>> GetDoctorByFullnameAsync(string fullname)
+        public async Task<ActionResult<APIResponse>> GetDoctorByDoctorIDAsync(int id)
         {
             var apiResponse = new APIResponse();
             try
             {
-                if (string.IsNullOrWhiteSpace(fullname))
+                if (id <= 0)
                 {
-                    apiResponse.Errors.Add("Full name is required and cannot be empty.");
+                    apiResponse.Errors.Add("Doctor ID must be a positive integer.");
                     apiResponse.StatusCode = HttpStatusCode.BadRequest;
                     apiResponse.Status = false;
                     return BadRequest(apiResponse);
                 }
 
-                var doctors = await _doctorService.GetDoctorByFullnameAsync(fullname);
-                apiResponse.Data = doctors;
+                var doctor = await _doctorService.GetDoctorByDoctorIDAsync(id);
+                apiResponse.Data = doctor;
                 apiResponse.Status = true;
                 apiResponse.StatusCode = HttpStatusCode.OK;
                 return Ok(apiResponse);
             }
             catch (Exception ex)
             {
-                if (ex.Message.Contains("No active doctors found"))
+                if (ex.Message.Contains("not found"))
                 {
                     apiResponse.Errors.Add(ex.Message);
                     apiResponse.StatusCode = HttpStatusCode.NotFound;

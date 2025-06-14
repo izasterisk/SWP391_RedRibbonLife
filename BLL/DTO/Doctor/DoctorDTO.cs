@@ -18,6 +18,7 @@ namespace BLL.DTO.Doctor
         public DateOnly? DateOfBirth { get; set; }
         public string? Gender { get; set; }
         public string? Address { get; set; }
+        //public bool IsVerified { get; set; } = false;
         //public string UserRole { get; set; } = null!;
         //public bool IsActive { get; set; }
 

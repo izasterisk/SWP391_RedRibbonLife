@@ -17,12 +17,13 @@ namespace BLL.Utils
     {
         public AutoMapperConfig()
         {
-            CreateMap<UserDTO, User>().ReverseMap();
-            CreateMap<User, UserReadonlyDTO>().ReverseMap();
+            CreateMap<UserDTO, User>().ReverseMap(); // Includes IsVerified field mapping
+            CreateMap<User, UserReadonlyDTO>().ReverseMap(); // Includes IsVerified field mapping
             CreateMap<Doctor, DoctorDTO>().ReverseMap().ForMember(n => n.UserId, opt => opt.Ignore());
             CreateMap<User, DoctorDTO>().ReverseMap();
             CreateMap<User, DoctorReadOnlyDTO>().ReverseMap();
             CreateMap<Doctor, DoctorReadOnlyDTO>().ReverseMap().ForMember(n => n.UserId, opt => opt.Ignore());
+            CreateMap<Doctor, DoctorUpdateDTO>().ReverseMap();
             CreateMap<Article, ArticleDTO>().ReverseMap();
             CreateMap<Category, CategoryDTO>().ReverseMap();
 

@@ -39,7 +39,8 @@ namespace BLL.DTO.User
         public string? Gender { get; set; }
         
         [StringLength(500, ErrorMessage = "Address cannot exceed 500 characters")]
-        public string? Address { get; set; }
+        public string? Address { get; set; }        
+        public bool IsVerified { get; set; } = false;
         //public string UserRole { get; set; }
         //public bool IsActive { get; set; } = true;
     }

@@ -1234,6 +1234,9 @@
             "minLength": 0,
             "type": "string",
             "nullable": true
+          },
+          "isVerified": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false

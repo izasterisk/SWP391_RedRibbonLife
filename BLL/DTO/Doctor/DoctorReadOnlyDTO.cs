@@ -10,7 +10,7 @@ namespace BLL.DTO.Doctor
     {
         // User properties (excluding password)
         public int UserId { get; set; }
-        public string Username { get; set; } = null!;
+        // public string Username { get; set; } = null!;
         // public string Password { get; set; } = null!;
         public string? Email { get; set; }
         public string? PhoneNumber { get; set; }
@@ -20,6 +20,7 @@ namespace BLL.DTO.Doctor
         public string? Address { get; set; }
         public string UserRole { get; set; } = null!;
         public bool IsActive { get; set; }
+        public bool IsVerified { get; set; }
 
         // Doctor properties
         public int DoctorId { get; set; }

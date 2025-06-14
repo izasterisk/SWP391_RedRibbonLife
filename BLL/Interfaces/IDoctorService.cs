@@ -11,8 +11,8 @@ namespace BLL.Interfaces
     public interface IDoctorService
     {
         Task<bool> CreateDoctorAsync(DoctorDTO dto);
-        Task<bool> UpdateDoctorAsync(DoctorDTO dto, ClaimsPrincipal userClaims);
+        Task<bool> UpdateDoctorAsync(DoctorUpdateDTO dto);
         Task<List<DoctorReadOnlyDTO>> GetAllDoctorsAsync();
-        Task<List<DoctorReadOnlyDTO>> GetDoctorByFullnameAsync(string fullname);
+        Task<DoctorReadOnlyDTO> GetDoctorByDoctorIDAsync(int id);
     }
 }

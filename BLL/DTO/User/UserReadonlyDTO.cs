@@ -19,5 +19,6 @@ namespace BLL.DTO.User
         public string? Address { get; set; }
         public string UserRole { get; set; }
         public bool IsActive { get; set; } = true;
+        public bool IsVerified { get; set; }
     }
 }
