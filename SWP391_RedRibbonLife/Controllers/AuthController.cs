@@ -16,13 +16,13 @@ namespace SWP391_RedRibbonLife.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [AllowAnonymous]
-    public class LoginController : ControllerBase
+    public class AuthController : ControllerBase
     {
         private readonly IConfiguration _configuration;
         private readonly ILoginService _loginService;
         private readonly IUserService _userService;
 
-        public LoginController(IConfiguration configuration, ILoginService loginService, IUserService userService)
+        public AuthController(IConfiguration configuration, ILoginService loginService, IUserService userService)
         {
             _configuration = configuration;
             _loginService = loginService;

@@ -10,6 +10,7 @@ using AutoMapper;
 using BLL.DTO.Doctor;
 using BLL.DTO.User;
 using BLL.DTO.Article;
+using BLL.DTO.Patient;
 
 namespace BLL.Utils
 {
@@ -26,6 +27,8 @@ namespace BLL.Utils
             CreateMap<Doctor, DoctorUpdateDTO>().ReverseMap();
             CreateMap<Article, ArticleDTO>().ReverseMap();
             CreateMap<Category, CategoryDTO>().ReverseMap();
+            CreateMap<PatientDTO, Patient>().ReverseMap();
+            CreateMap<PatientDTO, User>().ReverseMap();
 
             //Khi có 2 trường khác tên, ví dụ: studentName và Name
             //CreateMap<StudentDTO, Student>().ForMember(n => n.studentName, opt => opt.MapFrom(x => x.Name)).ReverseMap();

@@ -1,9 +1,9 @@
-﻿using System.Net;
+using System.Net;
+using System.Linq;
 using AutoMapper;
 using BLL.DTO;
-using BLL.DTO.Doctor;
+using BLL.DTO.Patient;
 using BLL.Interfaces;
-using BLL.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,12 +12,12 @@ namespace SWP391_RedRibbonLife.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class DoctorController : ControllerBase
+    public class PatientController : ControllerBase
     {
-        private readonly IDoctorService _doctorService;
-        public DoctorController(IDoctorService DoctorService)
+        private readonly IPatientService _patientService;
+        public PatientController(IPatientService patientService)
         {
-            _doctorService = DoctorService;
+            _patientService = patientService;
         }
         [HttpPost]
         [Route("Create")]
@@ -27,10 +27,9 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin, Manager")]
-        public async Task<ActionResult<APIResponse>> CreateDoctorAsync(DoctorDTO dto)
+        public async Task<ActionResult<APIResponse>> CreatePatientAsync(PatientDTO dto)
         {
             var apiResponse = new APIResponse();
-            
             if (!ModelState.IsValid)
             {
                 apiResponse.Status = false;
@@ -40,11 +39,10 @@ namespace SWP391_RedRibbonLife.Controllers
                     .Select(e => e.ErrorMessage));
                 return BadRequest(apiResponse);
             }
-            
             try
             {
-                var doctorCreated = await _doctorService.CreateDoctorAsync(dto);
-                apiResponse.Data = doctorCreated;
+                var patientCreated = await _patientService.CreatePatientAsync(dto);
+                apiResponse.Data = patientCreated;
                 apiResponse.Status = true;
                 apiResponse.StatusCode = HttpStatusCode.OK;
                 //Ok - 200
@@ -67,11 +65,10 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Doctor, Admin, Manager")]
-        public async Task<ActionResult<APIResponse>> UpdateDoctorAsync(DoctorUpdateDTO dto)
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Patient, Admin, Manager")]
+        public async Task<ActionResult<APIResponse>> UpdatePatientAsync(PatientUpdateDTO dto)
         {
             var apiResponse = new APIResponse();
-            
             if (!ModelState.IsValid)
             {
                 apiResponse.Status = false;
@@ -81,11 +78,10 @@ namespace SWP391_RedRibbonLife.Controllers
                     .Select(e => e.ErrorMessage));
                 return BadRequest(apiResponse);
             }
-            
             try
             {
-                var doctorUpdated = await _doctorService.UpdateDoctorAsync(dto);
-                apiResponse.Data = doctorUpdated;
+                var patientUpdated = await _patientService.UpdatePatientAsync(dto);
+                apiResponse.Data = patientUpdated;
                 apiResponse.Status = true;
                 apiResponse.StatusCode = HttpStatusCode.OK;
                 return Ok(apiResponse);
@@ -120,14 +116,14 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin, Manager, Doctor")]
-        public async Task<ActionResult<APIResponse>> GetAllDoctorsAsync()
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin, Manager, Doctor, Patient")]
+        public async Task<ActionResult<APIResponse>> GetAllPatientsAsync()
         {
             var apiResponse = new APIResponse();
             try
             {
-                var doctors = await _doctorService.GetAllDoctorsAsync();
-                apiResponse.Data = doctors;
+                var patients = await _patientService.GetAllPatientsAsync();
+                apiResponse.Data = patients;
                 apiResponse.Status = true;
                 apiResponse.StatusCode = HttpStatusCode.OK;
                 return Ok(apiResponse);
@@ -149,22 +145,22 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Customer, Admin, Manager, Doctor")]
-        public async Task<ActionResult<APIResponse>> GetDoctorByDoctorIDAsync(int id)
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Customer, Admin, Manager, Doctor, Patient")]
+        public async Task<ActionResult<APIResponse>> GetPatientByPatientIDAsync(int id)
         {
             var apiResponse = new APIResponse();
             try
             {
                 if (id <= 0)
                 {
-                    apiResponse.Errors.Add("Doctor ID must be a positive integer.");
+                    apiResponse.Errors.Add("Patient ID must be a positive integer.");
                     apiResponse.StatusCode = HttpStatusCode.BadRequest;
                     apiResponse.Status = false;
                     return BadRequest(apiResponse);
                 }
 
-                var doctor = await _doctorService.GetDoctorByDoctorIDAsync(id);
-                apiResponse.Data = doctor;
+                var patient = await _patientService.GetPatientByPatientIDAsync(id);
+                apiResponse.Data = patient;
                 apiResponse.Status = true;
                 apiResponse.StatusCode = HttpStatusCode.OK;
                 return Ok(apiResponse);

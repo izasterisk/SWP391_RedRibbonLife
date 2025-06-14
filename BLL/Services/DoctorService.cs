@@ -29,16 +29,6 @@ namespace BLL.Services
             _userUtils = userUtils;
         }
 
-        public int GetDoctorIdByUserId(int id)
-        {
-            var doctor = _doctorRepository.GetAsync(d => d.UserId == id).Result;
-            if (doctor == null)
-            {
-                throw new Exception($"Doctor with {id} not found!!!.");
-            }
-            return doctor.DoctorId;
-        }
-
         public async Task<bool> CreateDoctorAsync(DoctorDTO dto)
         {
             ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
@@ -98,19 +88,19 @@ namespace BLL.Services
             //    throw new ArgumentNullException(nameof(dto.Username), "Username is required.");
             //if (string.IsNullOrWhiteSpace(dto.FullName))
             //    throw new ArgumentNullException(nameof(dto.FullName), "Full name is required.");
-
-            // Get user first
-            var user = await _userRepository.GetAsync(u => u.UserId == dto.UserId);
-            if (user == null)
-            {
-                throw new Exception($"User associated with Doctor ID {dto.UserId} not found.");
-            }
+            
             // Get existing doctor
-            var doctor = await _doctorRepository.GetAsync(d => d.DoctorId == GetDoctorIdByUserId(dto.UserId));
+            var doctor = await _doctorRepository.GetAsync(d => d.DoctorId == dto.DoctorId, true);
             if (doctor == null)
             {
                 throw new Exception("Doctor not found.");
             }
+            var user = await _userRepository.GetAsync(u => u.UserId == doctor.UserId);
+            if (user == null)
+            {
+                throw new Exception($"User associated with Doctor ID {doctor.UserId} not found.");
+            }
+            
             // Update User entity
             if (!string.IsNullOrWhiteSpace(dto.PhoneNumber))
                 user.PhoneNumber = dto.PhoneNumber;
@@ -138,7 +128,7 @@ namespace BLL.Services
         public async Task<List<DoctorReadOnlyDTO>> GetAllDoctorsAsync()
         {
             // Get all doctors with their associated users
-            var users = await _userRepository.GetAllByFilterAsync(d => d.IsActive, true);
+            var users = await _userRepository.GetAllByFilterAsync(d => d.IsActive && d.UserRole == "Doctor", true);
             if (users == null || !users.Any())
             {
                 throw new Exception("No active doctors found.");
@@ -154,7 +144,7 @@ namespace BLL.Services
                     var doctorReadOnlyDTO = new DoctorReadOnlyDTO
                     {
                         // User properties (excluding password)
-                        UserId = user.UserId,
+                        // UserId = user.UserId,
                         Email = user.Email,
                         PhoneNumber = user.PhoneNumber,
                         FullName = user.FullName,
@@ -194,7 +184,7 @@ namespace BLL.Services
             var doctorReadOnlyDTO = new DoctorReadOnlyDTO
             {
                 // User properties
-                UserId = user.UserId,
+                //UserId = user.UserId,
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
                 FullName = user.FullName,

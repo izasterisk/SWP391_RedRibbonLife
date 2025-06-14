@@ -25,11 +25,13 @@ builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IDoctorService, DoctorService>();
 builder.Services.AddScoped<IArticleService, ArticleService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IPatientService, PatientService>();
 
 builder.Services.AddScoped<IUserRepository<User>, UserRepository<User>>();
 builder.Services.AddScoped<IUserRepository<Doctor>, UserRepository<Doctor>>();
 builder.Services.AddScoped<IUserRepository<Article>, UserRepository<Article>>();
 builder.Services.AddScoped<IUserRepository<Category>, UserRepository<Category>>();
+builder.Services.AddScoped<IUserRepository<Patient>, UserRepository<Patient>>();
 
 //CORS
 builder.Services.AddCors(options =>
