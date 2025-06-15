@@ -19,8 +19,8 @@ CREATE TABLE Users (
     address NVARCHAR(MAX),
     user_role NVARCHAR(50) NOT NULL,
     isActive BIT DEFAULT 1 NOT NULL,
-	isVerified BIT DEFAULT 0 NOT NULL,
-    CONSTRAINT chk_user_role CHECK (user_role IN ('Customer', 'Staff', 'Doctor', 'Manager', 'Admin'))
+    isVerified BIT DEFAULT 0 NOT NULL,
+    CONSTRAINT chk_user_role CHECK (user_role IN ('Patient', 'Staff', 'Doctor', 'Manager', 'Admin'))
 );
 
 -- 2. Bảng Patients (Lưu thông tin bệnh nhân)
@@ -228,11 +228,11 @@ ALTER TABLE MedicationSchedules
 ADD CONSTRAINT fk_medication_patients
 FOREIGN KEY (patient_id) REFERENCES Patients(patient_id);
 
--- Chèn dữ liệu cho vai trò Customer
+-- Chèn dữ liệu cho vai trò Patient
 INSERT INTO Users (username, password, email, phone_number, full_name, date_of_birth, gender, address, user_role, isActive, isVerified)
 VALUES
-('customer1', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'customer1@example.com', '0123456789', N'Nguyễn Văn A', '1990-01-01', 'Male', N'Hà Nội', 'Customer', 1, 0),
-('customer2', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'customer2@example.com', '0987654321', N'Trần Thị B', '1995-05-05', 'Female', N'Hồ Chí Minh', 'Customer', 1, 1);
+('patient1', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'customer1@example.com', '0123456789', N'Nguyễn Văn A', '1990-01-01', 'Male', N'Hà Nội', 'Patient', 1, 0),
+('patient2', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'customer2@example.com', '0987654321', N'Trần Thị B', '1995-05-05', 'Female', N'Hồ Chí Minh', 'Patient', 1, 1);
 
 -- Chèn dữ liệu cho vai trò Doctor
 INSERT INTO Users (username, password, email, phone_number, full_name, date_of_birth, gender, address, user_role, isActive, isVerified)
@@ -256,7 +256,7 @@ INSERT INTO Users (username, password, email, phone_number, full_name, date_of_b
 VALUES
 ('admin1', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'admin1@example.com', '0987654323', N'Phạm Thị H', '1990-08-08', 'Female', N'Huế', 'Admin', 1, 1);
 
--- Chèn dữ liệu vào bảng Patients (cho Customer)
+-- Chèn dữ liệu vào bảng Patients (cho Patient)
 INSERT INTO Patients (user_id, blood_type, is_pregnant, special_notes)
 VALUES
 (1, 'A+', 0, N'Không có ghi chú đặc biệt'),

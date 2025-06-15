@@ -20,16 +20,27 @@ namespace BLL.Utils
         public AutoMapperConfig()
         {
             CreateMap<UserDTO, User>().ReverseMap(); // Includes IsVerified field mapping
-            CreateMap<User, UserReadonlyDTO>().ReverseMap(); // Includes IsVerified field mapping
-            CreateMap<Doctor, DoctorDTO>().ReverseMap().ForMember(n => n.UserId, opt => opt.Ignore());
-            CreateMap<User, DoctorDTO>().ReverseMap();
-            CreateMap<User, DoctorReadOnlyDTO>().ReverseMap();
-            CreateMap<Doctor, DoctorReadOnlyDTO>().ReverseMap().ForMember(n => n.UserId, opt => opt.Ignore());
-            CreateMap<Doctor, DoctorUpdateDTO>().ReverseMap();
-            CreateMap<Article, ArticleDTO>().ReverseMap();
-            CreateMap<Category, CategoryDTO>().ReverseMap();
+            CreateMap<UserReadonlyDTO, User>().ReverseMap(); // Includes IsVerified field mapping
+            
+            CreateMap<DoctorDTO, Doctor>().ReverseMap();
+            CreateMap<DoctorDTO, User>().ReverseMap();
+            CreateMap<DoctorReadOnlyDTO, Doctor>().ReverseMap();
+            CreateMap<DoctorReadOnlyDTO, User>().ReverseMap();
+            CreateMap<DoctorUpdateDTO, Doctor>().ReverseMap();
+            CreateMap<DoctorUpdateDTO, User>().ReverseMap();
+            
             CreateMap<PatientDTO, Patient>().ReverseMap();
             CreateMap<PatientDTO, User>().ReverseMap();
+            CreateMap<PatientReadOnlyDTO, Patient>().ReverseMap();
+            CreateMap<PatientReadOnlyDTO, User>().ReverseMap();
+            CreateMap<PatientUpdateDTO, Patient>().ReverseMap();
+            CreateMap<PatientUpdateDTO, User>().ReverseMap();
+
+            CreateMap<ArticleDTO, Article>().ReverseMap();
+            CreateMap<ArticleReadOnlyDTO, Article>().ReverseMap();
+            CreateMap<ArticleReadOnlyDTO, Category>().ReverseMap();
+            
+            CreateMap<CategoryDTO, Category>().ReverseMap();
 
             //Khi có 2 trường khác tên, ví dụ: studentName và Name
             //CreateMap<StudentDTO, Student>().ForMember(n => n.studentName, opt => opt.MapFrom(x => x.Name)).ReverseMap();
