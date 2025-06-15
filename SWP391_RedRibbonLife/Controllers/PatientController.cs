@@ -158,7 +158,6 @@ namespace SWP391_RedRibbonLife.Controllers
                     apiResponse.Status = false;
                     return BadRequest(apiResponse);
                 }
-
                 var patient = await _patientService.GetPatientByPatientIDAsync(id);
                 apiResponse.Data = patient;
                 apiResponse.Status = true;

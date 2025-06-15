@@ -40,7 +40,6 @@ namespace SWP391_RedRibbonLife.Controllers
                     .Select(e => e.ErrorMessage));
                 return BadRequest(apiResponse);
             }
-            
             try
             {
                 var doctorCreated = await _doctorService.CreateDoctorAsync(dto);
@@ -106,7 +105,6 @@ namespace SWP391_RedRibbonLife.Controllers
                     apiResponse.Status = false;
                     return NotFound(apiResponse);
                 }
-
                 apiResponse.Errors.Add(ex.Message);
                 apiResponse.StatusCode = HttpStatusCode.InternalServerError;
                 apiResponse.Status = false;

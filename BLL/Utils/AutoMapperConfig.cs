@@ -10,6 +10,7 @@ using AutoMapper;
 using BLL.DTO.Doctor;
 using BLL.DTO.User;
 using BLL.DTO.Article;
+using BLL.DTO.Category;
 using BLL.DTO.Patient;
 
 namespace BLL.Utils

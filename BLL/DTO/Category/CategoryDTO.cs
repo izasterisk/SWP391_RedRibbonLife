@@ -6,11 +6,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BLL.DTO.Article
+namespace BLL.DTO.Category
 {
     public class CategoryDTO
     {
         public int CategoryId { get; set; }
+        [Required(ErrorMessage = "Category name cannot be null")]
         public string CategoryName { get; set; } = null!;
     }
 }

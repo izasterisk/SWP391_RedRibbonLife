@@ -15,6 +15,7 @@ namespace BLL.DTO.Article
         public string? Content { get; set; }
         public string? ThumbnailImage { get; set; }
         public int CategoryId { get; set; }
+        public string CategoryName { get; set; } = null!;
         public bool? IsActive { get; set; }
     }
 }
