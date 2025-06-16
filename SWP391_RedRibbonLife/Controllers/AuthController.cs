@@ -36,20 +36,16 @@ namespace SWP391_RedRibbonLife.Controllers
             {
                 return BadRequest("Please enter username and password");
             }
-
             // Validate user từ database
             var user = await _loginService.ValidateUserAsync(model.Username, model.Password);
-
             if (user == null)
             {
                 return BadRequest("Invalid username or password");
             }
-
             LoginResponseDTO response = new()
             {
                 Username = user.Username
             };
-
             string audience = _configuration.GetValue<string>("LocalAudience");
             string issuer = _configuration.GetValue<string>("LocalIssuer");
             byte[] key = Encoding.ASCII.GetBytes(_configuration.GetValue<string>("JWTSecretforLocaluser"));
@@ -119,12 +115,10 @@ namespace SWP391_RedRibbonLife.Controllers
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 var username = User.FindFirst(ClaimTypes.Name)?.Value;
                 var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
-
                 if (string.IsNullOrEmpty(username))
                 {
                     return Unauthorized("Invalid token");
                 }
-
                 return Ok(new
                 {
                     userId = userId,
@@ -143,45 +137,48 @@ namespace SWP391_RedRibbonLife.Controllers
                 });
             }
         }
-
-        [HttpPost("register")]
-        [ProducesResponseType(StatusCodes.Status201Created)]
+        [HttpPut]
+        [Route("UpdatePassword")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> Register(UserDTO model)
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser")]
+        public async Task<ActionResult<APIResponse>> ChangePasswordAsync(ChangePasswordDTO dto)
         {
             var apiResponse = new APIResponse();
+            if (!ModelState.IsValid)
+            {
+                apiResponse.Status = false;
+                apiResponse.StatusCode = HttpStatusCode.BadRequest;
+                apiResponse.Errors.AddRange(ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage));
+                return BadRequest(apiResponse);
+            }
             try
             {
-                if (!ModelState.IsValid)
-                {
-                    apiResponse.Status = false;
-                    apiResponse.StatusCode = HttpStatusCode.BadRequest;
-                    apiResponse.Errors.AddRange(ModelState.Values
-                        .SelectMany(v => v.Errors)
-                        .Select(e => e.ErrorMessage));
-                    return BadRequest(apiResponse);
-                }
-
-                var result = await _userService.CreateUserAsync(model);
-
-                apiResponse.Data = new
-                {
-                    message = "User registered successfully",
-                    username = model.Username,
-                    email = model.Email
-                };
+                var result = await _loginService.ChangePasswordAsync(dto);
+                apiResponse.Data = result;
                 apiResponse.Status = true;
-                apiResponse.StatusCode = HttpStatusCode.Created;
-
-                return StatusCode(201, apiResponse);
+                apiResponse.StatusCode = HttpStatusCode.OK;
+                return Ok(apiResponse);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                apiResponse.Errors.Add(ex.Message);
+                apiResponse.StatusCode = HttpStatusCode.Unauthorized;
+                apiResponse.Status = false;
+                return Unauthorized(apiResponse);
             }
             catch (Exception ex)
             {
                 apiResponse.Errors.Add(ex.Message);
                 apiResponse.StatusCode = HttpStatusCode.InternalServerError;
                 apiResponse.Status = false;
-                return StatusCode(500, apiResponse);
+                return apiResponse;
             }
         }
     }

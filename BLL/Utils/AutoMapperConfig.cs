@@ -11,6 +11,7 @@ using BLL.DTO.Doctor;
 using BLL.DTO.User;
 using BLL.DTO.Article;
 using BLL.DTO.Category;
+using BLL.DTO.Login;
 using BLL.DTO.Patient;
 
 namespace BLL.Utils
@@ -19,6 +20,9 @@ namespace BLL.Utils
     {
         public AutoMapperConfig()
         {
+            CreateMap<LoginDTO, User>().ReverseMap();
+            CreateMap<LoginResponseDTO, User>().ReverseMap();
+            
             CreateMap<UserDTO, User>().ReverseMap(); // Includes IsVerified field mapping
             CreateMap<UserReadonlyDTO, User>().ReverseMap(); // Includes IsVerified field mapping
             
