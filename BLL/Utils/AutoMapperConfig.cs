@@ -32,6 +32,7 @@ namespace BLL.Utils
             CreateMap<DoctorReadOnlyDTO, User>().ReverseMap();
             CreateMap<DoctorUpdateDTO, Doctor>().ReverseMap();
             CreateMap<DoctorUpdateDTO, User>().ReverseMap();
+            CreateMap<DoctorOnlyDTO, Doctor>().ReverseMap();
             
             CreateMap<PatientDTO, Patient>().ReverseMap();
             CreateMap<PatientDTO, User>().ReverseMap();
@@ -39,6 +40,7 @@ namespace BLL.Utils
             CreateMap<PatientReadOnlyDTO, User>().ReverseMap();
             CreateMap<PatientUpdateDTO, Patient>().ReverseMap();
             CreateMap<PatientUpdateDTO, User>().ReverseMap();
+            CreateMap<PatientDTO, Patient>().ReverseMap();
 
             CreateMap<ArticleDTO, Article>().ReverseMap();
             CreateMap<ArticleReadOnlyDTO, Article>().ReverseMap()

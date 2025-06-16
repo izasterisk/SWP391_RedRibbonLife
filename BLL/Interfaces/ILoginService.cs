@@ -6,6 +6,6 @@ namespace BLL.Interfaces
     public interface ILoginService
     {
         Task<UserReadonlyDTO?> ValidateUserAsync(string username, string password);
-        Task<bool> ChangePasswordAsync(ChangePasswordDTO dto);
+        Task<dynamic> ChangePasswordAsync(ChangePasswordDTO dto);
     }
 } 

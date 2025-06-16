@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using BLL.DTO.Doctor;
 using BLL.DTO.Login;
+using BLL.DTO.Patient;
 using BLL.DTO.User;
 using BLL.Interfaces;
 using DAL.IRepository;
@@ -16,13 +18,17 @@ namespace BLL.Services
     {
         private readonly IMapper _mapper;
         private readonly IUserRepository<User> _userRepository;
+        private readonly IUserRepository<Patient> _patientRepository;
+        private readonly IUserRepository<Doctor> _doctorRepository;
         private readonly IUserService _userService;
 
-        public LoginService(IUserRepository<User> userRepository, IMapper mapper, IUserService userService)
+        public LoginService(IUserRepository<User> userRepository, IMapper mapper, IUserService userService, IUserRepository<Patient> patientRepository, IUserRepository<Doctor> doctorRepository)
         {
             _mapper = mapper;
             _userRepository = userRepository;
             _userService = userService;
+            _patientRepository = patientRepository;
+            _doctorRepository = doctorRepository;
         }
 
         public async Task<UserReadonlyDTO?> ValidateUserAsync(string username, string password)
@@ -43,7 +49,7 @@ namespace BLL.Services
             }
             return null; // Password không đúng
         }
-        public async Task<bool> ChangePasswordAsync(ChangePasswordDTO dto)
+        public async Task<dynamic> ChangePasswordAsync(ChangePasswordDTO dto)
         {
             ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
             // Tìm user
@@ -61,8 +67,40 @@ namespace BLL.Services
             // Update password
             user.Password = _userService.CreatePasswordHash(dto.newPassword);
             await _userRepository.UpdateAsync(user);
-            return true;
+            // Chuyển đổi User thành UserReadonlyDTO
+            var userDto = _mapper.Map<UserReadonlyDTO>(user);
+            // Trả về dữ liệu cụ thể dựa trên role
+            switch (user.UserRole)
+            {
+                case "Patient":
+                    var patient = await _patientRepository.GetAsync(p => p.UserId == user.UserId);
+                    if (patient != null)
+                    {
+                        return new
+                        {
+                            UserInfo = userDto,
+                            PatientInfo = _mapper.Map<PatientOnlyDTO>(patient)
+                        };
+                    }
+                    break;
+                case "Doctor":
+                    var doctor = await _doctorRepository.GetAsync(d => d.UserId == user.UserId);
+                    if (doctor != null)
+                    {
+                        return new
+                        {
+                            UserInfo = userDto,
+                            DoctorInfo = _mapper.Map<DoctorOnlyDTO>(doctor)
+                        };
+                    }
+                    break;
+            
+                // Có thể thêm các trường hợp khác tùy theo role của ứng dụng
+            }
+            return new
+            {
+                UserInfo = userDto
+            };
         }
-        
     }
 } 
