@@ -11,5 +11,8 @@ namespace BLL.Interfaces
     {
         Task<List<ArticleReadOnlyDTO>> GetAllArticleAsync();
         Task<bool> CreateArticleAsync(ArticleDTO dto);
+        Task<bool> UpdateArticleAsync(ArticleUpdateDTO dto);
+        Task<bool> DeleteArticleByIdAsync(int id);
+        Task<ArticleReadOnlyDTO> GetArticleByIdAsync(int id);
     }
 }

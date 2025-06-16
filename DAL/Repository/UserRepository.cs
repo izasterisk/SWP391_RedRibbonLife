@@ -41,7 +41,6 @@ namespace DAL.Repository
         public async Task<List<T>> GetAllWithRelationsAsync(params Expression<Func<T, object>>[] includes)
         {
             IQueryable<T> query = _dbSet;
-            
             if (includes != null)
             {
                 foreach (var include in includes)
@@ -49,10 +48,26 @@ namespace DAL.Repository
                     query = query.Include(include);
                 }
             }
-            
             return await query.ToListAsync();
         }
-        
+
+        public async Task<T?> GetWithRelationsAsync(Expression<Func<T, bool>> filter, bool useNoTracking = false, params Expression<Func<T, object>>[] includes)
+        {
+            IQueryable<T> query = _dbSet;
+            if (useNoTracking)
+            {
+                query = query.AsNoTracking();
+            }
+            if (includes != null)
+            {
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+            }
+            return await query.Where(filter).FirstOrDefaultAsync();
+        }
+
         public async Task<T> GetAsync(Expression<Func<T, bool>> filter, bool useNoTracking = false)
         {
             if (useNoTracking)

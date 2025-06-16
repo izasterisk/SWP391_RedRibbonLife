@@ -37,8 +37,10 @@ namespace BLL.Utils
             CreateMap<PatientUpdateDTO, User>().ReverseMap();
 
             CreateMap<ArticleDTO, Article>().ReverseMap();
-            CreateMap<ArticleReadOnlyDTO, Article>().ReverseMap();
+            CreateMap<ArticleReadOnlyDTO, Article>().ReverseMap()
+                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.CategoryName : null));
             CreateMap<ArticleReadOnlyDTO, Category>().ReverseMap();
+            CreateMap<ArticleUpdateDTO, Article>().ReverseMap();
             
             CreateMap<CategoryDTO, Category>().ReverseMap();
 

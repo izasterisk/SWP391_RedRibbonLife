@@ -38,7 +38,15 @@ namespace BLL.Services
             var articleDTOs = _mapper.Map<List<ArticleReadOnlyDTO>>(articles);
             return articleDTOs;
         }
-
+        public async Task<ArticleReadOnlyDTO> GetArticleByIdAsync(int id)
+        {
+            var article = await _articleRepository.GetWithRelationsAsync(a => a.ArticleId == id, true, a => a.Category);
+            if (article == null)
+            {
+                throw new Exception($"Article with ID {id} not found");
+            }
+            return _mapper.Map<ArticleReadOnlyDTO>(article);
+        }
         public async Task<bool> CreateArticleAsync(ArticleDTO dto)
         {
             ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
@@ -83,6 +91,78 @@ namespace BLL.Services
                 throw; // Re-throw the exception
             }
         }
-        
+        public async Task<bool> UpdateArticleAsync(ArticleUpdateDTO dto)
+        {
+            ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
+            if (dto.Title.Length > 200)
+                throw new ArgumentException("Title cannot exceed 200 characters.", nameof(dto.Title));
+            if (dto.CategoryId != null && dto.CategoryId < 0)
+                throw new ArgumentException("Category ID cannot be negative.", nameof(dto.CategoryId));
+            // Begin transaction
+            using var transaction = await _dbContext.Database.BeginTransactionAsync();
+            try
+            {
+                var article = await _articleRepository.GetAsync(u => u.ArticleId == dto.ArticleId, true);
+                if (article == null)
+                {
+                    throw new Exception("No article found.");
+                }
+                // Update article
+                if (!string.IsNullOrWhiteSpace(dto.Title))
+                {
+                    var articleTitle = await _articleRepository.GetAsync(u => u.Title.Equals(dto.Title), true);
+                    if (articleTitle != null)
+                    {
+                        throw new Exception("Title already exists.");
+                    }
+                    article.Title = dto.Title;
+                }
+                if (!string.IsNullOrWhiteSpace(dto.Content))
+                    article.Content = dto.Content;
+                if (!string.IsNullOrWhiteSpace(dto.ThumbnailImage))
+                    article.ThumbnailImage = dto.ThumbnailImage;
+                if (dto.CategoryId != null)
+                {
+                    var category = await _categoryRepository.GetAsync(u => u.CategoryId == dto.CategoryId, true);
+                    if (category == null)
+                    {
+                        throw new Exception("Category not found.");
+                    }
+                    article.CategoryId = dto.CategoryId;
+                }
+                if (dto.IsActive != null)
+                    article.IsActive = dto.IsActive;
+                await _articleRepository.UpdateAsync(article);
+                // Commit transaction
+                await transaction.CommitAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                // Rollback transaction on error
+                await transaction.RollbackAsync();
+                throw; // Re-throw the exception
+            }
+        }
+        public async Task<bool> DeleteArticleByIdAsync(int id)
+        {
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+            try
+            {
+                var article = await _articleRepository.GetAsync(u => u.ArticleId == id, true);
+                if (article == null)
+                {
+                    throw new KeyNotFoundException($"Article with ID {id} not found");
+                }
+                await _articleRepository.DeleteAsync(article);
+                await transaction.CommitAsync();
+                return true;
+            }
+            catch(Exception)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
     }
 }

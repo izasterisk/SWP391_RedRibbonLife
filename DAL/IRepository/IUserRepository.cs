@@ -7,11 +7,12 @@ using System.Threading.Tasks;
 
 namespace DAL.IRepository
 {
-    public interface IUserRepository<T>
+    public interface IUserRepository<T> where T : class
     {
         Task<List<T>> GetAllAsync();
         Task<List<T>> GetAllByFilterAsync(Expression<Func<T, bool>> filter, bool useNoTracking = false);
         Task<List<T>> GetAllWithRelationsAsync(params Expression<Func<T, object>>[] includes);
+        Task<T?> GetWithRelationsAsync(Expression<Func<T, bool>> filter, bool useNoTracking = false, params Expression<Func<T, object>>[] includes);
         Task<T> GetAsync(Expression<Func<T, bool>> filter, bool useNoTracking = false);
         //Task<T> GetByNameAsync(Expression<Func<T, bool>> filter);
         Task<T> CreateAsync(T dbRecord);
