@@ -45,7 +45,6 @@ namespace BLL.Services
                 throw new ArgumentNullException(nameof(dto.PhoneNumber), "Phone number is required.");
             if (string.IsNullOrWhiteSpace(dto.Email))
                 throw new ArgumentNullException(nameof(dto.Email), "Email is required.");
-
             // Check if username already exists
             var existingUser = await _userRepository.GetAsync(u => u.Username.Equals(dto.Username));
             if (existingUser != null)
@@ -66,7 +65,6 @@ namespace BLL.Services
             user.Password = _userUtils.CreatePasswordHash(dto.Password);
             // Save User first to get UserId
             var createdUser = await _userRepository.CreateAsync(user);
-
             // Create Doctor entity with UserId from created User
             Doctor doctor = new Doctor
             {
@@ -100,7 +98,6 @@ namespace BLL.Services
             {
                 throw new Exception($"User associated with Doctor ID {doctor.UserId} not found.");
             }
-            
             // Update User entity
             if (!string.IsNullOrWhiteSpace(dto.PhoneNumber))
                 user.PhoneNumber = dto.PhoneNumber;
@@ -113,7 +110,6 @@ namespace BLL.Services
             if (!string.IsNullOrWhiteSpace(dto.Address))
                 user.Address = dto.Address;
             //user.IsVerified = dto.IsVerified;
-
             // Update Doctor entity
             if (!string.IsNullOrWhiteSpace(dto.DoctorImage))
                 doctor.DoctorImage = dto.DoctorImage;

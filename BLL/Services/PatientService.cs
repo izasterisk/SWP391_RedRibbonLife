@@ -64,7 +64,7 @@ public class PatientService : IPatientService
             IsPregnant = dto.IsPregnant,
             SpecialNotes = dto.SpecialNotes
         };
-        // Save Doctor
+        // Save
         await _patientRepository.CreateAsync(patient);
         return true;
     }

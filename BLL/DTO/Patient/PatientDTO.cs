@@ -6,8 +6,8 @@ namespace BLL.DTO.Patient;
 public class PatientDTO
 {
     // Các thuộc tính từ Patient
-    public int PatientId { get; set; }
-    public int? UserId { get; set; }
+    // public int PatientId { get; set; }
+    // public int? UserId { get; set; }
 
     [StringLength(10, ErrorMessage = "Blood type cannot exceed 10 characters")]
     public string? BloodType { get; set; }
