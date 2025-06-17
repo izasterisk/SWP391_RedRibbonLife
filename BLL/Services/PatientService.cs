@@ -83,23 +83,26 @@ public class PatientService : IPatientService
                 throw new Exception($"User associated with patient ID {dto.PatientId} not found.");
             }
             // Update User entity
-            if (!string.IsNullOrWhiteSpace(dto.PhoneNumber))
-                user.PhoneNumber = dto.PhoneNumber;
-            if (!string.IsNullOrWhiteSpace(dto.FullName))
-                user.FullName = dto.FullName;
-            if (dto.DateOfBirth != null)
-                user.DateOfBirth = dto.DateOfBirth;
-            if (!string.IsNullOrWhiteSpace(dto.Gender))
-                user.Gender = dto.Gender;
-            if (!string.IsNullOrWhiteSpace(dto.Address))
-                user.Address = dto.Address;
+            // if (!string.IsNullOrWhiteSpace(dto.PhoneNumber))
+            //     user.PhoneNumber = dto.PhoneNumber;
+            // if (!string.IsNullOrWhiteSpace(dto.FullName))
+            //     user.FullName = dto.FullName;
+            // if (dto.DateOfBirth != null)
+            //     user.DateOfBirth = dto.DateOfBirth;
+            // if (!string.IsNullOrWhiteSpace(dto.Gender))
+            //     user.Gender = dto.Gender;
+            // if (!string.IsNullOrWhiteSpace(dto.Address))
+            //     user.Address = dto.Address;
             //user.IsVerified = dto.IsVerified;
-            if (!string.IsNullOrWhiteSpace(dto.BloodType))
-                patient.BloodType = dto.BloodType;
-            if (dto.IsPregnant != null)
-                patient.IsPregnant = dto.IsPregnant;
-            if (!string.IsNullOrWhiteSpace(dto.SpecialNotes))
-                patient.SpecialNotes = dto.SpecialNotes;
+            _mapper.Map(dto, user);
+            
+            // if (!string.IsNullOrWhiteSpace(dto.BloodType))
+            //     patient.BloodType = dto.BloodType;
+            // if (dto.IsPregnant != null)
+            //     patient.IsPregnant = dto.IsPregnant;
+            // if (!string.IsNullOrWhiteSpace(dto.SpecialNotes))
+            //     patient.SpecialNotes = dto.SpecialNotes;
+            _mapper.Map(dto, patient);
             // Save changes
             await _userRepository.UpdateAsync(user);
             await _patientRepository.UpdateAsync(patient);

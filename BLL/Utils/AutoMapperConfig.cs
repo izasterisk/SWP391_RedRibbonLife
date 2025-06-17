@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using DAL.Models;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using AutoMapper;
+using BLL.DTO.Admin;
 using BLL.DTO.Doctor;
 using BLL.DTO.User;
 using BLL.DTO.Article;
@@ -38,8 +39,10 @@ namespace BLL.Utils
             CreateMap<PatientDTO, User>().ReverseMap();
             CreateMap<PatientReadOnlyDTO, Patient>().ReverseMap();
             CreateMap<PatientReadOnlyDTO, User>().ReverseMap();
-            CreateMap<PatientUpdateDTO, Patient>().ReverseMap();
-            CreateMap<PatientUpdateDTO, User>().ReverseMap();
+            CreateMap<PatientUpdateDTO, Patient>()//.ReverseMap()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<PatientUpdateDTO, User>()//.ReverseMap()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
             CreateMap<PatientDTO, Patient>().ReverseMap();
 
             CreateMap<ArticleDTO, Article>().ReverseMap();
@@ -49,6 +52,11 @@ namespace BLL.Utils
             CreateMap<ArticleUpdateDTO, Article>().ReverseMap();
             
             CreateMap<CategoryDTO, Category>().ReverseMap();
+            
+            CreateMap<AdminDTO, User>().ReverseMap();
+            CreateMap<AdminReadOnlyDTO, User>().ReverseMap();
+            CreateMap<AdminUpdateDTO, User>()//.ReverseMap()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             //Khi có 2 trường khác tên, ví dụ: studentName và Name
             //CreateMap<StudentDTO, Student>().ForMember(n => n.studentName, opt => opt.MapFrom(x => x.Name)).ReverseMap();
