@@ -1,3 +1,5 @@
+using BLL.Utils;
+
 namespace BLL.DTO.Admin;
 using System.ComponentModel.DataAnnotations;
 
@@ -17,19 +19,21 @@ public class AdminUpdateDTO
     [StringLength(100, ErrorMessage = "Email cannot exceed 100 characters")]
     public string? Email { get; set; }
         
-    [Required(ErrorMessage = "Phone number is required")]
+    //[Required(ErrorMessage = "Phone number is required")]
     [Phone(ErrorMessage = "Invalid phone number format")]
     [StringLength(20, ErrorMessage = "Phone number cannot exceed 20 characters")]
+    [RegularExpression(@"^\d+$", ErrorMessage = "Phone number must contain only digits")]
     public string? PhoneNumber { get; set; }
         
-    [Required(ErrorMessage = "Full name is required")]
+    //[Required(ErrorMessage = "Full name is required")]
     [StringLength(100, ErrorMessage = "Full name cannot exceed 100 characters")]
     public string? FullName { get; set; }
-        
+    
     public DateOnly? DateOfBirth { get; set; }
         
-    [Required(ErrorMessage = "Gender is required")]
+    //[Required(ErrorMessage = "Gender is required")]
     [StringLength(10, ErrorMessage = "Gender cannot exceed 10 characters")]
+    [RegularExpression("^(Male|Female)$", ErrorMessage = "Gender must be either 'Male' or 'Female'")]
     public string? Gender { get; set; }
         
     [StringLength(500, ErrorMessage = "Address cannot exceed 500 characters")]

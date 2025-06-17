@@ -64,6 +64,18 @@ public class AdminService : IAdminService
         {
             throw new Exception("Admin not found.");
         }
+        if(admin.UserRole != "Admin")
+        {
+            throw new Exception("This account is not admin.");
+        }
+        if(!string.IsNullOrWhiteSpace(dto.Email))
+        {
+            var existingUserByEmail = await _userRepository.GetAsync(u => u.Email.Equals(dto.Email) && u.UserId != dto.UserId);
+            if (existingUserByEmail != null)
+            {
+                throw new Exception($"Email {dto.Email} already exists.");
+            }
+        }
         // Update admin
         _mapper.Map(dto, admin);
         await _userRepository.UpdateAsync(admin);
@@ -93,6 +105,10 @@ public class AdminService : IAdminService
         if (admin == null)
         {
             throw new Exception("Admin not found.");
+        }
+        if(admin.UserRole != "Admin")
+        {
+            throw new Exception("This account is not admin.");
         }
         await _userRepository.DeleteAsync(admin);
         return true;
