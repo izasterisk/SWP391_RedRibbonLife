@@ -85,9 +85,6 @@ namespace SWP391_RedRibbonLife.Controllers
                 var username = User.FindFirst(ClaimTypes.Name)?.Value;
                 var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
-                // Log thông tin logout (có thể ghi vào database hoặc log file)
-                // TODO: Có thể implement token blacklist ở đây nếu cần
-
                 return Ok(new
                 {
                     message = "Logout successful",
