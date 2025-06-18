@@ -34,6 +34,7 @@ public class PatientDTO
 
     [Phone(ErrorMessage = "Invalid phone number format")]
     [StringLength(20, ErrorMessage = "Phone number cannot exceed 20 characters")]
+    [RegularExpression(@"^\d+$", ErrorMessage = "Phone number must contain only digits")]
     public string? PhoneNumber { get; set; }
 
     [StringLength(100, ErrorMessage = "Full name cannot exceed 100 characters")]
@@ -42,6 +43,7 @@ public class PatientDTO
     public DateOnly? DateOfBirth { get; set; }
 
     [StringLength(10, ErrorMessage = "Gender cannot exceed 10 characters")]
+    [RegularExpression("^(Male|Female)$", ErrorMessage = "Gender must be either 'Male' or 'Female'")]
     public string? Gender { get; set; }
 
     [StringLength(500, ErrorMessage = "Address cannot exceed 500 characters")]

@@ -4,8 +4,8 @@ namespace BLL.Interfaces;
 
 public interface IPatientService
 {
-    Task<bool> CreatePatientAsync(PatientDTO dto);
-    Task<bool> UpdatePatientAsync(PatientUpdateDTO dto);
-    Task<List<PatientReadOnlyDTO>> GetAllPatientsAsync();
+    Task<dynamic> CreatePatientAsync(PatientDTO dto);
+    Task<dynamic> UpdatePatientAsync(PatientUpdateDTO dto);
+    Task<List<PatientReadOnlyDTO>> GetAllActivePatientsAsync();
     Task<PatientReadOnlyDTO> GetPatientByPatientIDAsync(int id);
 }

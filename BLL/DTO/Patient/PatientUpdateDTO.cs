@@ -5,7 +5,7 @@ namespace BLL.DTO.Patient;
 public class PatientUpdateDTO
 {
     // Các thuộc tính từ Patient
-    [Required(ErrorMessage = "User ID is required")]
+    [Required(ErrorMessage = "Patient ID is required")]
     public int PatientId { get; set; }
     // public int UserId { get; set; }
     
@@ -22,8 +22,10 @@ public class PatientUpdateDTO
     //public int UserId { get; set; };
     // public string Username { get; set; } = null!;
     // public string Password { get; set; } = null!;
-    // public string? Email { get; set; }
-    [Phone(ErrorMessage = "Invalid phone number format")]
+    [EmailAddress(ErrorMessage = "Invalid email address.")]
+    public string? Email { get; set; }
+    
+    [RegularExpression(@"^\d+$", ErrorMessage = "Phone number must contain only digits")]
     [StringLength(20, ErrorMessage = "Phone number cannot exceed 20 characters")]
     public string? PhoneNumber { get; set; }
     
@@ -33,11 +35,12 @@ public class PatientUpdateDTO
     public DateOnly? DateOfBirth { get; set; }
     
     [StringLength(10, ErrorMessage = "Gender cannot exceed 10 characters")]
+    [RegularExpression("^(Male|Female)$", ErrorMessage = "Gender must be either 'Male' or 'Female'")]
     public string? Gender { get; set; }
     
     [StringLength(500, ErrorMessage = "Address cannot exceed 500 characters")]
     public string? Address { get; set; }
     // public string UserRole { get; set; } = null!;
-    // public bool IsActive { get; set; }
+    public bool IsActive { get; set; }
     // public bool IsVerified { get; set; }
 }

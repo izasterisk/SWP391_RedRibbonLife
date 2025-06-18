@@ -49,10 +49,9 @@ public class AdminService : IAdminService
         user.Password = _userUtils.CreatePasswordHash(dto.Password);
         // Save
         var createdAdmin = await _userRepository.CreateAsync(user);
-        var adminDto = _mapper.Map<UserReadonlyDTO>(createdAdmin);
         return new
         {
-            UserInfo = adminDto
+            UserInfo = _mapper.Map<UserReadonlyDTO>(createdAdmin)
         };
     }
     public async Task<dynamic> UpdateAdminAsync(AdminUpdateDTO dto)

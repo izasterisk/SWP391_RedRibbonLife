@@ -20,7 +20,7 @@ public class AdminUpdateDTO
     public string? Email { get; set; }
         
     //[Required(ErrorMessage = "Phone number is required")]
-    [Phone(ErrorMessage = "Invalid phone number format")]
+    // [Phone(ErrorMessage = "Invalid phone number format")]
     [StringLength(20, ErrorMessage = "Phone number cannot exceed 20 characters")]
     [RegularExpression(@"^\d+$", ErrorMessage = "Phone number must contain only digits")]
     public string? PhoneNumber { get; set; }

@@ -40,7 +40,7 @@ public class PatientReadOnlyDTO
 
     [StringLength(500, ErrorMessage = "Address cannot exceed 500 characters")]
     public string? Address { get; set; }
-    // public string UserRole { get; set; } = null!;
+    public string UserRole { get; set; } = null!;
     // public bool IsActive { get; set; }
-    // public bool IsVerified { get; set; }
+    public bool IsVerified { get; set; }
 }

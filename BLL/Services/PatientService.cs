@@ -1,5 +1,6 @@
 using AutoMapper;
 using BLL.DTO.Patient;
+using BLL.DTO.User;
 using BLL.Interfaces;
 using DAL.IRepository;
 using DAL.Models;
@@ -20,7 +21,7 @@ public class PatientService : IPatientService
         _userUtils = userUtils;
     }
 
-    public async Task<bool> CreatePatientAsync(PatientDTO dto)
+    public async Task<dynamic> CreatePatientAsync(PatientDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
         // Validate required fields
@@ -66,9 +67,13 @@ public class PatientService : IPatientService
         };
         // Save
         await _patientRepository.CreateAsync(patient);
-        return true;
+        return new
+        {
+            UserInfo = _mapper.Map<UserReadonlyDTO>(user),
+            PatientInfo = _mapper.Map<PatientOnlyDTO>(patient)
+        };
     }
-    public async Task<bool> UpdatePatientAsync(PatientUpdateDTO dto)
+    public async Task<dynamic> UpdatePatientAsync(PatientUpdateDTO dto)
         {
             ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
             // Get patient first
@@ -106,10 +111,14 @@ public class PatientService : IPatientService
             // Save changes
             await _userRepository.UpdateAsync(user);
             await _patientRepository.UpdateAsync(patient);
-            return true;
+            return new
+            {
+                UserInfo = _mapper.Map<UserReadonlyDTO>(user),
+                PatientInfo = _mapper.Map<PatientOnlyDTO>(patient)
+            };
         }
 
-    public async Task<List<PatientReadOnlyDTO>> GetAllPatientsAsync()
+    public async Task<List<PatientReadOnlyDTO>> GetAllActivePatientsAsync()
     {
         // Get all patients with their associated users
         var users = await _userRepository.GetAllByFilterAsync(d => d.IsActive && d.UserRole == "Patient", true);
@@ -134,6 +143,8 @@ public class PatientService : IPatientService
                     DateOfBirth = user.DateOfBirth,
                     Gender = user.Gender,
                     Address = user.Address,
+                    UserRole = user.UserRole,
+                    IsVerified = user.IsVerified,
 
                     // Patient properties
                     PatientId = patient.PatientId,
