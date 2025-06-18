@@ -80,7 +80,7 @@ public class PatientService : IPatientService
             var patient = await _patientRepository.GetAsync(d => d.PatientId == dto.PatientId);
             if (patient == null)
             {
-                throw new Exception("Doctor not found.");
+                throw new Exception("Patient not found.");
             }
             var user = await _userRepository.GetAsync(u => u.UserId == patient.UserId);
             if (user == null)
@@ -191,5 +191,24 @@ public class PatientService : IPatientService
             SpecialNotes = patient.SpecialNotes
         };
         return patientReadOnlyDTO;
+    }
+    public async Task<bool> DeletePatientAsync(int id)
+    {
+        // Get patient by ID
+        var patient = await _patientRepository.GetAsync(u => u.PatientId == id);
+        if (patient == null)
+        {
+            throw new Exception($"Patient with ID {id} not found.");
+        }
+        // Get the associated user
+        var user = await _userRepository.GetAsync(u => u.UserId == patient.UserId);
+        if (user == null)
+        {
+            throw new Exception($"User associated with Patient ID {id} not found.");
+        }
+        // Delete user
+        await _patientRepository.DeleteAsync(patient);
+        await _userRepository.DeleteAsync(user);
+        return true;
     }
 }

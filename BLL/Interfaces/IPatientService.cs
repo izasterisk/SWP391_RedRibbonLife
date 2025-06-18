@@ -8,4 +8,5 @@ public interface IPatientService
     Task<dynamic> UpdatePatientAsync(PatientUpdateDTO dto);
     Task<List<PatientReadOnlyDTO>> GetAllActivePatientsAsync();
     Task<PatientReadOnlyDTO> GetPatientByPatientIDAsync(int id);
+    Task<bool> DeletePatientAsync(int id);
 }
