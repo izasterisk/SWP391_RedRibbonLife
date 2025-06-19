@@ -57,14 +57,15 @@ CREATE TABLE Category (
     category_name NVARCHAR(100) NOT NULL
 );
 
--- 6. Bảng Articles (Lưu tất cả các bài viết trên trang)
+-- 6. Bảng Articles (Lưu tất cả các bài viết trên trang, xóa thumbnail_image, thêm createdDate và author)
 CREATE TABLE Articles (
     article_id INT PRIMARY KEY IDENTITY(1,1),
     title NVARCHAR(200) NOT NULL,
     content NVARCHAR(MAX),
-    thumbnail_image NVARCHAR(MAX),
     category_id INT,
-    isActive BIT DEFAULT 1
+    isActive BIT DEFAULT 1,
+    createdDate DATE NOT NULL DEFAULT GETDATE(),
+    author NVARCHAR(100)
 );
 
 -- 7. Bảng Appointments (Lưu thông tin lịch hẹn)
@@ -285,16 +286,16 @@ VALUES
 (N'Experience Blog');
 
 -- Chèn dữ liệu vào bảng Articles
-INSERT INTO Articles (title, content, thumbnail_image, category_id, isActive)
+INSERT INTO Articles (title, content, category_id, isActive, createdDate, author)
 VALUES
-(N'Giới thiệu về Red Ribbon Life', N'Red Ribbon Life là tổ chức hỗ trợ bệnh nhân HIV/AIDS với sứ mệnh cung cấp dịch vụ y tế, giáo dục và giảm kỳ thị. Chúng tôi cam kết mang lại cuộc sống tốt đẹp hơn cho cộng đồng.', 'about_us.jpg', 1, 1),
-(N'Dịch vụ y tế tại Red Ribbon Life', N'Chúng tôi cung cấp tư vấn, xét nghiệm và điều trị HIV/AIDS với đội ngũ bác sĩ chuyên môn cao và cơ sở vật chất hiện đại.', 'services.jpg', 1, 1),
-(N'Hiểu biết cơ bản về HIV/AIDS', N'HIV là virus gây suy giảm miễn dịch ở người. Bài viết này giải thích cách lây truyền, phòng ngừa và điều trị HIV.', 'hiv_education.jpg', 2, 1),
-(N'Phòng ngừa HIV trong cộng đồng', N'Hướng dẫn các biện pháp phòng ngừa HIV như sử dụng bao cao su, xét nghiệm định kỳ và sử dụng PrEP.', 'prevention.jpg', 2, 1),
-(N'Vượt qua kỳ thị: Câu chuyện của một bệnh nhân', N'Một bệnh nhân chia sẻ hành trình sống chung với HIV và cách họ vượt qua định kiến xã hội.', 'stigma_reduction.jpg', 3, 1),
-(N'Tại sao cần nói không với kỳ thị HIV', N'Bài viết thảo luận về tác động của kỳ thị và cách cộng đồng có thể hỗ trợ bệnh nhân HIV.', 'no_stigma.jpg', 3, 1),
-(N'Hành trình sống chung với HIV', N'Một bệnh nhân kể về trải nghiệm cá nhân, từ khi phát hiện bệnh đến việc duy trì lối sống tích cực.', 'blog1.jpg', 4, 1),
-(N'Kinh nghiệm hỗ trợ bệnh nhân HIV từ bác sĩ', N'Bác sĩ chia sẻ những bài học và câu chuyện từ quá trình làm việc với bệnh nhân HIV.', 'doctor_blog.jpg', 4, 1);
+(N'Giới thiệu về Red Ribbon Life', N'Red Ribbon Life là tổ chức hỗ trợ bệnh nhân HIV/AIDS với sứ mệnh cung cấp dịch vụ y tế, giáo dục và giảm kỳ thị. Chúng tôi cam kết mang lại cuộc sống tốt đẹp hơn cho cộng đồng.', 1, 1, '2025-06-01', N'Admin Team'),
+(N'Dịch vụ y tế tại Red Ribbon Life', N'Chúng tôi cung cấp tư vấn, xét nghiệm và điều trị HIV/AIDS với đội ngũ bác sĩ chuyên môn cao và cơ sở vật chất hiện đại.', 1, 1, '2025-06-02', N'Admin Team'),
+(N'Hiểu biết cơ bản về HIV/AIDS', N'HIV là virus gây suy giảm miễn dịch ở người. Bài viết này giải thích cách lây truyền, phòng ngừa và điều trị HIV.', 2, 1, '2025-06-03', N'Lê Văn C'),
+(N'Phòng ngừa HIV trong cộng đồng', N'Hướng dẫn các biện pháp phòng ngừa HIV như sử dụng bao cao su, xét nghiệm định kỳ và sử dụng PrEP.', 2, 1, '2025-06-04', N'Phạm Thị D'),
+(N'Vượt qua kỳ thị: Câu chuyện của một bệnh nhân', N'Một bệnh nhân chia sẻ hành trình sống chung với HIV và cách họ vượt qua định kiến xã hội.', 3, 1, '2025-06-05', N'Nguyễn Văn A'),
+(N'Tại sao cần nói không với kỳ thị HIV', N'Bài viết thảo luận về tác động của kỳ thị và cách cộng đồng có thể hỗ trợ bệnh nhân HIV.', 3, 1, '2025-06-06', N'Trần Thị B'),
+(N'Hành trình sống chung với HIV', N'Một bệnh nhân kể về trải nghiệm cá nhân, từ khi phát hiện bệnh đến việc duy trì lối sống tích cực.', 4, 1, '2025-06-07', N'Nguyễn Văn A'),
+(N'Kinh nghiệm hỗ trợ bệnh nhân HIV từ bác sĩ', N'Bác sĩ chia sẻ những bài học và câu chuyện từ quá trình làm việc với bệnh nhân HIV.', 4, 1, '2025-06-08', N'Lê Văn C');
 
 -- Chèn dữ liệu vào bảng ARVRegimens
 INSERT INTO ARVRegimens (regimen_name, regimen_code, components, description, suitable_for, side_effects, usage_instructions, isActive)

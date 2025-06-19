@@ -79,7 +79,6 @@ namespace BLL.Services
                 Article article = _mapper.Map<Article>(dto);
                 article.IsActive = true; // Set default value for IsActive
                 await _articleRepository.CreateAsync(article);
-        
                 // Commit transaction
                 await transaction.CommitAsync();
                 return true;
@@ -107,7 +106,6 @@ namespace BLL.Services
                 {
                     throw new Exception("No article found.");
                 }
-                // Update article
                 if (!string.IsNullOrWhiteSpace(dto.Title))
                 {
                     var articleTitle = await _articleRepository.GetAsync(u => u.Title.Equals(dto.Title), true);
@@ -115,23 +113,9 @@ namespace BLL.Services
                     {
                         throw new Exception("Title already exists.");
                     }
-                    article.Title = dto.Title;
                 }
-                if (!string.IsNullOrWhiteSpace(dto.Content))
-                    article.Content = dto.Content;
-                if (!string.IsNullOrWhiteSpace(dto.ThumbnailImage))
-                    article.ThumbnailImage = dto.ThumbnailImage;
-                if (dto.CategoryId != null)
-                {
-                    var category = await _categoryRepository.GetAsync(u => u.CategoryId == dto.CategoryId, true);
-                    if (category == null)
-                    {
-                        throw new Exception("Category not found.");
-                    }
-                    article.CategoryId = dto.CategoryId;
-                }
-                if (dto.IsActive != null)
-                    article.IsActive = dto.IsActive;
+                // Update article
+                _mapper.Map(dto, article);
                 await _articleRepository.UpdateAsync(article);
                 // Commit transaction
                 await transaction.CommitAsync();

@@ -19,14 +19,18 @@ public partial class Article
     [Column("content")]
     public string? Content { get; set; }
 
-    [Column("thumbnail_image")]
-    public string? ThumbnailImage { get; set; }
-
     [Column("category_id")]
     public int? CategoryId { get; set; }
 
     [Column("isActive")]
     public bool? IsActive { get; set; }
+
+    [Column("createdDate")]
+    public DateOnly CreatedDate { get; set; }
+
+    [Column("author")]
+    [StringLength(100)]
+    public string? Author { get; set; }
 
     [ForeignKey("CategoryId")]
     [InverseProperty("Articles")]
