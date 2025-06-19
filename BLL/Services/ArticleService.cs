@@ -47,7 +47,7 @@ namespace BLL.Services
             }
             return _mapper.Map<ArticleReadOnlyDTO>(article);
         }
-        public async Task<bool> CreateArticleAsync(ArticleDTO dto)
+        public async Task<dynamic> CreateArticleAsync(ArticleDTO dto)
         {
             ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
             if (string.IsNullOrWhiteSpace(dto.Title))
@@ -78,10 +78,13 @@ namespace BLL.Services
                 // Create article
                 Article article = _mapper.Map<Article>(dto);
                 article.IsActive = true; // Set default value for IsActive
-                await _articleRepository.CreateAsync(article);
+                var createdArticle = await _articleRepository.CreateAsync(article);
                 // Commit transaction
                 await transaction.CommitAsync();
-                return true;
+                return new
+                {
+                    ArticleInfo = _mapper.Map<ArticleReadOnlyDTO>(createdArticle)
+                };
             }
             catch (Exception)
             {
@@ -90,7 +93,7 @@ namespace BLL.Services
                 throw; // Re-throw the exception
             }
         }
-        public async Task<bool> UpdateArticleAsync(ArticleUpdateDTO dto)
+        public async Task<dynamic> UpdateArticleAsync(ArticleUpdateDTO dto)
         {
             ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
             if (dto.Title.Length > 200)
@@ -116,10 +119,13 @@ namespace BLL.Services
                 }
                 // Update article
                 _mapper.Map(dto, article);
-                await _articleRepository.UpdateAsync(article);
+                var updatedArticle = await _articleRepository.UpdateAsync(article);
                 // Commit transaction
                 await transaction.CommitAsync();
-                return true;
+                return new
+                {
+                    ArticleInfo = _mapper.Map<ArticleReadOnlyDTO>(updatedArticle)
+                };
             }
             catch (Exception)
             {
