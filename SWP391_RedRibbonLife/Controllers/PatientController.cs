@@ -45,7 +45,6 @@ namespace SWP391_RedRibbonLife.Controllers
                 apiResponse.Data = patientCreated;
                 apiResponse.Status = true;
                 apiResponse.StatusCode = HttpStatusCode.OK;
-                //Ok - 200
                 return Ok(apiResponse);
             }
             catch (Exception ex)

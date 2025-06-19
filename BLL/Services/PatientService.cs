@@ -66,11 +66,11 @@ public class PatientService : IPatientService
             SpecialNotes = dto.SpecialNotes
         };
         // Save
-        await _patientRepository.CreateAsync(patient);
+        var createdPatient = await _patientRepository.CreateAsync(patient);
         return new
         {
-            UserInfo = _mapper.Map<UserReadonlyDTO>(user),
-            PatientInfo = _mapper.Map<PatientOnlyDTO>(patient)
+            UserInfo = _mapper.Map<UserReadonlyDTO>(createdUser),
+            PatientInfo = _mapper.Map<PatientOnlyDTO>(createdPatient)
         };
     }
     public async Task<dynamic> UpdatePatientAsync(PatientUpdateDTO dto)

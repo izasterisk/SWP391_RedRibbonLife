@@ -9,7 +9,7 @@ public class PatientReadOnlyDTO
     public int PatientId { get; set; }
     //public int? UserId { get; set; }
 
-    [StringLength(10, ErrorMessage = "Blood type cannot exceed 10 characters")]
+    [StringLength(5, ErrorMessage = "Blood type cannot exceed 5 characters")]
     public string? BloodType { get; set; }
 
     public bool? IsPregnant { get; set; }
