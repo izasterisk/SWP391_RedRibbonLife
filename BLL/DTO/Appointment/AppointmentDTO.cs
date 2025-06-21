@@ -10,16 +10,22 @@ public class AppointmentDTO
     [Required(ErrorMessage = "Patient ID is required")]
     [Range(1, int.MaxValue, ErrorMessage = "Patient ID must be a positive number")]
     public int PatientId { get; set; }
+    
+    public string? PatientName { get; set; }
 
     [Required(ErrorMessage = "Doctor ID is required")]
     [Range(1, int.MaxValue, ErrorMessage = "Doctor ID must be a positive number")]
     public int DoctorId { get; set; }
+    
+    public string? DoctorName { get; set; }
 
     [Required(ErrorMessage = "Appointment date is required")]
+    [FutureDate]
     public DateOnly AppointmentDate { get; set; }
 
     [Required(ErrorMessage = "Appointment time is required")]
     [TimeValidator]
+    [WorkingHours]
     public TimeOnly AppointmentTime { get; set; }
 
     [AllowedValues("Appointment", "Medication", ErrorMessage = "Appointment type must be either 'Appointment' or 'Medication'")]

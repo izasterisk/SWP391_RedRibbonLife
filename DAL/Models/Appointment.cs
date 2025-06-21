@@ -13,7 +13,7 @@ public partial class Appointment
     public int AppointmentId { get; set; }
 
     [Column("patient_id")]
-    public int? PatientId { get; set; }
+    public int PatientId { get; set; }
 
     [Column("doctor_id")]
     public int DoctorId { get; set; }

@@ -8,6 +8,7 @@ using DAL.Models;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using AutoMapper;
 using BLL.DTO.Admin;
+using BLL.DTO.Appointment;
 using BLL.DTO.Doctor;
 using BLL.DTO.User;
 using BLL.DTO.Article;
@@ -32,21 +33,26 @@ namespace BLL.Utils
             CreateMap<DoctorCreateDTO, User>().ReverseMap();
             CreateMap<DoctorReadOnlyDTO, Doctor>().ReverseMap();
             CreateMap<DoctorReadOnlyDTO, User>().ReverseMap();
-            CreateMap<DoctorUpdateDTO, Doctor>().ReverseMap();
-            CreateMap<DoctorUpdateDTO, User>().ReverseMap();
+            CreateMap<DoctorUpdateDTO, Doctor>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<DoctorUpdateDTO, User>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
             
             CreateMap<PatientCreateDTO, Patient>().ReverseMap();
             CreateMap<PatientCreateDTO, User>().ReverseMap();
             CreateMap<PatientReadOnlyDTO, Patient>().ReverseMap();
             CreateMap<PatientReadOnlyDTO, User>().ReverseMap();
-            CreateMap<PatientUpdateDTO, Patient>().ReverseMap();
-            CreateMap<PatientUpdateDTO, User>().ReverseMap();
+            CreateMap<PatientUpdateDTO, Patient>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<PatientUpdateDTO, User>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<ArticleDTO, Article>().ReverseMap();
             CreateMap<ArticleReadOnlyDTO, Article>().ReverseMap()
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.CategoryName : null));
             CreateMap<ArticleReadOnlyDTO, Category>().ReverseMap();
-            CreateMap<ArticleUpdateDTO, Article>().ReverseMap();
+            CreateMap<ArticleUpdateDTO, Article>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
             
             CreateMap<CategoryDTO, Category>().ReverseMap();
             
@@ -57,7 +63,21 @@ namespace BLL.Utils
             
             CreateMap<DoctorScheduleDTO, DoctorSchedule>().ReverseMap();
             CreateMap<DoctorScheduleCreateDTO, DoctorSchedule>().ReverseMap();
-            CreateMap<DoctorScheduleUpdateDTO, DoctorSchedule>().ReverseMap();
+            CreateMap<DoctorScheduleUpdateDTO, DoctorSchedule>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+            
+            CreateMap<AppointmentCreateDTO, Appointment>().ReverseMap();
+            CreateMap<AppointmentUpdateDTO, Appointment>()
+                .ForMember(dest => dest.PatientId, opt => opt.Ignore())
+                .ForMember(dest => dest.DoctorId, opt => opt.Condition(src => src.DoctorId.HasValue))
+                .ForMember(dest => dest.AppointmentDate, opt => opt.Condition(src => src.AppointmentDate.HasValue))
+                .ForMember(dest => dest.AppointmentTime, opt => opt.Condition(src => src.AppointmentTime.HasValue))
+                .ForMember(dest => dest.AppointmentType, opt => opt.Condition(src => !string.IsNullOrEmpty(src.AppointmentType)))
+                .ForMember(dest => dest.Status, opt => opt.Condition(src => !string.IsNullOrEmpty(src.Status)))
+                .ForMember(dest => dest.IsAnonymous, opt => opt.Ignore());
+            CreateMap<AppointmentReadOnlyDTO, Appointment>().ReverseMap()
+                .ForMember(dest => dest.PatientName, opt => opt.MapFrom(src => src.Patient.User.FullName))
+                .ForMember(dest => dest.DoctorName, opt => opt.MapFrom(src => src.Doctor.User.FullName));
 
             //Khi có 2 trường khác tên, ví dụ: studentName và Name
             //CreateMap<StudentDTO, Student>().ForMember(n => n.studentName, opt => opt.MapFrom(x => x.Name)).ReverseMap();
