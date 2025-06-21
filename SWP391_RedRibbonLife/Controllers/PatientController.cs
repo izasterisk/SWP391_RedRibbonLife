@@ -27,7 +27,7 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin, Manager")]
-        public async Task<ActionResult<APIResponse>> CreatePatientAsync(PatientDTO dto)
+        public async Task<ActionResult<APIResponse>> CreatePatientAsync(PatientCreateDTO dto)
         {
             var apiResponse = new APIResponse();
             if (!ModelState.IsValid)
@@ -144,7 +144,7 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Customer, Admin, Manager, Doctor, Patient")]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin, Manager, Doctor, Patient")]
         public async Task<ActionResult<APIResponse>> GetPatientByPatientIDAsync(int id)
         {
             var apiResponse = new APIResponse();

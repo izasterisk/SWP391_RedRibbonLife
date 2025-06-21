@@ -13,7 +13,7 @@ public partial class Doctor
     public int DoctorId { get; set; }
 
     [Column("user_id")]
-    public int? UserId { get; set; }
+    public int UserId { get; set; }
 
     [Column("doctor_image")]
     public string? DoctorImage { get; set; }

@@ -26,7 +26,7 @@ CREATE TABLE Users (
 -- 2. Bảng Patients (Lưu thông tin bệnh nhân)
 CREATE TABLE Patients (
     patient_id INT PRIMARY KEY IDENTITY(1,1),
-    user_id INT,
+    user_id INT NOT NULL,
     blood_type VARCHAR(5),
     is_pregnant BIT DEFAULT 0,
     special_notes NVARCHAR(MAX)
@@ -35,7 +35,7 @@ CREATE TABLE Patients (
 -- 3. Bảng Doctors (Lưu thông tin bác sĩ)
 CREATE TABLE Doctors (
     doctor_id INT PRIMARY KEY IDENTITY(1,1),
-    user_id INT,
+    user_id INT NOT NULL,
     doctor_image NVARCHAR(MAX),
     bio NVARCHAR(MAX)
 );

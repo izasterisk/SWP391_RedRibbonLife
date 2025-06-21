@@ -28,23 +28,19 @@ namespace BLL.Utils
             CreateMap<UserDTO, User>().ReverseMap(); // Includes IsVerified field mapping
             CreateMap<UserReadonlyDTO, User>().ReverseMap(); // Includes IsVerified field mapping
             
-            CreateMap<DoctorDTO, Doctor>().ReverseMap();
-            CreateMap<DoctorDTO, User>().ReverseMap();
+            CreateMap<DoctorCreateDTO, Doctor>().ReverseMap();
+            CreateMap<DoctorCreateDTO, User>().ReverseMap();
             CreateMap<DoctorReadOnlyDTO, Doctor>().ReverseMap();
             CreateMap<DoctorReadOnlyDTO, User>().ReverseMap();
             CreateMap<DoctorUpdateDTO, Doctor>().ReverseMap();
             CreateMap<DoctorUpdateDTO, User>().ReverseMap();
-            CreateMap<DoctorOnlyDTO, Doctor>().ReverseMap();
             
-            CreateMap<PatientDTO, Patient>().ReverseMap();
-            CreateMap<PatientDTO, User>().ReverseMap();
+            CreateMap<PatientCreateDTO, Patient>().ReverseMap();
+            CreateMap<PatientCreateDTO, User>().ReverseMap();
             CreateMap<PatientReadOnlyDTO, Patient>().ReverseMap();
             CreateMap<PatientReadOnlyDTO, User>().ReverseMap();
-            CreateMap<PatientUpdateDTO, Patient>()//.ReverseMap()
-                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            CreateMap<PatientUpdateDTO, User>()//.ReverseMap()
-                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            CreateMap<PatientDTO, Patient>().ReverseMap();
+            CreateMap<PatientUpdateDTO, Patient>().ReverseMap();
+            CreateMap<PatientUpdateDTO, User>().ReverseMap();
 
             CreateMap<ArticleDTO, Article>().ReverseMap();
             CreateMap<ArticleReadOnlyDTO, Article>().ReverseMap()

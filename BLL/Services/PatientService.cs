@@ -21,22 +21,9 @@ public class PatientService : IPatientService
         _userUtils = userUtils;
     }
 
-    public async Task<dynamic> CreatePatientAsync(PatientDTO dto)
+    public async Task<dynamic> CreatePatientAsync(PatientCreateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-        // Validate required fields
-        if (string.IsNullOrWhiteSpace(dto.Username))
-            throw new ArgumentNullException(nameof(dto.Username), "Username is required.");
-        if (string.IsNullOrWhiteSpace(dto.Password))
-            throw new ArgumentNullException(nameof(dto.Password), "Password is required.");
-        if (string.IsNullOrWhiteSpace(dto.FullName))
-            throw new ArgumentNullException(nameof(dto.FullName), "Full name is required.");
-        if (string.IsNullOrWhiteSpace(dto.Gender))
-            throw new ArgumentNullException(nameof(dto.Gender), "Gender is required.");
-        if (string.IsNullOrWhiteSpace(dto.PhoneNumber))
-            throw new ArgumentNullException(nameof(dto.PhoneNumber), "Phone number is required.");
-        if (string.IsNullOrWhiteSpace(dto.Email))
-            throw new ArgumentNullException(nameof(dto.Email), "Email is required.");
         // Check if username already exists
         var existingUser = await _userRepository.GetAsync(u => u.Username.Equals(dto.Username));
         if (existingUser != null)
@@ -67,10 +54,21 @@ public class PatientService : IPatientService
         };
         // Save
         var createdPatient = await _patientRepository.CreateAsync(patient);
-        return new
+        return new PatientReadOnlyDTO
         {
-            UserInfo = _mapper.Map<UserReadonlyDTO>(createdUser),
-            PatientInfo = _mapper.Map<PatientOnlyDTO>(createdPatient)
+            // User properties
+            Username = createdUser.Username,
+            Email = createdUser.Email,
+            PhoneNumber = createdUser.PhoneNumber,
+            FullName = createdUser.FullName,
+            DateOfBirth = createdUser.DateOfBirth,
+            Gender = createdUser.Gender,
+            Address = createdUser.Address,
+            // Patient properties
+            PatientId = createdPatient.PatientId,
+            BloodType = createdPatient.BloodType,
+            IsPregnant = createdPatient.IsPregnant,
+            SpecialNotes = createdPatient.SpecialNotes
         };
     }
     public async Task<dynamic> UpdatePatientAsync(PatientUpdateDTO dto)
@@ -87,34 +85,26 @@ public class PatientService : IPatientService
             {
                 throw new Exception($"User associated with patient ID {dto.PatientId} not found.");
             }
-            // Update User entity
-            // if (!string.IsNullOrWhiteSpace(dto.PhoneNumber))
-            //     user.PhoneNumber = dto.PhoneNumber;
-            // if (!string.IsNullOrWhiteSpace(dto.FullName))
-            //     user.FullName = dto.FullName;
-            // if (dto.DateOfBirth != null)
-            //     user.DateOfBirth = dto.DateOfBirth;
-            // if (!string.IsNullOrWhiteSpace(dto.Gender))
-            //     user.Gender = dto.Gender;
-            // if (!string.IsNullOrWhiteSpace(dto.Address))
-            //     user.Address = dto.Address;
-            //user.IsVerified = dto.IsVerified;
             _mapper.Map(dto, user);
-            
-            // if (!string.IsNullOrWhiteSpace(dto.BloodType))
-            //     patient.BloodType = dto.BloodType;
-            // if (dto.IsPregnant != null)
-            //     patient.IsPregnant = dto.IsPregnant;
-            // if (!string.IsNullOrWhiteSpace(dto.SpecialNotes))
-            //     patient.SpecialNotes = dto.SpecialNotes;
             _mapper.Map(dto, patient);
             // Save changes
-            await _userRepository.UpdateAsync(user);
-            await _patientRepository.UpdateAsync(patient);
-            return new
+            var updatedUser = await _userRepository.UpdateAsync(user);
+            var updatedPatient = await _patientRepository.UpdateAsync(patient);
+            return new PatientReadOnlyDTO
             {
-                UserInfo = _mapper.Map<UserReadonlyDTO>(user),
-                PatientInfo = _mapper.Map<PatientOnlyDTO>(patient)
+                // User properties
+                Username = updatedUser.Username,
+                Email = updatedUser.Email,
+                PhoneNumber = updatedUser.PhoneNumber,
+                FullName = updatedUser.FullName,
+                DateOfBirth = updatedUser.DateOfBirth,
+                Gender = updatedUser.Gender,
+                Address = updatedUser.Address,
+                // Patient properties
+                PatientId = updatedPatient.PatientId,
+                BloodType = updatedPatient.BloodType,
+                IsPregnant = updatedPatient.IsPregnant,
+                SpecialNotes = updatedPatient.SpecialNotes
             };
         }
 
@@ -136,23 +126,19 @@ public class PatientService : IPatientService
                 // Create a combined DTO manually to ensure proper mapping
                 var patientReadOnlyDTO = new PatientReadOnlyDTO
                 {
-                    // User properties (excluding password)
+                    // User properties
                     Email = user.Email,
                     PhoneNumber = user.PhoneNumber,
                     FullName = user.FullName,
                     DateOfBirth = user.DateOfBirth,
                     Gender = user.Gender,
                     Address = user.Address,
-                    UserRole = user.UserRole,
-                    IsVerified = user.IsVerified,
-
                     // Patient properties
                     PatientId = patient.PatientId,
                     BloodType = patient.BloodType,
                     IsPregnant = patient.IsPregnant,
                     SpecialNotes = patient.SpecialNotes
                 };
-
                 patientReadOnlyDTOs.Add(patientReadOnlyDTO);
             }
         }
@@ -173,7 +159,6 @@ public class PatientService : IPatientService
         {
             throw new Exception($"User associated with Patient ID {id} not found.");
         }
-        // Create a combined DTO manually to ensure proper mapping
         var patientReadOnlyDTO = new PatientReadOnlyDTO
         {
             // User properties
@@ -183,7 +168,6 @@ public class PatientService : IPatientService
             DateOfBirth = user.DateOfBirth,
             Gender = user.Gender,
             Address = user.Address,
-
             // Patient properties
             PatientId = patient.PatientId,
             BloodType = patient.BloodType,

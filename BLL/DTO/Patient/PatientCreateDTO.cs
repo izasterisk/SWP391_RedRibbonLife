@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BLL.DTO.Patient;
 
-public class PatientReadOnlyDTO
+public class PatientCreateDTO
 {
     //User
     // public int UserId { get; set; }
@@ -11,9 +11,9 @@ public class PatientReadOnlyDTO
     [StringLength(50, ErrorMessage = "Username cannot exceed 50 characters")]
     public string Username { get; set; } = null!;
 
-    // [Required(ErrorMessage = "Password is required")]
-    // [StringLength(255, ErrorMessage = "Password cannot exceed 255 characters")]
-    // public string Password { get; set; } = null!;
+    [Required(ErrorMessage = "Password is required")]
+    [StringLength(255, ErrorMessage = "Password cannot exceed 255 characters")]
+    public string Password { get; set; } = null!;
 
     [Required(ErrorMessage = "Email is required")]
     [EmailAddress(ErrorMessage = "Email format is invalid")]
@@ -42,12 +42,12 @@ public class PatientReadOnlyDTO
     // [RegularExpression("^(Patient|Staff|Doctor|Manager|Admin)$", ErrorMessage = "User role must be one of: Patient, Staff, Doctor, Manager, Admin")]
     // public string UserRole { get; set; } = null!;
 
-    public bool IsActive { get; set; }
-
-    public bool IsVerified { get; set; }
+    // public bool IsActive { get; set; }
+    
+    // public bool IsVerified { get; set; }
     
     //Patient
-    public int PatientId { get; set; }
+    // public int PatientId { get; set; }
 
     [StringLength(5, ErrorMessage = "Blood type cannot exceed 5 characters")]
     [RegularExpression("^(A\\+|A-|B\\+|B-|AB\\+|AB-|O\\+|O-)$", ErrorMessage = "Blood type must be one of: A+, A-, B+, B-, AB+, AB-, O+, O-")]

@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace BLL.DTO.Patient;
+namespace BLL.DTO.Doctor;
 
-public class PatientReadOnlyDTO
+public class DoctorCreateDTO
 {
     //User
     // public int UserId { get; set; }
@@ -11,9 +11,9 @@ public class PatientReadOnlyDTO
     [StringLength(50, ErrorMessage = "Username cannot exceed 50 characters")]
     public string Username { get; set; } = null!;
 
-    // [Required(ErrorMessage = "Password is required")]
-    // [StringLength(255, ErrorMessage = "Password cannot exceed 255 characters")]
-    // public string Password { get; set; } = null!;
+    [Required(ErrorMessage = "Password is required")]
+    [StringLength(255, ErrorMessage = "Password cannot exceed 255 characters")]
+    public string Password { get; set; } = null!;
 
     [Required(ErrorMessage = "Email is required")]
     [EmailAddress(ErrorMessage = "Email format is invalid")]
@@ -42,19 +42,16 @@ public class PatientReadOnlyDTO
     // [RegularExpression("^(Patient|Staff|Doctor|Manager|Admin)$", ErrorMessage = "User role must be one of: Patient, Staff, Doctor, Manager, Admin")]
     // public string UserRole { get; set; } = null!;
 
-    public bool IsActive { get; set; }
-
-    public bool IsVerified { get; set; }
+    // public bool IsActive { get; set; }
     
-    //Patient
-    public int PatientId { get; set; }
+    // public bool IsVerified { get; set; }
+        
+    //Doctor
+    // public int DoctorId { get; set; }
 
-    [StringLength(5, ErrorMessage = "Blood type cannot exceed 5 characters")]
-    [RegularExpression("^(A\\+|A-|B\\+|B-|AB\\+|AB-|O\\+|O-)$", ErrorMessage = "Blood type must be one of: A+, A-, B+, B-, AB+, AB-, O+, O-")]
-    public string? BloodType { get; set; }
+    //public int? UserId { get; set; }
 
-    public bool? IsPregnant { get; set; }
+    public string? DoctorImage { get; set; }
 
-    [StringLength(500, ErrorMessage = "Special notes cannot exceed 500 characters")]
-    public string? SpecialNotes { get; set; }
+    public string? Bio { get; set; }
 }

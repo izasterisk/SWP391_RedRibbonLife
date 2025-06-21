@@ -66,9 +66,7 @@ namespace BLL.Services
             }
             // Update password
             user.Password = _userService.CreatePasswordHash(dto.newPassword);
-            await _userRepository.UpdateAsync(user);
-            // Chuyển đổi User thành UserReadonlyDTO
-            var userDto = _mapper.Map<UserReadonlyDTO>(user);
+            var user1 = await _userRepository.UpdateAsync(user);
             // Trả về dữ liệu cụ thể dựa trên role
             switch (user.UserRole)
             {
@@ -76,10 +74,21 @@ namespace BLL.Services
                     var patient = await _patientRepository.GetAsync(p => p.UserId == user.UserId);
                     if (patient != null)
                     {
-                        return new
+                        return new PatientReadOnlyDTO
                         {
-                            UserInfo = userDto,
-                            PatientInfo = _mapper.Map<PatientOnlyDTO>(patient)
+                            // User properties
+                            Username = user1.Username,
+                            Email = user1.Email,
+                            PhoneNumber = user1.PhoneNumber,
+                            FullName = user1.FullName,
+                            DateOfBirth = user1.DateOfBirth,
+                            Gender = user1.Gender,
+                            Address = user1.Address,
+                            // Doctor properties
+                            PatientId = patient.PatientId,
+                            BloodType = patient.BloodType,
+                            IsPregnant = patient.IsPregnant,
+                            SpecialNotes = patient.SpecialNotes
                         };
                     }
                     break;
@@ -87,20 +96,27 @@ namespace BLL.Services
                     var doctor = await _doctorRepository.GetAsync(d => d.UserId == user.UserId);
                     if (doctor != null)
                     {
-                        return new
+                        return new DoctorReadOnlyDTO
                         {
-                            UserInfo = userDto,
-                            DoctorInfo = _mapper.Map<DoctorOnlyDTO>(doctor)
+                            // User properties
+                            Username = user1.Username,
+                            Email = user1.Email,
+                            PhoneNumber = user1.PhoneNumber,
+                            FullName = user1.FullName,
+                            DateOfBirth = user1.DateOfBirth,
+                            Gender = user1.Gender,
+                            Address = user1.Address,
+                            // Doctor properties
+                            DoctorId = doctor.DoctorId,
+                            DoctorImage = doctor.DoctorImage,
+                            Bio = doctor.Bio
                         };
                     }
                     break;
             
                 // Có thể thêm các trường hợp khác tùy theo role của ứng dụng
             }
-            return new
-            {
-                UserInfo = userDto
-            };
+            return null;
         }
     }
 } 

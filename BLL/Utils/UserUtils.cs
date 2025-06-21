@@ -16,13 +16,15 @@ namespace BLL.Utils
     public class UserUtils : IUserUtils
     {
         private readonly IUserRepository<Appointment> _appointmentRepository;
+        private readonly IUserRepository<User> _userRepository;
         private readonly IUserRepository<Patient> _patientRepository;
         private readonly IUserRepository<Doctor> _doctorRepository;
         private readonly IMapper _mapper;
         private readonly SWP391_RedRibbonLifeContext _dbContext;
-        public UserUtils(IUserRepository<Appointment> appointmentRepository, IUserRepository<Patient> patientRepository, IUserRepository<Doctor> doctorRepository, IMapper mapper, SWP391_RedRibbonLifeContext dbContext)
+        public UserUtils(IUserRepository<Appointment> appointmentRepository, IUserRepository<User> userRepository, IUserRepository<Patient> patientRepository, IUserRepository<Doctor> doctorRepository, IMapper mapper, SWP391_RedRibbonLifeContext dbContext)
         {
             _appointmentRepository = appointmentRepository;
+            _userRepository = userRepository;
             _patientRepository = patientRepository;
             _doctorRepository = doctorRepository;
             _mapper = mapper;
@@ -58,6 +60,16 @@ namespace BLL.Utils
             if (patient == null)
             {
                 throw new Exception("Patient not found.");
+            }
+        }
+        
+        public void CheckUserExist(int userId)
+        {
+            // Check if user exists
+            var user = _userRepository.GetAsync(u => u.UserId == userId, true).GetAwaiter().GetResult();
+            if (user == null)
+            {
+                throw new Exception("User not found.");
             }
         }
         

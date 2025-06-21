@@ -1,16 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using BLL.DTO.Doctor;
-using BLL.DTO.User;
 using BLL.Interfaces;
 using DAL.IRepository;
 using DAL.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace BLL.Services
 {
@@ -29,22 +21,9 @@ namespace BLL.Services
             _userUtils = userUtils;
         }
 
-        public async Task<bool> CreateDoctorAsync(DoctorDTO dto)
+        public async Task<dynamic> CreateDoctorAsync(DoctorCreateDTO dto)
         {
             ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-            // Validate required fields
-            if (string.IsNullOrWhiteSpace(dto.Username))
-                throw new ArgumentNullException(nameof(dto.Username), "Username is required.");
-            if (string.IsNullOrWhiteSpace(dto.Password))
-                throw new ArgumentNullException(nameof(dto.Password), "Password is required.");
-            if (string.IsNullOrWhiteSpace(dto.FullName))
-                throw new ArgumentNullException(nameof(dto.FullName), "Full name is required.");
-            if (string.IsNullOrWhiteSpace(dto.Gender))
-                throw new ArgumentNullException(nameof(dto.Gender), "Gender is required.");
-            if (string.IsNullOrWhiteSpace(dto.PhoneNumber))
-                throw new ArgumentNullException(nameof(dto.PhoneNumber), "Phone number is required.");
-            if (string.IsNullOrWhiteSpace(dto.Email))
-                throw new ArgumentNullException(nameof(dto.Email), "Email is required.");
             // Check if username already exists
             var existingUser = await _userRepository.GetAsync(u => u.Username.Equals(dto.Username));
             if (existingUser != null)
@@ -61,7 +40,7 @@ namespace BLL.Services
             User user = _mapper.Map<User>(dto);
             user.IsActive = true; // Set default value for IsActive
             user.UserRole = "Doctor"; // Set default value for UserRole
-            user.IsVerified = true; // Default
+            user.IsVerified = false; // Default
             user.Password = _userUtils.CreatePasswordHash(dto.Password);
             // Save User first to get UserId
             var createdUser = await _userRepository.CreateAsync(user);
@@ -72,23 +51,30 @@ namespace BLL.Services
                 DoctorImage = dto.DoctorImage,
                 Bio = dto.Bio
             };
-            // Save Doctor
-            await _doctorRepository.CreateAsync(doctor);
-            return true;
+            // Save
+            var createdDoctor = await _doctorRepository.CreateAsync(doctor);
+            return new DoctorReadOnlyDTO
+            {
+                // User properties
+                Username = createdUser.Username,
+                Email = createdUser.Email,
+                PhoneNumber = createdUser.PhoneNumber,
+                FullName = createdUser.FullName,
+                DateOfBirth = createdUser.DateOfBirth,
+                Gender = createdUser.Gender,
+                Address = createdUser.Address,
+                // Doctor properties
+                DoctorId = createdDoctor.DoctorId,
+                DoctorImage = createdDoctor.DoctorImage,
+                Bio = createdDoctor.Bio
+            };
         }
-
-        public async Task<bool> UpdateDoctorAsync(DoctorUpdateDTO dto)
+        
+        public async Task<dynamic> UpdateDoctorAsync(DoctorUpdateDTO dto)
         {
             ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-
-            // Validate required fields
-            //if (string.IsNullOrWhiteSpace(dto.Username))
-            //    throw new ArgumentNullException(nameof(dto.Username), "Username is required.");
-            //if (string.IsNullOrWhiteSpace(dto.FullName))
-            //    throw new ArgumentNullException(nameof(dto.FullName), "Full name is required.");
-            
             // Get existing doctor
-            var doctor = await _doctorRepository.GetAsync(d => d.DoctorId == dto.DoctorId, true);
+            var doctor = await _doctorRepository.GetAsync(d => d.DoctorId == dto.DoctorId);
             if (doctor == null)
             {
                 throw new Exception("Doctor not found.");
@@ -96,31 +82,29 @@ namespace BLL.Services
             var user = await _userRepository.GetAsync(u => u.UserId == doctor.UserId);
             if (user == null)
             {
-                throw new Exception($"User associated with Doctor ID {doctor.UserId} not found.");
+                throw new Exception($"User associated with doctor ID {dto.DoctorId} not found.");
             }
-            // Update User entity
-            if (!string.IsNullOrWhiteSpace(dto.PhoneNumber))
-                user.PhoneNumber = dto.PhoneNumber;
-            if (!string.IsNullOrWhiteSpace(dto.FullName))
-                user.FullName = dto.FullName;
-            if (dto.DateOfBirth != null)
-                user.DateOfBirth = dto.DateOfBirth;
-            if (!string.IsNullOrWhiteSpace(dto.Gender))
-                user.Gender = dto.Gender;
-            if (!string.IsNullOrWhiteSpace(dto.Address))
-                user.Address = dto.Address;
-            //user.IsVerified = dto.IsVerified;
-            // Update Doctor entity
-            if (!string.IsNullOrWhiteSpace(dto.DoctorImage))
-                doctor.DoctorImage = dto.DoctorImage;
-            if (!string.IsNullOrWhiteSpace(dto.Bio))
-                doctor.Bio = dto.Bio;
+            _mapper.Map(dto, user);
+            _mapper.Map(dto, doctor);
             // Save changes
-            await _userRepository.UpdateAsync(user);
-            await _doctorRepository.UpdateAsync(doctor);
-            return true;
+            var updatedUser = await _userRepository.UpdateAsync(user);
+            var updatedDoctor = await _doctorRepository.UpdateAsync(doctor);
+            return new DoctorReadOnlyDTO
+            {
+                // User properties
+                Username = updatedUser.Username,
+                Email = updatedUser.Email,
+                PhoneNumber = updatedUser.PhoneNumber,
+                FullName = updatedUser.FullName,
+                DateOfBirth = updatedUser.DateOfBirth,
+                Gender = updatedUser.Gender,
+                Address = updatedUser.Address,
+                // Doctor properties
+                DoctorId = updatedDoctor.DoctorId,
+                DoctorImage = updatedDoctor.DoctorImage,
+                Bio = updatedDoctor.Bio
+            };
         }
-
         public async Task<List<DoctorReadOnlyDTO>> GetAllDoctorsAsync()
         {
             // Get all doctors with their associated users
@@ -147,16 +131,15 @@ namespace BLL.Services
                         DateOfBirth = user.DateOfBirth,
                         Gender = user.Gender,
                         Address = user.Address,
-                        UserRole = user.UserRole,
-                        IsActive = user.IsActive,
-                        IsVerified = user.IsVerified,
+                        // UserRole = user.UserRole,
+                        // IsActive = user.IsActive,
+                        // IsVerified = user.IsVerified,
 
                         // Doctor properties
                         DoctorId = doctor.DoctorId,
                         DoctorImage = doctor.DoctorImage,
                         Bio = doctor.Bio
                     };
-
                     doctorReadOnlyDTOs.Add(doctorReadOnlyDTO);
                 }
             }
@@ -187,9 +170,9 @@ namespace BLL.Services
                 DateOfBirth = user.DateOfBirth,
                 Gender = user.Gender,
                 Address = user.Address,
-                UserRole = user.UserRole,
-                IsActive = user.IsActive,
-                IsVerified = user.IsVerified,
+                // UserRole = user.UserRole,
+                // IsActive = user.IsActive,
+                // IsVerified = user.IsVerified,
 
                 // Doctor properties
                 DoctorId = doctor.DoctorId,
@@ -197,6 +180,26 @@ namespace BLL.Services
                 Bio = doctor.Bio
             };
             return doctorReadOnlyDTO;
+        }
+        
+        public async Task<bool> DeleteDoctorByDoctorIdAsync(int id)
+        {
+            // Get doctor by ID
+            var doctor = await _doctorRepository.GetAsync(u => u.DoctorId == id);
+            if (doctor == null)
+            {
+                throw new Exception($"Doctor with ID {id} not found.");
+            }
+            // Get the associated user
+            var user = await _userRepository.GetAsync(u => u.UserId == doctor.UserId);
+            if (user == null)
+            {
+                throw new Exception($"User associated with Doctor ID {id} not found.");
+            }
+            // Delete user
+            await _doctorRepository.DeleteAsync(doctor);
+            await _userRepository.DeleteAsync(user);
+            return true;
         }
     }
 }
