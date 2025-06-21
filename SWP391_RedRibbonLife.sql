@@ -124,7 +124,7 @@ CREATE TABLE TestResults (
 -- 11. Bảng DoctorSchedules (Lưu lịch làm việc của bác sĩ)
 CREATE TABLE DoctorSchedules (
     schedule_id INT PRIMARY KEY IDENTITY(1,1),
-    doctor_id INT,
+    doctor_id INT NOT NULL,
     work_day NVARCHAR(50) NOT NULL,
     start_time TIME NOT NULL,
     end_time TIME NOT NULL,

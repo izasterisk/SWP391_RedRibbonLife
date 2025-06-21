@@ -13,7 +13,7 @@ public partial class DoctorSchedule
     public int ScheduleId { get; set; }
 
     [Column("doctor_id")]
-    public int? DoctorId { get; set; }
+    public int DoctorId { get; set; }
 
     [Column("work_day")]
     [StringLength(50)]

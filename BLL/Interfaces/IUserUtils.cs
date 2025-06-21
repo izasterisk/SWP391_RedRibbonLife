@@ -9,5 +9,8 @@ namespace BLL.Interfaces
     public interface IUserUtils
     {
         string CreatePasswordHash(string password);
+        void CheckDoctorExist(int doctorId);
+        void CheckPatientExist(int patientId);
+        void ValidateEndTimeStartTime(TimeOnly startTime, TimeOnly endTime);
     }
 }
