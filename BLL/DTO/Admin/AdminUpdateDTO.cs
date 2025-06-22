@@ -40,5 +40,5 @@ public class AdminUpdateDTO
     public string? Address { get; set; }        
     // public bool IsVerified { get; set; } = false;
     //public string UserRole { get; set; }
-    public bool IsActive { get; set; } = true;
+    public bool? IsActive { get; set; } = true;
 }

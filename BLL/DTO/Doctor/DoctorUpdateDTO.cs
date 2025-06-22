@@ -47,7 +47,7 @@ namespace BLL.DTO.Doctor
         // [RegularExpression("^(Patient|Staff|Doctor|Manager|Admin)$", ErrorMessage = "User role must be one of: Patient, Staff, Doctor, Manager, Admin")]
         // public string UserRole { get; set; } = null!;
 
-        public bool IsActive { get; set; }
+        public bool? IsActive { get; set; }
 
         // public bool IsVerified { get; set; }
         

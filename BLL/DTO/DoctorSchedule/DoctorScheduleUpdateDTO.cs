@@ -17,9 +17,9 @@ public class DoctorScheduleUpdateDTO
     //     ErrorMessage = "Work day must be one of: Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday")]
     // public string WorkDay { get; set; } = null!;
 
-    [Required(ErrorMessage = "Start time is required")]
-    public TimeOnly StartTime { get; set; }
+    // [Required(ErrorMessage = "Start time is required")]
+    public TimeOnly? StartTime { get; set; }
 
-    [Required(ErrorMessage = "End time is required")]
-    public TimeOnly EndTime { get; set; }
+    //[Required(ErrorMessage = "End time is required")]
+    public TimeOnly? EndTime { get; set; }
 }

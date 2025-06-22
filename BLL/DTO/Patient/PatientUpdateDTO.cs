@@ -20,17 +20,17 @@ public class PatientUpdateDTO
     // [StringLength(100, ErrorMessage = "Email cannot exceed 100 characters")]
     // public string? Email { get; set; }
 
-    [Phone(ErrorMessage = "Phone number format is invalid")]
+    // [Phone(ErrorMessage = "Phone number format is invalid")]
     [StringLength(20, ErrorMessage = "Phone number cannot exceed 20 characters")]
     public string? PhoneNumber { get; set; }
 
-    [Required(ErrorMessage = "FullName is required")]
+    // [Required(ErrorMessage = "FullName is required")]
     [StringLength(100, ErrorMessage = "Full name cannot exceed 100 characters")]
     public string? FullName { get; set; }
 
     public DateOnly? DateOfBirth { get; set; }
 
-    [Required(ErrorMessage = "Gender is required")]
+    // [Required(ErrorMessage = "Gender is required")]
     [StringLength(10, ErrorMessage = "Gender cannot exceed 10 characters")]
     [RegularExpression("^(Male|Female)$", ErrorMessage = "Gender must be either Male or Female")]
     public string? Gender { get; set; }
@@ -42,7 +42,7 @@ public class PatientUpdateDTO
     // [RegularExpression("^(Patient|Staff|Doctor|Manager|Admin)$", ErrorMessage = "User role must be one of: Patient, Staff, Doctor, Manager, Admin")]
     // public string UserRole { get; set; } = null!;
 
-    public bool IsActive { get; set; }
+    public bool? IsActive { get; set; }
 
     // public bool IsVerified { get; set; }
     

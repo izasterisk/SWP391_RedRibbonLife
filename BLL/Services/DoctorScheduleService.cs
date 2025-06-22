@@ -61,7 +61,9 @@ public class DoctorScheduleService : IDoctorScheduleService
         {
             throw new Exception("Doctor schedule not found.");
         }
-        _userUtils.ValidateEndTimeStartTime(dto.StartTime, dto.EndTime);
+        var finalStartTime = dto.StartTime ?? doctorSchedule.StartTime;
+        var finalEndTime = dto.EndTime ?? doctorSchedule.EndTime;
+        _userUtils.ValidateEndTimeStartTime(finalStartTime, finalEndTime);
         // Update doctor schedule
         _mapper.Map(dto, doctorSchedule);
         var updatedDoctorSchedule = await _doctorScheduleRepository.UpdateAsync(doctorSchedule);
