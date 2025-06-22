@@ -12,6 +12,7 @@ using BLL.DTO.Appointment;
 using BLL.DTO.Doctor;
 using BLL.DTO.User;
 using BLL.DTO.Article;
+using BLL.DTO.ARVRegimens;
 using BLL.DTO.Category;
 using BLL.DTO.DoctorSchedule;
 using BLL.DTO.Login;
@@ -78,6 +79,12 @@ namespace BLL.Utils
             CreateMap<AppointmentReadOnlyDTO, Appointment>().ReverseMap()
                 .ForMember(dest => dest.PatientName, opt => opt.MapFrom(src => src.Patient.User.FullName))
                 .ForMember(dest => dest.DoctorName, opt => opt.MapFrom(src => src.Doctor.User.FullName));
+            
+            CreateMap<ARVRegimensDTO, Arvregimen>().ReverseMap();
+            CreateMap<ARVRegimensCreateDTO, Arvregimen>().ReverseMap();
+            CreateMap<ARVRegimensReadOnlyDTO, Arvregimen>().ReverseMap();
+            CreateMap<ARVRegimensUpdateDTO, Arvregimen>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             //Khi có 2 trường khác tên, ví dụ: studentName và Name
             //CreateMap<StudentDTO, Student>().ForMember(n => n.studentName, opt => opt.MapFrom(x => x.Name)).ReverseMap();
