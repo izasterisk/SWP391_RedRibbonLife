@@ -27,5 +27,5 @@ public partial class DoctorSchedule
 
     [ForeignKey("DoctorId")]
     [InverseProperty("DoctorSchedules")]
-    public virtual Doctor? Doctor { get; set; }
+    public virtual Doctor Doctor { get; set; } = null!;
 }

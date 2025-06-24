@@ -29,7 +29,8 @@ CREATE TABLE Patients (
     user_id INT NOT NULL,
     blood_type VARCHAR(5),
     is_pregnant BIT DEFAULT 0,
-    special_notes NVARCHAR(MAX)
+    special_notes NVARCHAR(MAX),
+    createdAt DATETIME DEFAULT GETDATE() NOT NULL
 );
 
 -- 3. Bảng Doctors (Lưu thông tin bác sĩ)
@@ -258,10 +259,10 @@ VALUES
 ('admin1', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'admin1@example.com', '0987654323', N'Phạm Thị H', '1990-08-08', 'Female', N'Huế', 'Admin', 1, 1);
 
 -- Chèn dữ liệu vào bảng Patients (cho Patient)
-INSERT INTO Patients (user_id, blood_type, is_pregnant, special_notes)
+INSERT INTO Patients (user_id, blood_type, is_pregnant, special_notes, createdAt)
 VALUES
-(1, 'A+', 0, N'Không có ghi chú đặc biệt'),
-(2, 'B-', 1, N'Đang mang thai');
+(1, 'A+', 0, N'Không có ghi chú đặc biệt', GETDATE()),
+(2, 'B-', 1, N'Đang mang thai', GETDATE());
 
 -- Chèn dữ liệu vào bảng Doctors (cho Doctor)
 INSERT INTO Doctors (user_id, doctor_image, bio)

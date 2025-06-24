@@ -38,5 +38,5 @@ public partial class Doctor
 
     [ForeignKey("UserId")]
     [InverseProperty("Doctors")]
-    public virtual User? User { get; set; }
+    public virtual User User { get; set; } = null!;
 }

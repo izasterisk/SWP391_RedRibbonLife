@@ -13,7 +13,7 @@ public partial class Patient
     public int PatientId { get; set; }
 
     [Column("user_id")]
-    public int? UserId { get; set; }
+    public int UserId { get; set; }
 
     [Column("blood_type")]
     [StringLength(5)]
@@ -25,6 +25,9 @@ public partial class Patient
 
     [Column("special_notes")]
     public string? SpecialNotes { get; set; }
+
+    [Column("createdAt", TypeName = "datetime")]
+    public DateTime CreatedAt { get; set; }
 
     [InverseProperty("Patient")]
     public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
@@ -40,5 +43,5 @@ public partial class Patient
 
     [ForeignKey("UserId")]
     [InverseProperty("Patients")]
-    public virtual User? User { get; set; }
+    public virtual User User { get; set; } = null!;
 }
