@@ -147,17 +147,13 @@ public class AppointmentService : IAppointmentService
     
     public async Task<dynamic> GetAvailableDoctorsAsync(DateOnly appointmentDate, TimeOnly appointmentTime)
     {
-        // Lấy tất cả doctors với navigation properties để có thể access DoctorName
         var allDoctors = await _doctorRepository.GetAllWithRelationsAsync(d => d.User);
         var availableDoctors = new List<object>();
-        // Check từng doctor xem có rảnh không
         foreach (var doctor in allDoctors)
         {
             try
             {
-                // Nếu CheckDoctorIfAvailable không throw exception thì doctor này rảnh
                 _doctorScheduleUtils.CheckDoctorIfAvailable(doctor.DoctorId, appointmentDate, appointmentTime);
-                // Thêm doctor vào list available doctors
                 availableDoctors.Add(new
                 {
                     DoctorId = doctor.DoctorId,
@@ -166,11 +162,9 @@ public class AppointmentService : IAppointmentService
             }
             catch
             {
-                // Doctor không rảnh, bỏ qua
                 continue;
             }
         }
-        // Return object chứa AppointmentDate, AppointmentTime và list of available doctors
         return new
         {
             AppointmentDate = appointmentDate,

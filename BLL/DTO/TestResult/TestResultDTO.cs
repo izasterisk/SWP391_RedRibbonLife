@@ -5,7 +5,7 @@ namespace BLL.DTO.TestResult;
 
 public class TestResultDTO
 {
-    //Test Result
+//Test Result
     [Required(ErrorMessage = "Test result ID is required")]
     public int TestResultId { get; set; }
 
@@ -29,7 +29,7 @@ public class TestResultDTO
 
     public string? Notes { get; set; }
     
-    //Test Type
+//Test Type
     // [Required(ErrorMessage = "ID is required")]
     // public int TestTypeId { get; set; }
 
@@ -46,7 +46,7 @@ public class TestResultDTO
     [StringLength(1000, ErrorMessage = "Normal range cannot exceed 1000 characters")]
     public string? NormalRange { get; set; }
     
-    //User
+//User
     // public int UserId { get; set; }
 
     // [Required(ErrorMessage = "Username is required")]
@@ -66,16 +66,16 @@ public class TestResultDTO
     // [StringLength(20, ErrorMessage = "Phone number cannot exceed 20 characters")]
     // public string? PhoneNumber { get; set; }
 
-    [Required(ErrorMessage = "FullName is required")]
-    [StringLength(100, ErrorMessage = "Full name cannot exceed 100 characters")]
-    public string? FullName { get; set; }
-
-    public DateOnly? DateOfBirth { get; set; }
-
-    [Required(ErrorMessage = "Gender is required")]
-    [StringLength(10, ErrorMessage = "Gender cannot exceed 10 characters")]
-    [RegularExpression("^(Male|Female)$", ErrorMessage = "Gender must be either Male or Female")]
-    public string? Gender { get; set; }
+    // [Required(ErrorMessage = "FullName is required")]
+    // [StringLength(100, ErrorMessage = "Full name cannot exceed 100 characters")]
+    // public string? FullName { get; set; }
+    //
+    // public DateOnly? DateOfBirth { get; set; }
+    //
+    // [Required(ErrorMessage = "Gender is required")]
+    // [StringLength(10, ErrorMessage = "Gender cannot exceed 10 characters")]
+    // [RegularExpression("^(Male|Female)$", ErrorMessage = "Gender must be either Male or Female")]
+    // public string? Gender { get; set; }
 
     // public string? Address { get; set; }
 
@@ -88,8 +88,10 @@ public class TestResultDTO
     //
     // public bool IsVerified { get; set; }
     
-    //Patient
+//Patient
     // public int PatientId { get; set; }
+    
+    public string PatientName { get; set; }
 
     [StringLength(5, ErrorMessage = "Blood type cannot exceed 5 characters")]
     [RegularExpression("^(A\\+|A-|B\\+|B-|AB\\+|AB-|O\\+|O-)$", ErrorMessage = "Blood type must be one of: A+, A-, B+, B-, AB+, AB-, O+, O-")]
@@ -100,16 +102,18 @@ public class TestResultDTO
     [StringLength(500, ErrorMessage = "Special notes cannot exceed 500 characters")]
     public string? SpecialNotes { get; set; }
     
-    //Doctor
+//Doctor
     // public int DoctorId { get; set; }
 
+    public string DoctorName { get; set; }
+    
     //public int? UserId { get; set; }
 
     // public string? DoctorImage { get; set; }
 
     // public string? Bio { get; set; }
     
-    //Appointment
+//Appointment
     // public int AppointmentId { get; set; }
     
     // [Required(ErrorMessage = "Patient ID is required")]

@@ -93,15 +93,25 @@ namespace BLL.Utils
             CreateMap<TestTypeUpdateDTO, TestType>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
             
-            CreateMap<TestResultDTO, TestResult>().ReverseMap();
-            CreateMap<TestResultDTO, TestType>().ReverseMap();
-            CreateMap<TestResultDTO, User>().ReverseMap();
-            CreateMap<TestResultDTO, Patient>().ReverseMap();
-            CreateMap<TestResultDTO, Appointment>().ReverseMap();
+            CreateMap<TestResult, TestResultDTO>()
+                .ForMember(dest => dest.TestTypeName, opt => opt.MapFrom(src => src.TestType != null ? src.TestType.TestTypeName : null))
+                .ForMember(dest => dest.Unit, opt => opt.MapFrom(src => src.TestType != null ? src.TestType.Unit : null))
+                .ForMember(dest => dest.NormalRange, opt => opt.MapFrom(src => src.TestType != null ? src.TestType.NormalRange : null))
+                .ForMember(dest => dest.PatientName, opt => opt.MapFrom(src => src.Patient != null && src.Patient.User != null ? src.Patient.User.FullName : null))
+                .ForMember(dest => dest.BloodType, opt => opt.MapFrom(src => src.Patient != null ? src.Patient.BloodType : null))
+                .ForMember(dest => dest.IsPregnant, opt => opt.MapFrom(src => src.Patient != null ? src.Patient.IsPregnant : null))
+                .ForMember(dest => dest.SpecialNotes, opt => opt.MapFrom(src => src.Patient != null ? src.Patient.SpecialNotes : null))
+                .ForMember(dest => dest.DoctorName, opt => opt.MapFrom(src => src.Doctor != null && src.Doctor.User != null ? src.Doctor.User.FullName : null))
+                .ForMember(dest => dest.AppointmentDate, opt => opt.MapFrom(src => src.Appointment != null ? src.Appointment.AppointmentDate : default(DateOnly)))
+                .ForMember(dest => dest.AppointmentTime, opt => opt.MapFrom(src => src.Appointment != null ? src.Appointment.AppointmentTime : default(TimeOnly)))
+                .ForMember(dest => dest.AppointmentType, opt => opt.MapFrom(src => src.Appointment != null ? src.Appointment.AppointmentType : null))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Appointment != null ? src.Appointment.Status : null))
+                .ForMember(dest => dest.IsAnonymous, opt => opt.MapFrom(src => src.Appointment != null ? src.Appointment.IsAnonymous : null));
             CreateMap<TestResultCreateDTO, TestResult>().ReverseMap();
             CreateMap<TestResultUpdateDTO, TestResult>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-
+            
+            
             //Khi có 2 trường khác tên, ví dụ: studentName và Name
             //CreateMap<StudentDTO, Student>().ForMember(n => n.studentName, opt => opt.MapFrom(x => x.Name)).ReverseMap();
 

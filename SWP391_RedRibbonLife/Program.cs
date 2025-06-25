@@ -33,6 +33,7 @@ builder.Services.AddScoped<IDoctorScheduleService, DoctorScheduleService>();
 builder.Services.AddScoped<IDoctorScheduleUtils, DoctorScheduleUtils>();
 builder.Services.AddScoped<IARVRegimensService, ARVRegimensService>();
 builder.Services.AddScoped<ITestTypeService, TestTypeService>();
+builder.Services.AddScoped<ITestResultService, TestResultService>();
 
 builder.Services.AddScoped<IUserRepository<User>, UserRepository<User>>();
 builder.Services.AddScoped<IUserRepository<Doctor>, UserRepository<Doctor>>();
@@ -43,6 +44,7 @@ builder.Services.AddScoped<IUserRepository<Appointment>, UserRepository<Appointm
 builder.Services.AddScoped<IUserRepository<DoctorSchedule>, UserRepository<DoctorSchedule>>();
 builder.Services.AddScoped<IUserRepository<Arvregimen>, UserRepository<Arvregimen>>();
 builder.Services.AddScoped<IUserRepository<TestType>, UserRepository<TestType>>();
+builder.Services.AddScoped<IUserRepository<TestResult>, UserRepository<TestResult>>();
 
 //CORS
 builder.Services.AddCors(options =>
