@@ -19,14 +19,16 @@ namespace BLL.Utils
         private readonly IUserRepository<User> _userRepository;
         private readonly IUserRepository<Patient> _patientRepository;
         private readonly IUserRepository<Doctor> _doctorRepository;
+        private readonly IUserRepository<TestType> _testTypeRepository;
         private readonly IMapper _mapper;
         private readonly SWP391_RedRibbonLifeContext _dbContext;
-        public UserUtils(IUserRepository<Appointment> appointmentRepository, IUserRepository<User> userRepository, IUserRepository<Patient> patientRepository, IUserRepository<Doctor> doctorRepository, IMapper mapper, SWP391_RedRibbonLifeContext dbContext)
+        public UserUtils(IUserRepository<Appointment> appointmentRepository, IUserRepository<User> userRepository, IUserRepository<Patient> patientRepository, IUserRepository<Doctor> doctorRepository, IUserRepository<TestType> testTypeRepository, IMapper mapper, SWP391_RedRibbonLifeContext dbContext)
         {
             _appointmentRepository = appointmentRepository;
             _userRepository = userRepository;
             _patientRepository = patientRepository;
             _doctorRepository = doctorRepository;
+            _testTypeRepository = testTypeRepository;
             _mapper = mapper;
             _dbContext = dbContext;
         }
@@ -70,6 +72,26 @@ namespace BLL.Utils
             if (user == null)
             {
                 throw new Exception("User not found.");
+            }
+        }
+        
+        public void CheckAppointmentExist(int appointmentId)
+        {
+            // Check if appointment exists
+            var appointment = _appointmentRepository.GetAsync(a => a.AppointmentId == appointmentId, true).GetAwaiter().GetResult();
+            if (appointment == null)
+            {
+                throw new Exception("Appointment not found.");
+            }
+        }
+        
+        public void CheckTestTypeExist(int testTypeId)
+        {
+            // Check if test type exists
+            var testType = _testTypeRepository.GetAsync(t => t.TestTypeId == testTypeId, true).GetAwaiter().GetResult();
+            if (testType == null)
+            {
+                throw new Exception("Test type not found.");
             }
         }
         

@@ -13,5 +13,7 @@ namespace BLL.Interfaces
         void CheckPatientExist(int patientId);
         void ValidateEndTimeStartTime(TimeOnly startTime, TimeOnly endTime);
         void CheckUserExist(int userId);
+        void CheckAppointmentExist(int appointmentId);
+        void CheckTestTypeExist(int testTypeId);
     }
 }
