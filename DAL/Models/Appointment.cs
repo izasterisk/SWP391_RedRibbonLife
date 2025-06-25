@@ -47,5 +47,5 @@ public partial class Appointment
     public virtual Patient? Patient { get; set; }
 
     [InverseProperty("Appointment")]
-    public virtual TestResult? TestResult { get; set; }
+    public virtual ICollection<TestResult> TestResults { get; set; } = new List<TestResult>();
 }

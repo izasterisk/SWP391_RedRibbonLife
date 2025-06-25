@@ -33,9 +33,6 @@ public partial class Doctor
     [InverseProperty("Doctor")]
     public virtual ICollection<TestResult> TestResults { get; set; } = new List<TestResult>();
 
-    [InverseProperty("Doctor")]
-    public virtual ICollection<TreatmentHistory> TreatmentHistories { get; set; } = new List<TreatmentHistory>();
-
     [ForeignKey("UserId")]
     [InverseProperty("Doctors")]
     public virtual User User { get; set; } = null!;

@@ -108,7 +108,7 @@ CREATE TABLE TestType (
 -- 10. Bảng TestResults (Lưu trữ kết quả xét nghiệm của bệnh nhân - quan hệ 1-1 với Appointments)
 CREATE TABLE TestResults (
     test_result_id INT PRIMARY KEY IDENTITY(1,1),
-    appointment_id INT UNIQUE,
+    appointment_id INT,
     patient_id INT NOT NULL,
     doctor_id INT NOT NULL,
     test_type_id INT NOT NULL,
@@ -126,12 +126,10 @@ CREATE TABLE DoctorSchedules (
     CONSTRAINT chk_work_day CHECK (work_day IN ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'))
 );
 
--- 12. Bảng TreatmentHistories (Lưu lịch sử phác đồ điều trị của bệnh nhân)
-CREATE TABLE TreatmentHistories (
+-- 12. Bảng Treatment (Lưu lịch sử phác đồ điều trị của bệnh nhân)
+CREATE TABLE Treatment (
     treatment_id INT PRIMARY KEY IDENTITY(1,1),
-    prescription_id INT,
-    patient_id INT,
-    doctor_id INT,
+    test_result_id INT,
     start_date DATE NOT NULL,
     end_date DATE,
     status NVARCHAR(50) DEFAULT 'Active',
@@ -210,17 +208,13 @@ ALTER TABLE DoctorSchedules
 ADD CONSTRAINT fk_schedules_doctors
 FOREIGN KEY (doctor_id) REFERENCES Doctors(doctor_id);
 
-ALTER TABLE TreatmentHistories
-ADD CONSTRAINT fk_treatment_patients
-FOREIGN KEY (patient_id) REFERENCES Patients(patient_id);
-
-ALTER TABLE TreatmentHistories
-ADD CONSTRAINT fk_treatment_doctors
-FOREIGN KEY (doctor_id) REFERENCES Doctors(doctor_id);
+ALTER TABLE Treatment
+ADD CONSTRAINT fk_treatment_test_results
+FOREIGN KEY (test_result_id) REFERENCES TestResults(test_result_id);
 
 ALTER TABLE Prescriptions
 ADD CONSTRAINT fk_prescriptions_treatment
-FOREIGN KEY (treatment_id) REFERENCES TreatmentHistories(treatment_id);
+FOREIGN KEY (treatment_id) REFERENCES Treatment(treatment_id);
 
 ALTER TABLE Prescriptions
 ADD CONSTRAINT fk_prescriptions_regimen
@@ -346,11 +340,11 @@ VALUES
 (2, 2, 2, 4, '600', N'Xét nghiệm đếm tế bào CD4+ - Kết quả bình thường'),
 (3, 1, 2, 1, '0.85', N'Xét nghiệm kháng thể HIV - Kết quả âm tính');
 
--- Chèn dữ liệu vào bảng TreatmentHistories
-INSERT INTO TreatmentHistories (patient_id, doctor_id, start_date, end_date, status, notes)
+-- Chèn dữ liệu vào bảng Treatment
+INSERT INTO Treatment (test_result_id, start_date, end_date, status, notes)
 VALUES
-(1, 1, '2025-06-01', NULL, 'Active', N'Đang điều trị với phác đồ TDF + 3TC + DTG'),
-(2, 2, '2025-06-05', NULL, 'Active', N'Đang điều trị với phác đồ AZT + 3TC + NVP');
+(1, '2025-06-01', NULL, 'Active', N'Đang điều trị với phác đồ TDF + 3TC + DTG'),
+(2, '2025-06-05', NULL, 'Active', N'Đang điều trị với phác đồ AZT + 3TC + NVP');
 
 -- Chèn dữ liệu vào bảng Prescriptions
 INSERT INTO Prescriptions (treatment_id, regimen_id)

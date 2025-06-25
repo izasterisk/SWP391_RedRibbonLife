@@ -27,5 +27,5 @@ public partial class Prescription
 
     [ForeignKey("TreatmentId")]
     [InverseProperty("Prescriptions")]
-    public virtual TreatmentHistory? Treatment { get; set; }
+    public virtual Treatment? Treatment { get; set; }
 }

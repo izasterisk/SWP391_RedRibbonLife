@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Models;
 
-[Index("AppointmentId", Name = "UQ__TestResu__A50828FDE4813B94", IsUnique = true)]
 public partial class TestResult
 {
     [Key]
@@ -33,7 +32,7 @@ public partial class TestResult
     public string? Notes { get; set; }
 
     [ForeignKey("AppointmentId")]
-    [InverseProperty("TestResult")]
+    [InverseProperty("TestResults")]
     public virtual Appointment? Appointment { get; set; }
 
     [ForeignKey("DoctorId")]
@@ -47,4 +46,7 @@ public partial class TestResult
     [ForeignKey("TestTypeId")]
     [InverseProperty("TestResults")]
     public virtual TestType TestType { get; set; } = null!;
+
+    [InverseProperty("TestResult")]
+    public virtual ICollection<Treatment> Treatments { get; set; } = new List<Treatment>();
 }

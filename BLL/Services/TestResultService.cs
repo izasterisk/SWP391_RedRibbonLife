@@ -37,7 +37,7 @@ public class TestResultService : ITestResultService
         _userUtils.CheckPatientExist(dto.PatientId);
         _userUtils.CheckDoctorExist(dto.DoctorId);
         _userUtils.CheckTestTypeExist(dto.TestTypeId);
-        dto.AppointmentId.ValidateIfNotNull(_userUtils.CheckAppointmentExist);
+        dto.AppointmentId.ValidateIfNotNull(_userUtils.CheckDuplicateAppointment);
         
         using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
@@ -68,7 +68,7 @@ public class TestResultService : ITestResultService
         dto.PatientId.ValidateIfNotNull(_userUtils.CheckPatientExist);
         dto.DoctorId.ValidateIfNotNull(_userUtils.CheckDoctorExist);
         dto.TestTypeId.ValidateIfNotNull(_userUtils.CheckTestTypeExist);
-        dto.AppointmentId.ValidateIfNotNull(_userUtils.CheckAppointmentExist);
+        dto.AppointmentId.ValidateIfNotNull(_userUtils.CheckDuplicateAppointment);
         // Get existing test result
         var testResult = await _testResultRepository.GetAsync(t => t.TestResultId == dto.TestResultId, true);
         if (testResult == null)
