@@ -19,7 +19,7 @@ public partial class Prescription
     public int RegimenId { get; set; }
 
     [InverseProperty("Prescription")]
-    public virtual ICollection<MedicationSchedule> MedicationSchedules { get; set; } = new List<MedicationSchedule>();
+    public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
     [ForeignKey("RegimenId")]
     [InverseProperty("Prescriptions")]

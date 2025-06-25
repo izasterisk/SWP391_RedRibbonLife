@@ -33,9 +33,6 @@ public partial class Patient
     public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
 
     [InverseProperty("Patient")]
-    public virtual ICollection<MedicationSchedule> MedicationSchedules { get; set; } = new List<MedicationSchedule>();
-
-    [InverseProperty("Patient")]
     public virtual ICollection<TestResult> TestResults { get; set; } = new List<TestResult>();
 
     [InverseProperty("Patient")]

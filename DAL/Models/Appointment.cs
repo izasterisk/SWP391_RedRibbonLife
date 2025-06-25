@@ -39,12 +39,12 @@ public partial class Appointment
     [InverseProperty("Appointments")]
     public virtual Doctor Doctor { get; set; } = null!;
 
+    [InverseProperty("Appointment")]
+    public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+
     [ForeignKey("PatientId")]
     [InverseProperty("Appointments")]
     public virtual Patient? Patient { get; set; }
-
-    [InverseProperty("Appointment")]
-    public virtual ICollection<Reminder> Reminders { get; set; } = new List<Reminder>();
 
     [InverseProperty("Appointment")]
     public virtual ICollection<TestResult> TestResults { get; set; } = new List<TestResult>();

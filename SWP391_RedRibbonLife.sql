@@ -83,19 +83,7 @@ CREATE TABLE Appointments (
     CONSTRAINT chk_appointment_status CHECK (status IN ('Scheduled', 'Confirmed', 'Completed', 'Cancelled'))
 );
 
--- 8. Bảng Reminders (Lưu thông tin nhắc nhở lịch hẹn)
-CREATE TABLE Reminders (
-    reminder_id INT PRIMARY KEY IDENTITY(1,1),
-    appointment_id INT,
-    reminder_time DATETIME NOT NULL,
-    reminder_type NVARCHAR(50) DEFAULT 'Appointment',
-    status NVARCHAR(50) DEFAULT 'Pending',
-    sent_at DATETIME NULL,
-    CONSTRAINT chk_reminder_type CHECK (reminder_type IN ('Appointment', 'Medication')),
-    CONSTRAINT chk_reminder_status CHECK (status IN ('Pending', 'Sent', 'Failed'))
-);
-
--- 9. Bảng ARVRegimens (Các phác đồ điều trị ARV có sẵn)
+-- 8. Bảng ARVRegimens (Các phác đồ điều trị ARV có sẵn)
 CREATE TABLE ARVRegimens (
     regimen_id INT PRIMARY KEY IDENTITY(1,1),
     regimen_name NVARCHAR(100) NOT NULL,
@@ -108,7 +96,7 @@ CREATE TABLE ARVRegimens (
     isActive BIT DEFAULT 1
 );
 
--- 10. Bảng TestResults (Lưu trữ kết quả xét nghiệm của bệnh nhân)
+-- 9. Bảng TestResults (Lưu trữ kết quả xét nghiệm của bệnh nhân)
 CREATE TABLE TestResults (
     test_result_id INT PRIMARY KEY IDENTITY(1,1),
     appointment_id INT,
@@ -122,7 +110,7 @@ CREATE TABLE TestResults (
     CONSTRAINT chk_unit CHECK (unit IN ('cells/mm³', 'copies/mL', 'mg/dL', 'g/L', 'IU/L', '%', 'mmHg', 'N/A'))
 );
 
--- 11. Bảng DoctorSchedules (Lưu lịch làm việc của bác sĩ)
+-- 10. Bảng DoctorSchedules (Lưu lịch làm việc của bác sĩ)
 CREATE TABLE DoctorSchedules (
     schedule_id INT PRIMARY KEY IDENTITY(1,1),
     doctor_id INT NOT NULL,
@@ -132,7 +120,7 @@ CREATE TABLE DoctorSchedules (
     CONSTRAINT chk_work_day CHECK (work_day IN ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'))
 );
 
--- 12. Bảng TreatmentHistories (Lưu lịch sử phác đồ điều trị của bệnh nhân)
+-- 11. Bảng TreatmentHistories (Lưu lịch sử phác đồ điều trị của bệnh nhân)
 CREATE TABLE TreatmentHistories (
     treatment_id INT PRIMARY KEY IDENTITY(1,1),
     prescription_id INT,
@@ -145,23 +133,33 @@ CREATE TABLE TreatmentHistories (
     CONSTRAINT chk_treatment_status CHECK (status IN ('Active', 'Stopped', 'Paused'))
 );
 
--- 13. Bảng Prescriptions (Lưu chi tiết đơn thuốc trong phác đồ)
+-- 12. Bảng Prescriptions (Lưu chi tiết đơn thuốc trong phác đồ)
 CREATE TABLE Prescriptions (
     prescription_id INT PRIMARY KEY IDENTITY(1,1),
     treatment_id INT,
     regimen_id INT NOT NULL
 );
 
--- 14. Bảng MedicationSchedules (Sử dụng để báo người dùng uống thuốc)
-CREATE TABLE MedicationSchedules (
-    schedule_id INT PRIMARY KEY IDENTITY(1,1),
-    prescription_id INT,
-    patient_id INT,
-    medication_time INT NOT NULL,
-    sent_at DATETIME NULL
+-- 13. Bảng Notifications
+CREATE TABLE Notifications (
+    notification_id INT PRIMARY KEY IDENTITY(1,1),
+    user_id INT NOT NULL,
+    appointment_id INT NULL,
+    prescription_id INT NULL,
+    notification_type NVARCHAR(50) NOT NULL,
+    scheduled_time DATETIME NOT NULL,
+    status NVARCHAR(50) DEFAULT 'Pending',
+    sent_at DATETIME NULL,
+    CONSTRAINT chk_notification_type CHECK (notification_type IN ('Appointment', 'Medication', 'General')),
+    CONSTRAINT chk_notification_status CHECK (status IN ('Pending', 'Sent', 'Failed', 'Cancelled')),
+    CONSTRAINT chk_reference_id CHECK (
+        (appointment_id IS NOT NULL AND prescription_id IS NULL) OR
+        (appointment_id IS NULL AND prescription_id IS NOT NULL) OR
+        (appointment_id IS NULL AND prescription_id IS NULL AND notification_type = 'General')
+    )
 );
 
--- FOREIGN KEY
+-- FOREIGN KEY CONSTRAINTS
 ALTER TABLE Patients
 ADD CONSTRAINT fk_patients_users
 FOREIGN KEY (user_id) REFERENCES Users(user_id);
@@ -185,10 +183,6 @@ FOREIGN KEY (patient_id) REFERENCES Patients(patient_id);
 ALTER TABLE Appointments
 ADD CONSTRAINT fk_appointments_doctors
 FOREIGN KEY (doctor_id) REFERENCES Doctors(doctor_id);
-
-ALTER TABLE Reminders
-ADD CONSTRAINT fk_reminders_appointments
-FOREIGN KEY (appointment_id) REFERENCES Appointments(appointment_id);
 
 ALTER TABLE TestResults
 ADD CONSTRAINT fk_test_results_appointments
@@ -222,13 +216,19 @@ ALTER TABLE Prescriptions
 ADD CONSTRAINT fk_prescriptions_regimen
 FOREIGN KEY (regimen_id) REFERENCES ARVRegimens(regimen_id);
 
-ALTER TABLE MedicationSchedules
-ADD CONSTRAINT fk_medication_prescriptions
+ALTER TABLE Notifications
+ADD CONSTRAINT fk_notifications_users
+FOREIGN KEY (user_id) REFERENCES Users(user_id);
+
+ALTER TABLE Notifications
+ADD CONSTRAINT fk_notifications_appointments
+FOREIGN KEY (appointment_id) REFERENCES Appointments(appointment_id);
+
+ALTER TABLE Notifications
+ADD CONSTRAINT fk_notifications_prescriptions
 FOREIGN KEY (prescription_id) REFERENCES Prescriptions(prescription_id);
 
-ALTER TABLE MedicationSchedules
-ADD CONSTRAINT fk_medication_patients
-FOREIGN KEY (patient_id) REFERENCES Patients(patient_id);
+-- INSERT DATA
 
 -- Chèn dữ liệu cho vai trò Patient
 INSERT INTO Users (username, password, email, phone_number, full_name, date_of_birth, gender, address, user_role, isActive, isVerified)
@@ -293,7 +293,7 @@ VALUES
 (N'Dịch vụ y tế tại Red Ribbon Life', N'Chúng tôi cung cấp tư vấn, xét nghiệm và điều trị HIV/AIDS với đội ngũ bác sĩ chuyên môn cao và cơ sở vật chất hiện đại.', 1, 1, '2025-06-02', N'Admin Team'),
 (N'Hiểu biết cơ bản về HIV/AIDS', N'HIV là virus gây suy giảm miễn dịch ở người. Bài viết này giải thích cách lây truyền, phòng ngừa và điều trị HIV.', 2, 1, '2025-06-03', N'Lê Văn C'),
 (N'Phòng ngừa HIV trong cộng đồng', N'Hướng dẫn các biện pháp phòng ngừa HIV như sử dụng bao cao su, xét nghiệm định kỳ và sử dụng PrEP.', 2, 1, '2025-06-04', N'Phạm Thị D'),
-(N'Vượt qua kỳ thị: Câu chuyện của một bệnh nhân', N'Một bệnh nhân chia sẻ hành trình sống chung với HIV và cách họ vượt qua định kiến xã hội.', 3, 1, '2025-06-05', N'Nguyễn Văn A'),
+(N'Vượt qua kỳ thị: Câu chuyện của một bệnh nhân', N'Một bệnh nhân chia sẻ hành trình sống tạp với HIV và cách họ vượt qua định kiến xã hội.', 3, 1, '2025-06-05', N'Nguyễn Văn A'),
 (N'Tại sao cần nói không với kỳ thị HIV', N'Bài viết thảo luận về tác động của kỳ thị và cách cộng đồng có thể hỗ trợ bệnh nhân HIV.', 3, 1, '2025-06-06', N'Trần Thị B'),
 (N'Hành trình sống chung với HIV', N'Một bệnh nhân kể về trải nghiệm cá nhân, từ khi phát hiện bệnh đến việc duy trì lối sống tích cực.', 4, 1, '2025-06-07', N'Nguyễn Văn A'),
 (N'Kinh nghiệm hỗ trợ bệnh nhân HIV từ bác sĩ', N'Bác sĩ chia sẻ những bài học và câu chuyện từ quá trình làm việc với bệnh nhân HIV.', 4, 1, '2025-06-08', N'Lê Văn C');
@@ -316,18 +316,11 @@ VALUES
 -- Chèn dữ liệu vào bảng Appointments
 INSERT INTO Appointments (patient_id, doctor_id, appointment_date, appointment_time, appointment_type, status, isAnonymous)
 VALUES
-(1, 1, '2025-06-10', '09:00:00', 'Appointment', 'Scheduled', 0),
-(2, 2, '2025-06-11', '10:00:00', 'Appointment', 'Scheduled', 1),
-(1, 2, '2025-06-15', '14:00:00', 'Medication', 'Scheduled', 0);
+(1, 1, '2025-06-30', '09:00:00', 'Appointment', 'Scheduled', 0),
+(2, 2, '2025-07-01', '10:00:00', 'Appointment', 'Scheduled', 1),
+(1, 2, '2025-07-05', '14:00:00', 'Medication', 'Scheduled', 0);
 
--- Chèn dữ liệu vào bảng Reminders
-INSERT INTO Reminders (appointment_id, reminder_time, reminder_type, status, sent_at)
-VALUES
-(1, '2025-06-09 09:00:00', 'Appointment', 'Pending', NULL),
-(2, '2025-06-10 10:00:00', 'Appointment', 'Pending', NULL),
-(3, '2025-06-14 14:00:00', 'Medication', 'Pending', NULL);
-
--- Chèn dữ liệu vào bảng TestResults
+-- Chèn dữ liệu vào bàn TestResults
 INSERT INTO TestResults (appointment_id, patient_id, doctor_id, test_type, result_value, unit, normal_range, notes)
 VALUES
 (1, 1, 1, N'Tải lượng HIV', '500', 'copies/mL', 'Dưới 200', N'Tải lượng virus cao, cần theo dõi'),
@@ -347,10 +340,20 @@ VALUES
 (1, 1),  -- Phác đồ TDF + 3TC + DTG cho bệnh nhân 1
 (2, 2);  -- Phác đồ AZT + 3TC + NVP cho bệnh nhân 2
 
--- Chèn dữ liệu vào bảng MedicationSchedules
-INSERT INTO MedicationSchedules (prescription_id, patient_id, medication_time, sent_at)
+-- Chèn dữ liệu vào bảng Notifications
+INSERT INTO Notifications (user_id, appointment_id, prescription_id, notification_type, scheduled_time, status)
 VALUES
-(1, 1, 8, NULL),  -- Uống thuốc lúc 8h sáng
-(1, 1, 20, NULL), -- Uống thuốc lúc 8h tối
-(2, 2, 7, NULL),  -- Uống thuốc lúc 7h sáng
-(2, 2, 19, NULL); -- Uống thuốc lúc 7h tối
+-- Thông báo lịch hẹn
+(1, 1, NULL, 'Appointment', '2025-06-29 15:00:00', 'Pending'),
+(2, 2, NULL, 'Appointment', '2025-06-30 10:00:00', 'Pending'),
+(1, 3, NULL, 'Appointment', '2025-07-04 14:00:00', 'Pending'),
+-- Thông báo uống thuốc
+(1, NULL, 1, 'Medication', '2025-06-26 08:00:00', 'Pending'),
+(1, NULL, 1, 'Medication', '2025-06-27 08:00:00', 'Pending'),
+(2, NULL, 2, 'Medication', '2025-06-26 07:00:00', 'Pending'),
+(2, NULL, 2, 'Medication', '2025-06-26 19:00:00', 'Pending'),
+(2, NULL, 2, 'Medication', '2025-06-27 07:00:00', 'Pending'),
+(2, NULL, 2, 'Medication', '2025-06-27 19:00:00', 'Pending'),
+-- Thông báo chung
+(1, NULL, NULL, 'General', '2025-06-25 09:00:00', 'Sent'),
+(2, NULL, NULL, 'General', '2025-06-25 09:30:00', 'Sent');
