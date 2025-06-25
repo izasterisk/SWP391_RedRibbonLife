@@ -17,6 +17,7 @@ using BLL.DTO.Category;
 using BLL.DTO.DoctorSchedule;
 using BLL.DTO.Login;
 using BLL.DTO.Patient;
+using BLL.DTO.TestType;
 
 namespace BLL.Utils
 {
@@ -84,6 +85,11 @@ namespace BLL.Utils
             CreateMap<ARVRegimensCreateDTO, Arvregimen>().ReverseMap();
             CreateMap<ARVRegimensReadOnlyDTO, Arvregimen>().ReverseMap();
             CreateMap<ARVRegimensUpdateDTO, Arvregimen>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+            
+            CreateMap<TestTypeDTO, TestType>().ReverseMap();
+            CreateMap<TestTypeCreateDTO, TestType>().ReverseMap();
+            CreateMap<TestTypeUpdateDTO, TestType>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             //Khi có 2 trường khác tên, ví dụ: studentName và Name
