@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Models;
 
+[Index("AppointmentId", Name = "UQ__TestResu__A50828FDE4813B94", IsUnique = true)]
 public partial class TestResult
 {
     [Key]
@@ -19,36 +20,31 @@ public partial class TestResult
     public int PatientId { get; set; }
 
     [Column("doctor_id")]
-    public int? DoctorId { get; set; }
+    public int DoctorId { get; set; }
 
-    [Column("test_type")]
-    [StringLength(100)]
-    public string TestType { get; set; } = null!;
+    [Column("test_type_id")]
+    public int TestTypeId { get; set; }
 
     [Column("result_value")]
     [StringLength(255)]
     public string? ResultValue { get; set; }
 
-    [Column("unit")]
-    [StringLength(50)]
-    public string? Unit { get; set; }
-
-    [Column("normal_range")]
-    [StringLength(50)]
-    public string? NormalRange { get; set; }
-
     [Column("notes")]
     public string? Notes { get; set; }
 
     [ForeignKey("AppointmentId")]
-    [InverseProperty("TestResults")]
+    [InverseProperty("TestResult")]
     public virtual Appointment? Appointment { get; set; }
 
     [ForeignKey("DoctorId")]
     [InverseProperty("TestResults")]
-    public virtual Doctor? Doctor { get; set; }
+    public virtual Doctor Doctor { get; set; } = null!;
 
     [ForeignKey("PatientId")]
     [InverseProperty("TestResults")]
     public virtual Patient Patient { get; set; } = null!;
+
+    [ForeignKey("TestTypeId")]
+    [InverseProperty("TestResults")]
+    public virtual TestType TestType { get; set; } = null!;
 }

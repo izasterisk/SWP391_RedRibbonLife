@@ -96,21 +96,27 @@ CREATE TABLE ARVRegimens (
     isActive BIT DEFAULT 1
 );
 
--- 9. Bảng TestResults (Lưu trữ kết quả xét nghiệm của bệnh nhân)
-CREATE TABLE TestResults (
-    test_result_id INT PRIMARY KEY IDENTITY(1,1),
-    appointment_id INT,
-    patient_id INT NOT NULL,
-    doctor_id INT,
-    test_type NVARCHAR(100) NOT NULL,
-    result_value NVARCHAR(255),
-    unit NVARCHAR(50) DEFAULT 'N/A',
-    normal_range NVARCHAR(50),
-    notes NVARCHAR(MAX),
-    CONSTRAINT chk_unit CHECK (unit IN ('cells/mm³', 'copies/mL', 'mg/dL', 'g/L', 'IU/L', '%', 'mmHg', 'N/A'))
+-- 9. Bảng TestType (Lưu trữ các loại xét nghiệm)
+CREATE TABLE TestType (
+    test_type_id INT PRIMARY KEY IDENTITY(1,1),
+    test_type_name NVARCHAR(200) NOT NULL,
+    unit NVARCHAR(50) DEFAULT 'N/A' NOT NULL,
+    normal_range NVARCHAR(MAX),
+    CONSTRAINT chk_unit CHECK (unit IN ('cells/mm³', 'copies/mL', 'mg/dL', 'g/L', 'IU/L', 'IU/mL', '%', 'mmHg', 'S/C', 'N/A'))
 );
 
--- 10. Bảng DoctorSchedules (Lưu lịch làm việc của bác sĩ)
+-- 10. Bảng TestResults (Lưu trữ kết quả xét nghiệm của bệnh nhân - quan hệ 1-1 với Appointments)
+CREATE TABLE TestResults (
+    test_result_id INT PRIMARY KEY IDENTITY(1,1),
+    appointment_id INT UNIQUE,
+    patient_id INT NOT NULL,
+    doctor_id INT NOT NULL,
+    test_type_id INT NOT NULL,
+    result_value NVARCHAR(255),
+    notes NVARCHAR(MAX)
+);
+
+-- 11. Bảng DoctorSchedules (Lưu lịch làm việc của bác sĩ)
 CREATE TABLE DoctorSchedules (
     schedule_id INT PRIMARY KEY IDENTITY(1,1),
     doctor_id INT NOT NULL,
@@ -120,7 +126,7 @@ CREATE TABLE DoctorSchedules (
     CONSTRAINT chk_work_day CHECK (work_day IN ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'))
 );
 
--- 11. Bảng TreatmentHistories (Lưu lịch sử phác đồ điều trị của bệnh nhân)
+-- 12. Bảng TreatmentHistories (Lưu lịch sử phác đồ điều trị của bệnh nhân)
 CREATE TABLE TreatmentHistories (
     treatment_id INT PRIMARY KEY IDENTITY(1,1),
     prescription_id INT,
@@ -133,14 +139,14 @@ CREATE TABLE TreatmentHistories (
     CONSTRAINT chk_treatment_status CHECK (status IN ('Active', 'Stopped', 'Paused'))
 );
 
--- 12. Bảng Prescriptions (Lưu chi tiết đơn thuốc trong phác đồ)
+-- 13. Bảng Prescriptions (Lưu chi tiết đơn thuốc trong phác đồ)
 CREATE TABLE Prescriptions (
     prescription_id INT PRIMARY KEY IDENTITY(1,1),
     treatment_id INT,
     regimen_id INT NOT NULL
 );
 
--- 13. Bảng Notifications
+-- 14. Bảng Notifications
 CREATE TABLE Notifications (
     notification_id INT PRIMARY KEY IDENTITY(1,1),
     user_id INT NOT NULL,
@@ -195,6 +201,10 @@ FOREIGN KEY (patient_id) REFERENCES Patients(patient_id);
 ALTER TABLE TestResults
 ADD CONSTRAINT fk_test_results_doctors
 FOREIGN KEY (doctor_id) REFERENCES Doctors(doctor_id);
+
+ALTER TABLE TestResults
+ADD CONSTRAINT fk_test_results_test_type
+FOREIGN KEY (test_type_id) REFERENCES TestType(test_type_id);
 
 ALTER TABLE DoctorSchedules
 ADD CONSTRAINT fk_schedules_doctors
@@ -320,13 +330,21 @@ VALUES
 (2, 2, '2025-07-01', '10:00:00', 'Appointment', 'Scheduled', 1),
 (1, 2, '2025-07-05', '14:00:00', 'Medication', 'Scheduled', 0);
 
--- Chèn dữ liệu vào bàn TestResults
-INSERT INTO TestResults (appointment_id, patient_id, doctor_id, test_type, result_value, unit, normal_range, notes)
+-- Chèn dữ liệu vào bảng TestType
+INSERT INTO TestType (test_type_name, unit, normal_range)
+VALUES 
+(N'Xét nghiệm kháng thể HIV (Antibody Test)', 'S/C', N'< 0.90 S/C Units (Non-reactive - âm tính)'),
+(N'Xét nghiệm kháng nguyên p24 (Antigen Test)', 'IU/mL', N'< 0.43 IU/mL (giói hạn phát hiện ~0.27 - 0.58 IU/mL)'),
+(N'Xét nghiệm tải lượng virus HIV (Viral Load Test)', 'copies/mL', N'Khong co gia tri "binh thuong" cho nguoi khong nhiem; ngưỡng phát hiện: < 20 copies/mL (undetectable)'),
+(N'Đếm tế bào CD4+ (CD4 Count)', 'cells/mm³', N'700 - 1100 cells/mm³ (người bình thường không nhiễm HIV)');
+
+-- Chèn dữ liệu vào bảng TestResults (quan hệ 1-1 với Appointments)
+INSERT INTO TestResults (appointment_id, patient_id, doctor_id, test_type_id, result_value, notes)
 VALUES
-(1, 1, 1, N'Tải lượng HIV', '500', 'copies/mL', 'Dưới 200', N'Tải lượng virus cao, cần theo dõi'),
-(1, 1, 1, N'CD4', '350', 'cells/mm³', '500-1500', N'Số lượng CD4 thấp'),
-(2, 2, 2, N'Tải lượng HIV', '100', 'copies/mL', 'Dưới 200', N'Tải lượng virus trong ngưỡng kiểm soát'),
-(2, 2, 2, N'CD4', '600', 'cells/mm³', '500-1500', N'Số lượng CD4 bình thường');
+-- Mỗi appointment chỉ có 1 kết quả xét nghiệm
+(1, 1, 1, 3, '500', N'Xét nghiệm tải lượng virus HIV - Kết quả cao, cần theo dõi'),
+(2, 2, 2, 4, '600', N'Xét nghiệm đếm tế bào CD4+ - Kết quả bình thường'),
+(3, 1, 2, 1, '0.85', N'Xét nghiệm kháng thể HIV - Kết quả âm tính');
 
 -- Chèn dữ liệu vào bảng TreatmentHistories
 INSERT INTO TreatmentHistories (patient_id, doctor_id, start_date, end_date, status, notes)
