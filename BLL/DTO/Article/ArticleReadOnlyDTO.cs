@@ -13,9 +13,10 @@ public class ArticleReadOnlyDTO
     public int? CategoryId { get; set; }
     public bool? IsActive { get; set; }
     public DateOnly CreatedDate { get; set; }
-    public string? Author { get; set; }
+    public int UserId { get; set; }
+    public string? AuthorName { get; set; }
         
     //Category
-    public string CategoryName { get; set; } = null!;
+    public string? CategoryName { get; set; }
     //public int? CategoryId { get; set; }
 }

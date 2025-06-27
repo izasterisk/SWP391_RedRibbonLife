@@ -28,11 +28,14 @@ public partial class Article
     [Column("createdDate")]
     public DateOnly CreatedDate { get; set; }
 
-    [Column("author")]
-    [StringLength(100)]
-    public string? Author { get; set; }
+    [Column("user_id")]
+    public int UserId { get; set; }
 
     [ForeignKey("CategoryId")]
     [InverseProperty("Articles")]
     public virtual Category? Category { get; set; }
+
+    [ForeignKey("UserId")]
+    [InverseProperty("Articles")]
+    public virtual User User { get; set; } = null!;
 }

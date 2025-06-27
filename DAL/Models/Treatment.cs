@@ -16,6 +16,9 @@ public partial class Treatment
     [Column("test_result_id")]
     public int? TestResultId { get; set; }
 
+    [Column("regimen_id")]
+    public int RegimenId { get; set; }
+
     [Column("start_date")]
     public DateOnly StartDate { get; set; }
 
@@ -30,7 +33,11 @@ public partial class Treatment
     public string? Notes { get; set; }
 
     [InverseProperty("Treatment")]
-    public virtual ICollection<Prescription> Prescriptions { get; set; } = new List<Prescription>();
+    public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+
+    [ForeignKey("RegimenId")]
+    [InverseProperty("Treatments")]
+    public virtual Arvregimen Regimen { get; set; } = null!;
 
     [ForeignKey("TestResultId")]
     [InverseProperty("Treatments")]

@@ -21,11 +21,13 @@ public class ARVRegimensService : IARVRegimensService
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
         // Check if regimen code already exists
-        var existingRegimen = await _arvRegimensRepository.GetAsync(r => r.RegimenCode.Equals(dto.RegimenCode));
-        if (existingRegimen != null)
-        {
-            throw new Exception($"Regimen code {dto.RegimenCode} already exists.");
-        }
+        // TODO: Cập nhật khi sửa ARV DTOs để phù hợp với model mới
+        // var existingRegimen = await _arvRegimensRepository.GetAsync(r => r.RegimenCode.Equals(dto.RegimenCode));
+        // if (existingRegimen != null)
+        // {
+        //     throw new Exception($"Regimen code {dto.RegimenCode} already exists.");
+        // }
+        
         // Create ARVRegimen entity
         Arvregimen arvRegimen = _mapper.Map<Arvregimen>(dto);
         arvRegimen.IsActive = true; // Set default value for IsActive
@@ -46,14 +48,17 @@ public class ARVRegimensService : IARVRegimensService
         {
             throw new Exception("ARV Regimen not found.");
         }
-        if (!string.IsNullOrWhiteSpace(dto.RegimenCode))
-        {
-            var existingRegimenByCode = await _arvRegimensRepository.GetAsync(r => r.RegimenCode.Equals(dto.RegimenCode) && r.RegimenId != dto.RegimenId);
-            if (existingRegimenByCode != null)
-            {
-                throw new Exception($"Regimen code {dto.RegimenCode} already exists.");
-            }
-        }
+        
+        // TODO: Cập nhật khi sửa ARV DTOs để phù hợp với model mới
+        // if (!string.IsNullOrWhiteSpace(dto.RegimenCode))
+        // {
+        //     var existingRegimenByCode = await _arvRegimensRepository.GetAsync(r => r.RegimenCode.Equals(dto.RegimenCode) && r.RegimenId != dto.RegimenId);
+        //     if (existingRegimenByCode != null)
+        //     {
+        //         throw new Exception($"Regimen code {dto.RegimenCode} already exists.");
+        //     }
+        // }
+        
         // Update regimen
         _mapper.Map(dto, regimen);
         await _arvRegimensRepository.UpdateAsync(regimen);

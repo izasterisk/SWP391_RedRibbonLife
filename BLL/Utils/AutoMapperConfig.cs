@@ -12,6 +12,7 @@ using BLL.DTO.Appointment;
 using BLL.DTO.Doctor;
 using BLL.DTO.User;
 using BLL.DTO.Article;
+using BLL.DTO.ARVComponent;
 using BLL.DTO.ARVRegimens;
 using BLL.DTO.Category;
 using BLL.DTO.DoctorSchedule;
@@ -52,7 +53,8 @@ namespace BLL.Utils
 
             CreateMap<ArticleDTO, Article>().ReverseMap();
             CreateMap<ArticleReadOnlyDTO, Article>().ReverseMap()
-                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.CategoryName : null));
+                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.CategoryName : null))
+                .ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src => src.User != null ? src.User.FullName : null));
             CreateMap<ArticleReadOnlyDTO, Category>().ReverseMap();
             CreateMap<ArticleUpdateDTO, Article>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
@@ -109,6 +111,11 @@ namespace BLL.Utils
                 .ForMember(dest => dest.IsAnonymous, opt => opt.MapFrom(src => src.Appointment != null ? src.Appointment.IsAnonymous : null));
             CreateMap<TestResultCreateDTO, TestResult>().ReverseMap();
             CreateMap<TestResultUpdateDTO, TestResult>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+            
+            CreateMap<ARVComponentDTO, Arvcomponent>().ReverseMap();
+            CreateMap<ARVComponentCreateDTO, Arvcomponent>().ReverseMap();
+            CreateMap<ARVComponentUpdateDTO, Arvcomponent>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
             
             

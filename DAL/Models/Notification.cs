@@ -18,8 +18,8 @@ public partial class Notification
     [Column("appointment_id")]
     public int? AppointmentId { get; set; }
 
-    [Column("prescription_id")]
-    public int? PrescriptionId { get; set; }
+    [Column("treatment_id")]
+    public int? TreatmentId { get; set; }
 
     [Column("notification_type")]
     [StringLength(50)]
@@ -39,9 +39,9 @@ public partial class Notification
     [InverseProperty("Notifications")]
     public virtual Appointment? Appointment { get; set; }
 
-    [ForeignKey("PrescriptionId")]
+    [ForeignKey("TreatmentId")]
     [InverseProperty("Notifications")]
-    public virtual Prescription? Prescription { get; set; }
+    public virtual Treatment? Treatment { get; set; }
 
     [ForeignKey("UserId")]
     [InverseProperty("Notifications")]

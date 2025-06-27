@@ -11,7 +11,7 @@ CREATE TABLE Users (
     user_id INT PRIMARY KEY IDENTITY(1,1),
     username VARCHAR(50) NOT NULL UNIQUE,
     password NVARCHAR(255) NOT NULL,
-    email NVARCHAR(100) UNIQUE,
+    email NVARCHAR(100) NOT NULL UNIQUE,
     phone_number VARCHAR(20),
     full_name NVARCHAR(100),
     date_of_birth DATE,
@@ -58,7 +58,7 @@ CREATE TABLE Category (
     category_name NVARCHAR(100) NOT NULL
 );
 
--- 6. Bảng Articles (Lưu tất cả các bài viết trên trang, xóa thumbnail_image, thêm createdDate và author)
+-- 6. Bảng Articles (Lưu tất cả các bài viết trên trang, xóa thumbnail_image, thêm createdDate và user_id)
 CREATE TABLE Articles (
     article_id INT PRIMARY KEY IDENTITY(1,1),
     title NVARCHAR(200) NOT NULL,
@@ -66,7 +66,7 @@ CREATE TABLE Articles (
     category_id INT,
     isActive BIT DEFAULT 1,
     createdDate DATE NOT NULL DEFAULT GETDATE(),
-    author NVARCHAR(100)
+    user_id INT NOT NULL
 );
 
 -- 7. Bảng Appointments (Lưu thông tin lịch hẹn)
@@ -83,17 +83,31 @@ CREATE TABLE Appointments (
     CONSTRAINT chk_appointment_status CHECK (status IN ('Scheduled', 'Confirmed', 'Completed', 'Cancelled'))
 );
 
--- 8. Bảng ARVRegimens (Các phác đồ điều trị ARV có sẵn)
+-- Bảng mới để lưu trữ các thành phần ARV
+CREATE TABLE ARVComponents (
+    component_id INT PRIMARY KEY IDENTITY(1,1),
+    component_name VARCHAR(100) NOT NULL UNIQUE,
+    description NVARCHAR(MAX)
+);
+
+-- 8. Bảng ARVRegimens (Các phác đồ điều trị ARV có sẵn và tùy chỉnh)
 CREATE TABLE ARVRegimens (
     regimen_id INT PRIMARY KEY IDENTITY(1,1),
     regimen_name NVARCHAR(100) NOT NULL,
-    regimen_code NVARCHAR(20) UNIQUE,
-    components NVARCHAR(MAX) NOT NULL,
+    component1_id INT NOT NULL,
+    component2_id INT NULL,
+    component3_id INT NULL,
+    component4_id INT NULL,
     description NVARCHAR(MAX),
     suitable_for NVARCHAR(MAX),
     side_effects NVARCHAR(MAX),
     usage_instructions NVARCHAR(MAX),
-    isActive BIT DEFAULT 1
+    isActive BIT DEFAULT 0 NOT NULL,
+    isCustomized BIT DEFAULT 1 NOT NULL,
+    CONSTRAINT fk_component1 FOREIGN KEY (component1_id) REFERENCES ARVComponents(component_id),
+    CONSTRAINT fk_component2 FOREIGN KEY (component2_id) REFERENCES ARVComponents(component_id),
+    CONSTRAINT fk_component3 FOREIGN KEY (component3_id) REFERENCES ARVComponents(component_id),
+    CONSTRAINT fk_component4 FOREIGN KEY (component4_id) REFERENCES ARVComponents(component_id)
 );
 
 -- 9. Bảng TestType (Lưu trữ các loại xét nghiệm)
@@ -126,10 +140,11 @@ CREATE TABLE DoctorSchedules (
     CONSTRAINT chk_work_day CHECK (work_day IN ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'))
 );
 
--- 12. Bảng Treatment (Lưu lịch sử phác đồ điều trị của bệnh nhân)
+-- 12. Bảng Treatment (Lưu lịch sử phác đồ điều trị và đơn thuốc của bệnh nhân)
 CREATE TABLE Treatment (
     treatment_id INT PRIMARY KEY IDENTITY(1,1),
     test_result_id INT,
+    regimen_id INT NOT NULL,
     start_date DATE NOT NULL,
     end_date DATE,
     status NVARCHAR(50) DEFAULT 'Active',
@@ -137,19 +152,12 @@ CREATE TABLE Treatment (
     CONSTRAINT chk_treatment_status CHECK (status IN ('Active', 'Stopped', 'Paused'))
 );
 
--- 13. Bảng Prescriptions (Lưu chi tiết đơn thuốc trong phác đồ)
-CREATE TABLE Prescriptions (
-    prescription_id INT PRIMARY KEY IDENTITY(1,1),
-    treatment_id INT,
-    regimen_id INT NOT NULL
-);
-
--- 14. Bảng Notifications
+-- 13. Bảng Notifications
 CREATE TABLE Notifications (
     notification_id INT PRIMARY KEY IDENTITY(1,1),
     user_id INT NOT NULL,
     appointment_id INT NULL,
-    prescription_id INT NULL,
+    treatment_id INT NULL,
     notification_type NVARCHAR(50) NOT NULL,
     scheduled_time DATETIME NOT NULL,
     status NVARCHAR(50) DEFAULT 'Pending',
@@ -157,9 +165,9 @@ CREATE TABLE Notifications (
     CONSTRAINT chk_notification_type CHECK (notification_type IN ('Appointment', 'Medication', 'General')),
     CONSTRAINT chk_notification_status CHECK (status IN ('Pending', 'Sent', 'Failed', 'Cancelled')),
     CONSTRAINT chk_reference_id CHECK (
-        (appointment_id IS NOT NULL AND prescription_id IS NULL) OR
-        (appointment_id IS NULL AND prescription_id IS NOT NULL) OR
-        (appointment_id IS NULL AND prescription_id IS NULL AND notification_type = 'General')
+        (appointment_id IS NOT NULL AND treatment_id IS NULL) OR
+        (appointment_id IS NULL AND treatment_id IS NOT NULL) OR
+        (appointment_id IS NULL AND treatment_id IS NULL AND notification_type = 'General')
     )
 );
 
@@ -179,6 +187,10 @@ FOREIGN KEY (doctor_id) REFERENCES Doctors(doctor_id);
 ALTER TABLE Articles
 ADD CONSTRAINT fk_articles_category
 FOREIGN KEY (category_id) REFERENCES Category(category_id);
+
+ALTER TABLE Articles
+ADD CONSTRAINT fk_articles_user
+FOREIGN KEY (user_id) REFERENCES Users(user_id);
 
 ALTER TABLE Appointments
 ADD CONSTRAINT fk_appointments_patients
@@ -212,12 +224,8 @@ ALTER TABLE Treatment
 ADD CONSTRAINT fk_treatment_test_results
 FOREIGN KEY (test_result_id) REFERENCES TestResults(test_result_id);
 
-ALTER TABLE Prescriptions
-ADD CONSTRAINT fk_prescriptions_treatment
-FOREIGN KEY (treatment_id) REFERENCES Treatment(treatment_id);
-
-ALTER TABLE Prescriptions
-ADD CONSTRAINT fk_prescriptions_regimen
+ALTER TABLE Treatment
+ADD CONSTRAINT fk_treatment_regimen
 FOREIGN KEY (regimen_id) REFERENCES ARVRegimens(regimen_id);
 
 ALTER TABLE Notifications
@@ -229,8 +237,8 @@ ADD CONSTRAINT fk_notifications_appointments
 FOREIGN KEY (appointment_id) REFERENCES Appointments(appointment_id);
 
 ALTER TABLE Notifications
-ADD CONSTRAINT fk_notifications_prescriptions
-FOREIGN KEY (prescription_id) REFERENCES Prescriptions(prescription_id);
+ADD CONSTRAINT fk_notifications_treatment
+FOREIGN KEY (treatment_id) REFERENCES Treatment(treatment_id);
 
 -- INSERT DATA
 
@@ -291,23 +299,88 @@ VALUES
 (N'Experience Blog');
 
 -- Chèn dữ liệu vào bảng Articles
-INSERT INTO Articles (title, content, category_id, isActive, createdDate, author)
+INSERT INTO Articles (title, content, category_id, isActive, createdDate, user_id)
 VALUES
-(N'Giới thiệu về Red Ribbon Life', N'Red Ribbon Life là tổ chức hỗ trợ bệnh nhân HIV/AIDS với sứ mệnh cung cấp dịch vụ y tế, giáo dục và giảm kỳ thị. Chúng tôi cam kết mang lại cuộc sống tốt đẹp hơn cho cộng đồng.', 1, 1, '2025-06-01', N'Admin Team'),
-(N'Dịch vụ y tế tại Red Ribbon Life', N'Chúng tôi cung cấp tư vấn, xét nghiệm và điều trị HIV/AIDS với đội ngũ bác sĩ chuyên môn cao và cơ sở vật chất hiện đại.', 1, 1, '2025-06-02', N'Admin Team'),
-(N'Hiểu biết cơ bản về HIV/AIDS', N'HIV là virus gây suy giảm miễn dịch ở người. Bài viết này giải thích cách lây truyền, phòng ngừa và điều trị HIV.', 2, 1, '2025-06-03', N'Lê Văn C'),
-(N'Phòng ngừa HIV trong cộng đồng', N'Hướng dẫn các biện pháp phòng ngừa HIV như sử dụng bao cao su, xét nghiệm định kỳ và sử dụng PrEP.', 2, 1, '2025-06-04', N'Phạm Thị D'),
-(N'Vượt qua kỳ thị: Câu chuyện của một bệnh nhân', N'Một bệnh nhân chia sẻ hành trình sống tạp với HIV và cách họ vượt qua định kiến xã hội.', 3, 1, '2025-06-05', N'Nguyễn Văn A'),
-(N'Tại sao cần nói không với kỳ thị HIV', N'Bài viết thảo luận về tác động của kỳ thị và cách cộng đồng có thể hỗ trợ bệnh nhân HIV.', 3, 1, '2025-06-06', N'Trần Thị B'),
-(N'Hành trình sống chung với HIV', N'Một bệnh nhân kể về trải nghiệm cá nhân, từ khi phát hiện bệnh đến việc duy trì lối sống tích cực.', 4, 1, '2025-06-07', N'Nguyễn Văn A'),
-(N'Kinh nghiệm hỗ trợ bệnh nhân HIV từ bác sĩ', N'Bác sĩ chia sẻ những bài học và câu chuyện từ quá trình làm việc với bệnh nhân HIV.', 4, 1, '2025-06-08', N'Lê Văn C');
+(N'Giới thiệu về Red Ribbon Life', N'Red Ribbon Life là tổ chức hỗ trợ bệnh nhân HIV/AIDS với sứ mệnh cung cấp dịch vụ y tế, giáo dục và giảm kỳ thị. Chúng tôi cam kết mang lại cuộc sống tốt đẹp hơn cho cộng đồng.', 1, 1, '2025-06-01', 5), -- Nguyễn Văn E (Staff)
+(N'Dịch vụ y tế tại Red Ribbon Life', N'Chúng tôi cung cấp tư vấn, xét nghiệm và điều trị HIV/AIDS với đội ngũ bác sĩ chuyên môn cao và cơ sở vật chất hiện đại.', 1, 1, '2025-06-02', 6), -- Trần Thị F (Staff)
+(N'Hiểu biết cơ bản về HIV/AIDS', N'HIV là virus gây suy giảm miễn dịch ở người. Bài viết này giải thích cách lây truyền, phòng ngừa và điều trị HIV.', 2, 1, '2025-06-03', 5), -- Nguyễn Văn E (Staff)
+(N'Phòng ngừa HIV trong cộng đồng', N'Hướng dẫn các biện pháp phòng ngừa HIV như sử dụng bao cao su, xét nghiệm định kỳ và sử dụng PrEP.', 2, 1, '2025-06-04', 6), -- Trần Thị F (Staff)
+(N'Vượt qua kỳ thị: Câu chuyện của một bệnh nhân', N'Một bệnh nhân chia sẻ hành trình sống tạp với HIV và cách họ vượt qua định kiến xã hội.', 3, 1, '2025-06-05', 5), -- Nguyễn Văn E (Staff)
+(N'Tại sao cần nói không với kỳ thị HIV', N'Bài viết thảo luận về tác động của kỳ thị và cách cộng đồng có thể hỗ trợ bệnh nhân HIV.', 3, 1, '2025-06-06', 6), -- Trần Thị F (Staff)
+(N'Hành trình sống chung với HIV', N'Một bệnh nhân kể về trải nghiệm cá nhân, từ khi phát hiện bệnh đến việc duy trì lối sống tích cực.', 4, 1, '2025-06-07', 5), -- Nguyễn Văn E (Staff)
+(N'Kinh nghiệm hỗ trợ bệnh nhân HIV từ bác sĩ', N'Bác sĩ chia sẻ những bài học và câu chuyện từ quá trình làm việc với bệnh nhân HIV.', 4, 1, '2025-06-08', 6); -- Trần Thị F (Staff)
 
--- Chèn dữ liệu vào bảng ARVRegimens
-INSERT INTO ARVRegimens (regimen_name, regimen_code, components, description, suitable_for, side_effects, usage_instructions, isActive)
+-- Chèn dữ liệu vào bảng ARVComponents
+INSERT INTO ARVComponents (component_name, description)
 VALUES
-(N'Phác đồ TDF + 3TC + DTG', 'TDF-3TC-DTG', N'Tenofovir (TDF), Lamivudine (3TC), Dolutegravir (DTG)', N'Phác đồ điều trị HIV cho người lớn và trẻ em trên 10 tuổi.', N'Người lớn, trẻ em trên 10 tuổi', N'Buồn nôn, nhức đầu, mệt mỏi', N'Uống 1 viên/ngày vào buổi sáng.', 1),
-(N'Phác đồ AZT + 3TC + NVP', 'AZT-3TC-NVP', N'Zidovudine (AZT), Lamivudine (3TC), Nevirapine (NVP)', N'Phác đồ điều trị HIV cho phụ nữ mang thai.', N'Phụ nữ mang thai', N'Tiêu chảy, phát ban, thiếu máu', N'Uống 2 viên/ngày, sáng và tối.', 1),
-(N'Phác đồ ABC + 3TC + EFV', 'ABC-3TC-EFV', N'Abacavir (ABC), Lamivudine (3TC), Efavirenz (EFV)', N'Phác đồ điều trị HIV cho trẻ em.', N'Trẻ em dưới 10 tuổi', N'Phát ban, nhức đầu, chóng mặt', N'Uống 1 viên/ngày vào buổi tối.', 1);
+('TDF', N'Tenofovir (TDF) - Thuốc kháng retrovirus nucleot(s)ide reverse transcriptase inhibitor (NRTI).'),
+('3TC', N'Lamivudine (3TC) - Thuốc kháng retrovirus nucleot(s)ide reverse transcriptase inhibitor (NRTI).'),
+('DTG', N'Dolutegravir (DTG) - Thuốc kháng retrovirus integrase strand transfer inhibitor (INSTI).'),
+('AZT', N'Zidovudine (AZT) - Thuốc kháng retrovirus nucleot(s)ide reverse transcriptase inhibitor (NRTI).'),
+('NVP', N'Nevirapine (NVP) - Thuốc kháng retrovirus non-nucleoside reverse transcriptase inhibitor (NNRTI).'),
+('ABC', N'Abacavir (ABC) - Thuốc kháng retrovirus nucleot(s)ide reverse transcriptase inhibitor (NRTI).'),
+('EFV', N'Efavirenz (EFV) - Thuốc kháng retrovirus non-nucleoside reverse transcriptase inhibitor (NNRTI).'),
+('RAL', N'Raltegravir (RAL) - Thuốc kháng retrovirus integrase strand transfer inhibitor (INSTI).'),
+('DRV', N'Darunavir (DRV) - Thuốc kháng retrovirus protease inhibitor (PI).'),
+('RTV', N'Ritonavir (RTV) - Thuốc kháng retrovirus protease inhibitor (PI), thường dùng làm chất tăng cường dược động học.');
+
+-- Chèn dữ liệu vào bảng ARVRegimens (ví dụ)
+INSERT INTO ARVRegimens (regimen_name, component1_id, component2_id, component3_id, component4_id, description, suitable_for, side_effects, usage_instructions, isActive, isCustomized)
+VALUES
+(N'Phác đồ TDF + 3TC + DTG Chuẩn',
+    (SELECT component_id FROM ARVComponents WHERE component_name = 'TDF'),
+    (SELECT component_id FROM ARVComponents WHERE component_name = '3TC'),
+    (SELECT component_id FROM ARVComponents WHERE component_name = 'DTG'),
+    NULL,
+    N'Phác đồ điều trị HIV cho người lớn và trẻ em trên 10 tuổi, được khuyến nghị rộng rãi do hiệu quả và dung nạp tốt.',
+    N'Người lớn, trẻ em trên 10 tuổi',
+    N'Buồn nôn, nhức đầu, mệt mỏi nhẹ, mất ngủ (ít gặp).',
+    N'Uống 1 viên/ngày vào buổi sáng, có thể uống cùng hoặc không cùng thức ăn.',
+    1, 0),
+
+(N'Phác đồ AZT + 3TC + NVP Chuẩn',
+    (SELECT component_id FROM ARVComponents WHERE component_name = 'AZT'),
+    (SELECT component_id FROM ARVComponents WHERE component_name = '3TC'),
+    (SELECT component_id FROM ARVComponents WHERE component_name = 'NVP'),
+    NULL,
+    N'Phác đồ điều trị HIV thường dùng cho phụ nữ mang thai để dự phòng lây truyền từ mẹ sang con.',
+    N'Phụ nữ mang thai',
+    N'Thiếu máu, buồn nôn, đau đầu, phát ban (cần theo dõi hội chứng quá mẫn).',
+    N'AZT + 3TC: Uống 2 viên/ngày (sáng và tối). NVP: Uống tăng liều dần theo chỉ dẫn của bác sĩ.',
+    1, 0),
+
+(N'Phác đồ ABC + 3TC + EFV Chuẩn',
+    (SELECT component_id FROM ARVComponents WHERE component_name = 'ABC'),
+    (SELECT component_id FROM ARVComponents WHERE component_name = '3TC'),
+    (SELECT component_id FROM ARVComponents WHERE component_name = 'EFV'),
+    NULL,
+    N'Phác đồ điều trị HIV cho trẻ em hoặc người lớn có chống chỉ định với TDF. Cần sàng lọc quá mẫn với Abacavir.',
+    N'Trẻ em, người lớn',
+    N'Phát ban, phản ứng quá mẫn (với ABC), chóng mặt, ác mộng (với EFV).',
+    N'Uống 1 viên/ngày vào buổi tối để giảm tác dụng phụ thần kinh của EFV.',
+    1, 0),
+
+(N'Phác đồ tùy chỉnh cho bệnh nhân A',
+    (SELECT component_id FROM ARVComponents WHERE component_name = 'TDF'),
+    (SELECT component_id FROM ARVComponents WHERE component_name = '3TC'),
+    (SELECT component_id FROM ARVComponents WHERE component_name = 'RAL'),
+    NULL,
+    N'Phác đồ tùy chỉnh cho bệnh nhân A, thay thế DTG bằng RAL do tác dụng phụ không mong muốn.',
+    N'Bệnh nhân A',
+    N'Tác dụng phụ tương tự TDF, 3TC. RAL ít tác dụng phụ toàn thân hơn DTG.',
+    N'Uống TDF+3TC 1 viên/ngày. RAL 2 viên/ngày, sáng và tối.',
+    1, 1),
+
+(N'Phác đồ tùy chỉnh cho bệnh nhân B (Phụ nữ mang thai)',
+    (SELECT component_id FROM ARVComponents WHERE component_name = 'AZT'),
+    (SELECT component_id FROM ARVComponents WHERE component_name = '3TC'),
+    (SELECT component_id FROM ARVComponents WHERE component_name = 'DRV'),
+    (SELECT component_id FROM ARVComponents WHERE component_name = 'RTV'),
+    N'Phác đồ tùy chỉnh cho bệnh nhân B (phụ nữ mang thai), sử dụng DRV/RTV thay vì NVP do tiền sử phát ban với NVP.',
+    N'Bệnh nhân B (Phụ nữ mang thai)',
+    N'Buồn nôn, tiêu chảy, tăng lipid máu (do DRV/RTV).',
+    N'AZT+3TC: Uống 2 viên/ngày. DRV/RTV: Theo chỉ định của bác sĩ.',
+    1, 1);
 
 -- Chèn dữ liệu vào bảng DoctorSchedules
 INSERT INTO DoctorSchedules (doctor_id, work_day, start_time, end_time)
@@ -326,7 +399,7 @@ VALUES
 
 -- Chèn dữ liệu vào bảng TestType
 INSERT INTO TestType (test_type_name, unit, normal_range)
-VALUES 
+VALUES
 (N'Xét nghiệm kháng thể HIV (Antibody Test)', 'S/C', N'< 0.90 S/C Units (Non-reactive - âm tính)'),
 (N'Xét nghiệm kháng nguyên p24 (Antigen Test)', 'IU/mL', N'< 0.43 IU/mL (giói hạn phát hiện ~0.27 - 0.58 IU/mL)'),
 (N'Xét nghiệm tải lượng virus HIV (Viral Load Test)', 'copies/mL', N'Khong co gia tri "binh thuong" cho nguoi khong nhiem; ngưỡng phát hiện: < 20 copies/mL (undetectable)'),
@@ -341,19 +414,13 @@ VALUES
 (3, 1, 2, 1, '0.85', N'Xét nghiệm kháng thể HIV - Kết quả âm tính');
 
 -- Chèn dữ liệu vào bảng Treatment
-INSERT INTO Treatment (test_result_id, start_date, end_date, status, notes)
+INSERT INTO Treatment (test_result_id, regimen_id, start_date, end_date, status, notes)
 VALUES
-(1, '2025-06-01', NULL, 'Active', N'Đang điều trị với phác đồ TDF + 3TC + DTG'),
-(2, '2025-06-05', NULL, 'Active', N'Đang điều trị với phác đồ AZT + 3TC + NVP');
-
--- Chèn dữ liệu vào bảng Prescriptions
-INSERT INTO Prescriptions (treatment_id, regimen_id)
-VALUES
-(1, 1),  -- Phác đồ TDF + 3TC + DTG cho bệnh nhân 1
-(2, 2);  -- Phác đồ AZT + 3TC + NVP cho bệnh nhân 2
+(1, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ TDF + 3TC + DTG Chuẩn'), '2025-06-01', NULL, 'Active', N'Đang điều trị với phác đồ TDF + 3TC + DTG'),
+(2, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ AZT + 3TC + NVP Chuẩn'), '2025-06-05', NULL, 'Active', N'Đang điều trị với phác đồ AZT + 3TC + NVP');
 
 -- Chèn dữ liệu vào bảng Notifications
-INSERT INTO Notifications (user_id, appointment_id, prescription_id, notification_type, scheduled_time, status)
+INSERT INTO Notifications (user_id, appointment_id, treatment_id, notification_type, scheduled_time, status)
 VALUES
 -- Thông báo lịch hẹn
 (1, 1, NULL, 'Appointment', '2025-06-29 15:00:00', 'Pending'),

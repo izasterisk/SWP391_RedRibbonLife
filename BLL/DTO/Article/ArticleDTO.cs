@@ -18,8 +18,9 @@ namespace BLL.DTO.Article
         public string? Content { get; set; }
         public int? CategoryId { get; set; }
         //public bool? IsActive { get; set; }
-        //public DateOnly CreatedDate { get; set; }
-        public string? Author { get; set; }
+        [Required(ErrorMessage = "User ID is required.")]
+        public int UserId { get; set; }
+        public DateOnly CreatedDate { get; set; } = DateOnly.FromDateTime(DateTime.Now);
         //Category
         //public string CategoryName { get; set; } = null!;
         //public int? CategoryId { get; set; }

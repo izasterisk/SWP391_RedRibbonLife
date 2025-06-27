@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 namespace DAL.Models;
 
 [Table("ARVRegimens")]
-[Index("RegimenCode", Name = "UQ__ARVRegim__A554D5B9E184C66A", IsUnique = true)]
 public partial class Arvregimen
 {
     [Key]
@@ -18,12 +17,17 @@ public partial class Arvregimen
     [StringLength(100)]
     public string RegimenName { get; set; } = null!;
 
-    [Column("regimen_code")]
-    [StringLength(20)]
-    public string? RegimenCode { get; set; }
+    [Column("component1_id")]
+    public int Component1Id { get; set; }
 
-    [Column("components")]
-    public string Components { get; set; } = null!;
+    [Column("component2_id")]
+    public int? Component2Id { get; set; }
+
+    [Column("component3_id")]
+    public int? Component3Id { get; set; }
+
+    [Column("component4_id")]
+    public int? Component4Id { get; set; }
 
     [Column("description")]
     public string? Description { get; set; }
@@ -38,8 +42,27 @@ public partial class Arvregimen
     public string? UsageInstructions { get; set; }
 
     [Column("isActive")]
-    public bool? IsActive { get; set; }
+    public bool IsActive { get; set; }
+
+    [Column("isCustomized")]
+    public bool IsCustomized { get; set; }
+
+    [ForeignKey("Component1Id")]
+    [InverseProperty("ArvregimenComponent1s")]
+    public virtual Arvcomponent Component1 { get; set; } = null!;
+
+    [ForeignKey("Component2Id")]
+    [InverseProperty("ArvregimenComponent2s")]
+    public virtual Arvcomponent? Component2 { get; set; }
+
+    [ForeignKey("Component3Id")]
+    [InverseProperty("ArvregimenComponent3s")]
+    public virtual Arvcomponent? Component3 { get; set; }
+
+    [ForeignKey("Component4Id")]
+    [InverseProperty("ArvregimenComponent4s")]
+    public virtual Arvcomponent? Component4 { get; set; }
 
     [InverseProperty("Regimen")]
-    public virtual ICollection<Prescription> Prescriptions { get; set; } = new List<Prescription>();
+    public virtual ICollection<Treatment> Treatments { get; set; } = new List<Treatment>();
 }
