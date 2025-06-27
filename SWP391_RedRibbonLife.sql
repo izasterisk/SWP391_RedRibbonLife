@@ -102,12 +102,14 @@ CREATE TABLE ARVRegimens (
     suitable_for NVARCHAR(MAX),
     side_effects NVARCHAR(MAX),
     usage_instructions NVARCHAR(MAX),
+    frequency INT NOT NULL DEFAULT 1,
     isActive BIT DEFAULT 0 NOT NULL,
     isCustomized BIT DEFAULT 1 NOT NULL,
     CONSTRAINT fk_component1 FOREIGN KEY (component1_id) REFERENCES ARVComponents(component_id),
     CONSTRAINT fk_component2 FOREIGN KEY (component2_id) REFERENCES ARVComponents(component_id),
     CONSTRAINT fk_component3 FOREIGN KEY (component3_id) REFERENCES ARVComponents(component_id),
-    CONSTRAINT fk_component4 FOREIGN KEY (component4_id) REFERENCES ARVComponents(component_id)
+    CONSTRAINT fk_component4 FOREIGN KEY (component4_id) REFERENCES ARVComponents(component_id),
+    CONSTRAINT chk_frequency CHECK (frequency IN (1, 2))
 );
 
 -- 9. Bảng TestType (Lưu trữ các loại xét nghiệm)
@@ -325,7 +327,7 @@ VALUES
 ('RTV', N'Ritonavir (RTV) - Thuốc kháng retrovirus protease inhibitor (PI), thường dùng làm chất tăng cường dược động học.');
 
 -- Chèn dữ liệu vào bảng ARVRegimens (ví dụ)
-INSERT INTO ARVRegimens (regimen_name, component1_id, component2_id, component3_id, component4_id, description, suitable_for, side_effects, usage_instructions, isActive, isCustomized)
+INSERT INTO ARVRegimens (regimen_name, component1_id, component2_id, component3_id, component4_id, description, suitable_for, side_effects, usage_instructions, frequency, isActive, isCustomized)
 VALUES
 (N'Phác đồ TDF + 3TC + DTG Chuẩn',
     (SELECT component_id FROM ARVComponents WHERE component_name = 'TDF'),
@@ -336,7 +338,7 @@ VALUES
     N'Người lớn, trẻ em trên 10 tuổi',
     N'Buồn nôn, nhức đầu, mệt mỏi nhẹ, mất ngủ (ít gặp).',
     N'Uống 1 viên/ngày vào buổi sáng, có thể uống cùng hoặc không cùng thức ăn.',
-    1, 0),
+    1, 1, 0),
 
 (N'Phác đồ AZT + 3TC + NVP Chuẩn',
     (SELECT component_id FROM ARVComponents WHERE component_name = 'AZT'),
@@ -347,7 +349,7 @@ VALUES
     N'Phụ nữ mang thai',
     N'Thiếu máu, buồn nôn, đau đầu, phát ban (cần theo dõi hội chứng quá mẫn).',
     N'AZT + 3TC: Uống 2 viên/ngày (sáng và tối). NVP: Uống tăng liều dần theo chỉ dẫn của bác sĩ.',
-    1, 0),
+    2, 1, 0),
 
 (N'Phác đồ ABC + 3TC + EFV Chuẩn',
     (SELECT component_id FROM ARVComponents WHERE component_name = 'ABC'),
@@ -358,7 +360,7 @@ VALUES
     N'Trẻ em, người lớn',
     N'Phát ban, phản ứng quá mẫn (với ABC), chóng mặt, ác mộng (với EFV).',
     N'Uống 1 viên/ngày vào buổi tối để giảm tác dụng phụ thần kinh của EFV.',
-    1, 0),
+    1, 1, 0),
 
 (N'Phác đồ tùy chỉnh cho bệnh nhân A',
     (SELECT component_id FROM ARVComponents WHERE component_name = 'TDF'),
@@ -369,7 +371,7 @@ VALUES
     N'Bệnh nhân A',
     N'Tác dụng phụ tương tự TDF, 3TC. RAL ít tác dụng phụ toàn thân hơn DTG.',
     N'Uống TDF+3TC 1 viên/ngày. RAL 2 viên/ngày, sáng và tối.',
-    1, 1),
+    2, 1, 1),
 
 (N'Phác đồ tùy chỉnh cho bệnh nhân B (Phụ nữ mang thai)',
     (SELECT component_id FROM ARVComponents WHERE component_name = 'AZT'),
@@ -380,7 +382,7 @@ VALUES
     N'Bệnh nhân B (Phụ nữ mang thai)',
     N'Buồn nôn, tiêu chảy, tăng lipid máu (do DRV/RTV).',
     N'AZT+3TC: Uống 2 viên/ngày. DRV/RTV: Theo chỉ định của bác sĩ.',
-    1, 1);
+    2, 1, 1);
 
 -- Chèn dữ liệu vào bảng DoctorSchedules
 INSERT INTO DoctorSchedules (doctor_id, work_day, start_time, end_time)
