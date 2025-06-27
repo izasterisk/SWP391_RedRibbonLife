@@ -41,6 +41,9 @@ public partial class Arvregimen
     [Column("usage_instructions")]
     public string? UsageInstructions { get; set; }
 
+    [Column("frequency")]
+    public int Frequency { get; set; }
+
     [Column("isActive")]
     public bool IsActive { get; set; }
 

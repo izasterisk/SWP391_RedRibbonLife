@@ -36,6 +36,7 @@ builder.Services.AddScoped<ITestTypeService, TestTypeService>();
 builder.Services.AddScoped<ITestResultService, TestResultService>();
 builder.Services.AddScoped<IARVComponentService, ARVComponentService>();
 builder.Services.AddScoped<IARVRegimenUtils, ARVRegimenUtils>();
+builder.Services.AddScoped<ITreatmentService, TreatmentService>();
 
 builder.Services.AddScoped<IUserRepository<User>, UserRepository<User>>();
 builder.Services.AddScoped<IUserRepository<Doctor>, UserRepository<Doctor>>();

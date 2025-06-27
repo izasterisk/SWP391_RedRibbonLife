@@ -20,6 +20,7 @@ using BLL.DTO.Login;
 using BLL.DTO.Patient;
 using BLL.DTO.TestResult;
 using BLL.DTO.TestType;
+using BLL.DTO.Treatment;
 
 namespace BLL.Utils
 {
@@ -115,6 +116,11 @@ namespace BLL.Utils
             CreateMap<ARVComponentDTO, Arvcomponent>().ReverseMap();
             CreateMap<ARVComponentCreateDTO, Arvcomponent>().ReverseMap();
             CreateMap<ARVComponentUpdateDTO, Arvcomponent>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+            
+            CreateMap<TreatmentDTO, Treatment>().ReverseMap();
+            CreateMap<TreatmentCreateDTO, Treatment>().ReverseMap();
+            CreateMap<TreatmentUpdateDTO, Treatment>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
             
             

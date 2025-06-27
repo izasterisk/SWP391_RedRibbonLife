@@ -27,6 +27,15 @@ public class ARVRegimenUtils : IARVRegimenUtils
             throw new Exception($"ARVComponent with ID {id} not found");
         }
     }
+    
+    public void CheckARVRegimenExist(int id)
+    {
+        var arvRegimen = _arvRegimensRepository.GetAsync(u => u.RegimenId == id, true).GetAwaiter().GetResult();
+        if (arvRegimen == null)
+        {
+            throw new Exception($"ARVRegimen with ID {id} not found");
+        }
+    }
 
     public void CheckIfAnyTreatmentLinked(int id)
     {

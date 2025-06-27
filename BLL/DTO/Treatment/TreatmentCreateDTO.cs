@@ -24,9 +24,9 @@ public class TreatmentCreateDTO
     [DateRange(nameof(StartDate))]
     public DateOnly EndDate { get; set; }
 
-    [StringLength(50, ErrorMessage = "Status cannot exceed 50 characters")]
-    [RegularExpression("^(Active|Stopped|Paused)$", ErrorMessage = "Status must be one of: Active, Stopped, Paused")]
-    public string? Status { get; set; }
+    // [StringLength(50, ErrorMessage = "Status cannot exceed 50 characters")]
+    // [RegularExpression("^(Active|Stopped|Paused)$", ErrorMessage = "Status must be one of: Active, Stopped, Paused")]
+    // public string? Status { get; set; }
 
     public string? Notes { get; set; }
 }

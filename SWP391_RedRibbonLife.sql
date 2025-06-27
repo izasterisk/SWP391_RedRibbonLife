@@ -93,7 +93,7 @@ CREATE TABLE ARVComponents (
 -- 8. Bảng ARVRegimens (Các phác đồ điều trị ARV có sẵn và tùy chỉnh)
 CREATE TABLE ARVRegimens (
     regimen_id INT PRIMARY KEY IDENTITY(1,1),
-    regimen_name NVARCHAR(100) NOT NULL,
+    regimen_name NVARCHAR(100),
     component1_id INT NOT NULL,
     component2_id INT NULL,
     component3_id INT NULL,

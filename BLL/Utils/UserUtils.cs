@@ -21,9 +21,10 @@ namespace BLL.Utils
         private readonly IUserRepository<Doctor> _doctorRepository;
         private readonly IUserRepository<TestType> _testTypeRepository;
         private readonly IUserRepository<TestResult> _testResultRepository;
+        private readonly IUserRepository<Treatment> _treatmentRepository;
         private readonly IMapper _mapper;
         private readonly SWP391_RedRibbonLifeContext _dbContext;
-        public UserUtils(IUserRepository<Appointment> appointmentRepository, IUserRepository<User> userRepository, IUserRepository<Patient> patientRepository, IUserRepository<Doctor> doctorRepository, IUserRepository<TestType> testTypeRepository, IUserRepository<TestResult> testResultRepository, IMapper mapper, SWP391_RedRibbonLifeContext dbContext)
+        public UserUtils(IUserRepository<Appointment> appointmentRepository, IUserRepository<User> userRepository, IUserRepository<Patient> patientRepository, IUserRepository<Doctor> doctorRepository, IUserRepository<TestType> testTypeRepository, IUserRepository<TestResult> testResultRepository, IUserRepository<Treatment> treatmentRepository, IMapper mapper, SWP391_RedRibbonLifeContext dbContext)
         {
             _appointmentRepository = appointmentRepository;
             _userRepository = userRepository;
@@ -31,6 +32,7 @@ namespace BLL.Utils
             _doctorRepository = doctorRepository;
             _testTypeRepository = testTypeRepository;
             _testResultRepository = testResultRepository;
+            _treatmentRepository = treatmentRepository;
             _mapper = mapper;
             _dbContext = dbContext;
         }
@@ -115,6 +117,20 @@ namespace BLL.Utils
             if (startTime >= endTime)
             {
                 throw new ArgumentException("Start time must be earlier than end time.", nameof(startTime));
+            }
+        }
+        
+        public void CheckTestResultExist(int id)
+        {
+            var testResult = _testResultRepository.GetAsync(t => t.TestResultId == id, true).GetAwaiter().GetResult();
+            if (testResult == null)
+            {
+                throw new Exception("Test result not found.");
+            }
+            var treatments = _treatmentRepository.GetAsync(t => t.TestResultId == id, true).GetAwaiter().GetResult();
+            if (treatments != null)
+            {
+                throw new Exception("1 test result can only link to 1 treatment.");
             }
         }
     }

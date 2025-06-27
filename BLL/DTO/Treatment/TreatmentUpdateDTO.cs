@@ -15,14 +15,13 @@ public class TreatmentUpdateDTO
     [Range(1, int.MaxValue, ErrorMessage = "Regimen ID must be a positive number")]
     public int? RegimenId { get; set; }
 
-    [Required(ErrorMessage = "Start date is required")]
     [FutureDate]
-    public DateOnly StartDate { get; set; }
+    public DateOnly? StartDate { get; set; }
 
-    [Required(ErrorMessage = "End date is required")]
+    // [Required(ErrorMessage = "End date is required")]
     [FutureDate]
-    [DateRange(nameof(StartDate))]
-    public DateOnly EndDate { get; set; }
+    // [DateRange(nameof(StartDate))]
+    public DateOnly? EndDate { get; set; }
 
     [StringLength(50, ErrorMessage = "Status cannot exceed 50 characters")]
     [RegularExpression("^(Active|Stopped|Paused)$", ErrorMessage = "Status must be one of: Active, Stopped, Paused")]

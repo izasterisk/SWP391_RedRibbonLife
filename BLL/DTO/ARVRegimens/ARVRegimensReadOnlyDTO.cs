@@ -33,6 +33,10 @@ public class ARVRegimensReadOnlyDTO
 
     [StringLength(2000, ErrorMessage = "Usage instructions cannot exceed 2000 characters")]
     public string? UsageInstructions { get; set; }
+    
+    [Required(ErrorMessage = "Frequency is required")]
+    [Range(1, 2, ErrorMessage = "Frequency must be either 1 or 2")]
+    public int Frequency { get; set; }
 
     public bool IsActive { get; set; }
 
