@@ -84,7 +84,6 @@ namespace BLL.Utils
                 .ForMember(dest => dest.PatientName, opt => opt.MapFrom(src => src.Patient.User.FullName))
                 .ForMember(dest => dest.DoctorName, opt => opt.MapFrom(src => src.Doctor.User.FullName));
             
-            CreateMap<ARVRegimensDTO, Arvregimen>().ReverseMap();
             CreateMap<ARVRegimensCreateDTO, Arvregimen>().ReverseMap();
             CreateMap<ARVRegimensReadOnlyDTO, Arvregimen>().ReverseMap();
             CreateMap<ARVRegimensUpdateDTO, Arvregimen>()

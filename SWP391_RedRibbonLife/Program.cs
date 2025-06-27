@@ -35,6 +35,7 @@ builder.Services.AddScoped<IARVRegimensService, ARVRegimensService>();
 builder.Services.AddScoped<ITestTypeService, TestTypeService>();
 builder.Services.AddScoped<ITestResultService, TestResultService>();
 builder.Services.AddScoped<IARVComponentService, ARVComponentService>();
+builder.Services.AddScoped<IARVRegimenUtils, ARVRegimenUtils>();
 
 builder.Services.AddScoped<IUserRepository<User>, UserRepository<User>>();
 builder.Services.AddScoped<IUserRepository<Doctor>, UserRepository<Doctor>>();
@@ -47,6 +48,7 @@ builder.Services.AddScoped<IUserRepository<Arvregimen>, UserRepository<Arvregime
 builder.Services.AddScoped<IUserRepository<TestType>, UserRepository<TestType>>();
 builder.Services.AddScoped<IUserRepository<TestResult>, UserRepository<TestResult>>();
 builder.Services.AddScoped<IUserRepository<Arvcomponent>, UserRepository<Arvcomponent>>();
+builder.Services.AddScoped<IUserRepository<Treatment>, UserRepository<Treatment>>();
 
 //CORS
 builder.Services.AddCors(options =>

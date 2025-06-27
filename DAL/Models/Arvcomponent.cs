@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace DAL.Models;
 
 [Table("ARVComponents")]
-[Index("ComponentName", Name = "UQ__ARVCompo__2E7CCD4B65FC50BF", IsUnique = true)]
+[Index("ComponentName", Name = "UQ__ARVCompo__2E7CCD4B3B7C872F", IsUnique = true)]
 public partial class Arvcomponent
 {
     [Key]

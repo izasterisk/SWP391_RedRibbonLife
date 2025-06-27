@@ -4,26 +4,38 @@ namespace BLL.DTO.ARVRegimens;
 
 public class ARVRegimensCreateDTO
 {
-    // public int RegimenId { get; set; }
+    //public int RegimenId { get; set; }
 
-    [Required(ErrorMessage = "Regimen name is required")]
     [StringLength(100, ErrorMessage = "Regimen name cannot exceed 100 characters")]
-    public string RegimenName { get; set; } = null!;
+    public string? RegimenName { get; set; } = null!;
 
-    [Required(ErrorMessage = "Regimen Code name is required")]
-    [StringLength(20, ErrorMessage = "Regimen code cannot exceed 20 characters")]
-    public string? RegimenCode { get; set; }
+    [Required(ErrorMessage = "Component 1 is required")]
+    [Range(1, int.MaxValue, ErrorMessage = "Component 1 ID must be a positive number")]
+    public int Component1Id { get; set; }
 
-    [Required(ErrorMessage = "Components are required")]
-    public string Components { get; set; } = null!;
+    [Range(1, int.MaxValue, ErrorMessage = "Component 2 ID must be a positive number")]
+    public int? Component2Id { get; set; }
 
+    [Range(1, int.MaxValue, ErrorMessage = "Component 3 ID must be a positive number")]
+    public int? Component3Id { get; set; }
+
+    [Range(1, int.MaxValue, ErrorMessage = "Component 4 ID must be a positive number")]
+    public int? Component4Id { get; set; }
+
+    [StringLength(2000, ErrorMessage = "Description cannot exceed 2000 characters")]
     public string? Description { get; set; }
 
+    [StringLength(1000, ErrorMessage = "Suitable for cannot exceed 1000 characters")]
     public string? SuitableFor { get; set; }
 
+    [StringLength(2000, ErrorMessage = "Side effects cannot exceed 2000 characters")]
     public string? SideEffects { get; set; }
 
+    [StringLength(2000, ErrorMessage = "Usage instructions cannot exceed 2000 characters")]
     public string? UsageInstructions { get; set; }
 
-    // public bool? IsActive { get; set; }
+    //public bool IsActive { get; set; }
+
+    [Required(ErrorMessage = "IsCustomized is required")]
+    public bool IsCustomized { get; set; }
 }

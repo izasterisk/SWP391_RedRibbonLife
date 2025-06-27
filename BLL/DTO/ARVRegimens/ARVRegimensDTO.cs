@@ -6,9 +6,8 @@ public class ARVRegimensDTO
 {
     public int RegimenId { get; set; }
 
-    [Required(ErrorMessage = "Regimen name is required")]
     [StringLength(100, ErrorMessage = "Regimen name cannot exceed 100 characters")]
-    public string RegimenName { get; set; } = null!;
+    public string? RegimenName { get; set; } = null!;
 
     [Required(ErrorMessage = "Component 1 is required")]
     [Range(1, int.MaxValue, ErrorMessage = "Component 1 ID must be a positive number")]

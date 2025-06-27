@@ -38,7 +38,6 @@ public class TestResultService : ITestResultService
         _userUtils.CheckDoctorExist(dto.DoctorId);
         _userUtils.CheckTestTypeExist(dto.TestTypeId);
         dto.AppointmentId.ValidateIfNotNull(_userUtils.CheckDuplicateAppointment);
-        
         using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {

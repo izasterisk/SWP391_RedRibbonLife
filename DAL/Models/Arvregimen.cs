@@ -15,7 +15,7 @@ public partial class Arvregimen
 
     [Column("regimen_name")]
     [StringLength(100)]
-    public string RegimenName { get; set; } = null!;
+    public string? RegimenName { get; set; }
 
     [Column("component1_id")]
     public int Component1Id { get; set; }
