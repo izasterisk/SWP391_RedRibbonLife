@@ -4,6 +4,7 @@ using BLL.Interfaces;
 using DAL.IRepository;
 using DAL.Models;
 using BLL.Utils;
+using Microsoft.EntityFrameworkCore;
 
 namespace BLL.Services;
 
@@ -47,10 +48,10 @@ public class TestResultService : ITestResultService
             var fullTestResult = await _testResultRepository.GetWithRelationsAsync(
                 t => t.TestResultId == createdTestResult.TestResultId, 
                 true,
-                t => t.TestType,
-                t => t.Patient.User,
-                t => t.Doctor.User,
-                t => t.Appointment
+                query => query.Include(t => t.TestType)
+                              .Include(t => t.Patient).ThenInclude(p => p.User)
+                              .Include(t => t.Doctor).ThenInclude(d => d.User)
+                              .Include(t => t.Appointment)
             );
             return _mapper.Map<TestResultDTO>(fullTestResult);
         }
@@ -79,10 +80,10 @@ public class TestResultService : ITestResultService
         var fullTestResult = await _testResultRepository.GetWithRelationsAsync(
             t => t.TestResultId == testResult.TestResultId, 
             true,
-            t => t.TestType,
-            t => t.Patient.User,
-            t => t.Doctor.User,
-            t => t.Appointment
+            query => query.Include(t => t.TestType)
+                          .Include(t => t.Patient).ThenInclude(p => p.User)
+                          .Include(t => t.Doctor).ThenInclude(d => d.User)
+                          .Include(t => t.Appointment)
         );
         return _mapper.Map<TestResultDTO>(fullTestResult);
     }
@@ -90,10 +91,10 @@ public class TestResultService : ITestResultService
     public async Task<List<TestResultDTO>> GetAllTestResultAsync()
     {
         var testResults = await _testResultRepository.GetAllWithRelationsAsync(
-            t => t.TestType,
-            t => t.Patient.User,
-            t => t.Doctor.User,
-            t => t.Appointment
+            query => query.Include(t => t.TestType)
+                          .Include(t => t.Patient).ThenInclude(p => p.User)
+                          .Include(t => t.Doctor).ThenInclude(d => d.User)
+                          .Include(t => t.Appointment)
         );
         return _mapper.Map<List<TestResultDTO>>(testResults);
     }
@@ -108,10 +109,10 @@ public class TestResultService : ITestResultService
         var fullTestResult = await _testResultRepository.GetWithRelationsAsync(
             t => t.TestResultId == testResult.TestResultId, 
             true,
-            t => t.TestType,
-            t => t.Patient.User,
-            t => t.Doctor.User,
-            t => t.Appointment
+            query => query.Include(t => t.TestType)
+                          .Include(t => t.Patient).ThenInclude(p => p.User)
+                          .Include(t => t.Doctor).ThenInclude(d => d.User)
+                          .Include(t => t.Appointment)
         );
         return _mapper.Map<TestResultDTO>(fullTestResult);
     }

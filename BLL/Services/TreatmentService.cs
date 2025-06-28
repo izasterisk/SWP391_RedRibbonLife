@@ -4,6 +4,7 @@ using BLL.Interfaces;
 using BLL.Utils;
 using DAL.IRepository;
 using DAL.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BLL.Services;
 
@@ -32,12 +33,13 @@ public class TreatmentService : ITreatmentService
         try
         {
             Treatment treatment = _mapper.Map<Treatment>(dto);
+            // treatment.Status = "Active";
             var createdTreatment = await _treatmentRepository.CreateAsync(treatment);
-            createdTreatment.Status = "Active";
             await transaction.CommitAsync();
+            var detailedTreatment = await GetTreatmentByIdAsync(createdTreatment.TreatmentId);
             return new
             {
-                TreatmentInfo = _mapper.Map<TreatmentDTO>(createdTreatment)
+                TreatmentInfo = detailedTreatment
             };
         }
         catch (Exception)
@@ -68,9 +70,11 @@ public class TreatmentService : ITreatmentService
             }
             _mapper.Map(dto, treatment);
             var updatedTreatment = await _treatmentRepository.UpdateAsync(treatment);
+            await transaction.CommitAsync();
+            var detailedTreatment = await GetTreatmentByIdAsync(updatedTreatment.TreatmentId);
             return new
             {
-                TreatmentInfo = _mapper.Map<TreatmentDTO>(updatedTreatment)
+                TreatmentInfo = detailedTreatment
             };
         }
         catch (Exception)
@@ -78,5 +82,52 @@ public class TreatmentService : ITreatmentService
             await transaction.RollbackAsync();
             throw;
         }
+    }
+    
+    public async Task<List<TreatmentDTO>> GetAllTreatmentAsync()
+    {
+        var treatments = await _treatmentRepository.GetAllWithRelationsAsync(
+            includeFunc: query => query
+                .Include(t => t.Regimen)
+                .Include(t => t.TestResult)
+                    .ThenInclude(tr => tr.Patient)
+                    .ThenInclude(p => p.User)
+                .Include(t => t.TestResult)
+                    .ThenInclude(tr => tr.Doctor)
+                    .ThenInclude(d => d.User)
+        );
+        return _mapper.Map<List<TreatmentDTO>>(treatments);
+    }
+    
+    public async Task<TreatmentDTO> GetTreatmentByIdAsync(int id)
+    {
+        var treatment = await _treatmentRepository.GetWithRelationsAsync(
+            filter: t => t.TreatmentId == id,
+            useNoTracking: true,
+            includeFunc: query => query
+                .Include(t => t.Regimen)
+                .Include(t => t.TestResult)
+                    .ThenInclude(tr => tr.Patient)
+                    .ThenInclude(p => p.User)
+                .Include(t => t.TestResult)
+                    .ThenInclude(tr => tr.Doctor)
+                    .ThenInclude(d => d.User)
+        );
+        if (treatment == null)
+        {
+            throw new Exception("Treatment not found.");
+        }
+        return _mapper.Map<TreatmentDTO>(treatment);
+    }
+    
+    public async Task<bool> DeleteTreatmentByIdAsync(int id)
+    {
+        var treatment = await _treatmentRepository.GetAsync(t => t.TreatmentId == id, true);
+        if (treatment == null)
+        {
+            throw new Exception("Treatment not found.");
+        }
+        await _treatmentRepository.DeleteAsync(treatment);
+        return true;
     }
 }

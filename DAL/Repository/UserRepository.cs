@@ -38,32 +38,26 @@ namespace DAL.Repository
             return await _dbSet.ToListAsync();
         }
 
-        public async Task<List<T>> GetAllWithRelationsAsync(params Expression<Func<T, object>>[] includes)
+        public async Task<List<T>> GetAllWithRelationsAsync(Func<IQueryable<T>, IQueryable<T>> includeFunc = null)
         {
             IQueryable<T> query = _dbSet;
-            if (includes != null)
+            if (includeFunc != null)
             {
-                foreach (var include in includes)
-                {
-                    query = query.Include(include);
-                }
+                query = includeFunc(query);
             }
             return await query.ToListAsync();
         }
 
-        public async Task<T?> GetWithRelationsAsync(Expression<Func<T, bool>> filter, bool useNoTracking = false, params Expression<Func<T, object>>[] includes)
+        public async Task<T?> GetWithRelationsAsync(Expression<Func<T, bool>> filter, bool useNoTracking = false, Func<IQueryable<T>, IQueryable<T>> includeFunc = null)
         {
             IQueryable<T> query = _dbSet;
             if (useNoTracking)
             {
                 query = query.AsNoTracking();
             }
-            if (includes != null)
+            if (includeFunc != null)
             {
-                foreach (var include in includes)
-                {
-                    query = query.Include(include);
-                }
+                query = includeFunc(query);
             }
             return await query.Where(filter).FirstOrDefaultAsync();
         }

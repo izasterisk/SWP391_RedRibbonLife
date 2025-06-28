@@ -30,7 +30,9 @@ namespace BLL.Services
         }
         public async Task<List<ArticleReadOnlyDTO>> GetAllArticleAsync()
         {
-            var articles = await _articleRepository.GetAllWithRelationsAsync(a => a.Category, a => a.User);
+            var articles = await _articleRepository.GetAllWithRelationsAsync(
+                query => query.Include(a => a.Category).Include(a => a.User)
+            );
             if (articles == null || !articles.Any())
             {
                 return new List<ArticleReadOnlyDTO>();
@@ -40,7 +42,11 @@ namespace BLL.Services
         }
         public async Task<ArticleReadOnlyDTO> GetArticleByIdAsync(int id)
         {
-            var article = await _articleRepository.GetWithRelationsAsync(a => a.ArticleId == id, true, a => a.Category, a => a.User);
+            var article = await _articleRepository.GetWithRelationsAsync(
+                a => a.ArticleId == id, 
+                true, 
+                query => query.Include(a => a.Category).Include(a => a.User)
+            );
             if (article == null)
             {
                 throw new Exception($"Article with ID {id} not found");
@@ -86,7 +92,11 @@ namespace BLL.Services
                 article.CreatedDate = DateOnly.FromDateTime(DateTime.Now); // Set current date
                 var createdArticle = await _articleRepository.CreateAsync(article);
                 // Load relations for response
-                var articleWithRelations = await _articleRepository.GetWithRelationsAsync(a => a.ArticleId == createdArticle.ArticleId, true, a => a.Category, a => a.User);
+                var articleWithRelations = await _articleRepository.GetWithRelationsAsync(
+                    a => a.ArticleId == createdArticle.ArticleId, 
+                    true, 
+                    query => query.Include(a => a.Category).Include(a => a.User)
+                );
                 // Commit transaction
                 await transaction.CommitAsync();
                 return new
@@ -149,7 +159,11 @@ namespace BLL.Services
                 _mapper.Map(dto, article);
                 var updatedArticle = await _articleRepository.UpdateAsync(article);
                 // Load relations for response
-                var articleWithRelations = await _articleRepository.GetWithRelationsAsync(a => a.ArticleId == updatedArticle.ArticleId, true, a => a.Category, a => a.User);
+                var articleWithRelations = await _articleRepository.GetWithRelationsAsync(
+                    a => a.ArticleId == updatedArticle.ArticleId, 
+                    true, 
+                    query => query.Include(a => a.Category).Include(a => a.User)
+                );
                 // Commit transaction
                 await transaction.CommitAsync();
                 return new

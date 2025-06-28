@@ -148,7 +148,7 @@ CREATE TABLE Treatment (
     test_result_id INT,
     regimen_id INT NOT NULL,
     start_date DATE NOT NULL,
-    end_date DATE,
+    end_date DATE NOT NULL,
     status NVARCHAR(50) DEFAULT 'Active',
     notes NVARCHAR(MAX),
     CONSTRAINT chk_treatment_status CHECK (status IN ('Active', 'Stopped', 'Paused'))

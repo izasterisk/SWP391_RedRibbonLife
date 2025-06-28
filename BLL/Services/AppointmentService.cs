@@ -147,7 +147,9 @@ public class AppointmentService : IAppointmentService
     
     public async Task<dynamic> GetAvailableDoctorsAsync(DateOnly appointmentDate, TimeOnly appointmentTime)
     {
-        var allDoctors = await _doctorRepository.GetAllWithRelationsAsync(d => d.User);
+        var allDoctors = await _doctorRepository.GetAllWithRelationsAsync(
+            query => query.Include(d => d.User)
+        );
         var availableDoctors = new List<object>();
         foreach (var doctor in allDoctors)
         {

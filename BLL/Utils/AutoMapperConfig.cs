@@ -118,7 +118,25 @@ namespace BLL.Utils
             CreateMap<ARVComponentUpdateDTO, Arvcomponent>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
             
-            CreateMap<TreatmentDTO, Treatment>().ReverseMap();
+            CreateMap<Treatment, TreatmentDTO>()
+                .ForMember(dest => dest.PatientId, opt => opt.MapFrom(src => src.TestResult != null ? src.TestResult.PatientId : (int?)null))
+                .ForMember(dest => dest.PatientName, opt => opt.MapFrom(src => src.TestResult != null && src.TestResult.Patient != null && src.TestResult.Patient.User != null ? src.TestResult.Patient.User.FullName : null))
+                .ForMember(dest => dest.BloodType, opt => opt.MapFrom(src => src.TestResult != null && src.TestResult.Patient != null ? src.TestResult.Patient.BloodType : null))
+                .ForMember(dest => dest.IsPregnant, opt => opt.MapFrom(src => src.TestResult != null && src.TestResult.Patient != null ? src.TestResult.Patient.IsPregnant : null))
+                .ForMember(dest => dest.SpecialNotes, opt => opt.MapFrom(src => src.TestResult != null && src.TestResult.Patient != null ? src.TestResult.Patient.SpecialNotes : null))
+                .ForMember(dest => dest.DoctorId, opt => opt.MapFrom(src => src.TestResult != null ? src.TestResult.DoctorId : (int?)null))
+                .ForMember(dest => dest.DoctorName, opt => opt.MapFrom(src => src.TestResult != null && src.TestResult.Doctor != null && src.TestResult.Doctor.User != null ? src.TestResult.Doctor.User.FullName : null))
+                .ForMember(dest => dest.DoctorImage, opt => opt.MapFrom(src => src.TestResult != null && src.TestResult.Doctor != null ? src.TestResult.Doctor.DoctorImage : null))
+                .ForMember(dest => dest.RegimenName, opt => opt.MapFrom(src => src.Regimen != null ? src.Regimen.RegimenName : null))
+                .ForMember(dest => dest.Component1Id, opt => opt.MapFrom(src => src.Regimen != null ? src.Regimen.Component1Id : (int?)null))
+                .ForMember(dest => dest.Component2Id, opt => opt.MapFrom(src => src.Regimen != null ? src.Regimen.Component2Id : null))
+                .ForMember(dest => dest.Component3Id, opt => opt.MapFrom(src => src.Regimen != null ? src.Regimen.Component3Id : null))
+                .ForMember(dest => dest.Component4Id, opt => opt.MapFrom(src => src.Regimen != null ? src.Regimen.Component4Id : null))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Regimen != null ? src.Regimen.Description : null))
+                .ForMember(dest => dest.SuitableFor, opt => opt.MapFrom(src => src.Regimen != null ? src.Regimen.SuitableFor : null))
+                .ForMember(dest => dest.SideEffects, opt => opt.MapFrom(src => src.Regimen != null ? src.Regimen.SideEffects : null))
+                .ForMember(dest => dest.UsageInstructions, opt => opt.MapFrom(src => src.Regimen != null ? src.Regimen.UsageInstructions : null))
+                .ForMember(dest => dest.Frequency, opt => opt.MapFrom(src => src.Regimen != null ? src.Regimen.Frequency : (int?)null));
             CreateMap<TreatmentCreateDTO, Treatment>().ReverseMap();
             CreateMap<TreatmentUpdateDTO, Treatment>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));

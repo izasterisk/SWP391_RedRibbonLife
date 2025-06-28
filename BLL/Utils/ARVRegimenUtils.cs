@@ -35,6 +35,10 @@ public class ARVRegimenUtils : IARVRegimenUtils
         {
             throw new Exception($"ARVRegimen with ID {id} not found");
         }
+        if (arvRegimen.IsActive == false)
+        {
+            throw new Exception("This regimen is not active.");
+        }
     }
 
     public void CheckIfAnyTreatmentLinked(int id)
