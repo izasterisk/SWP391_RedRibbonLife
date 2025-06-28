@@ -164,6 +164,8 @@ CREATE TABLE Notifications (
     scheduled_time DATETIME NOT NULL,
     status NVARCHAR(50) DEFAULT 'Pending',
     sent_at DATETIME NULL,
+    retry_count INT DEFAULT 0,
+    error_message NVARCHAR(MAX) NULL,
     CONSTRAINT chk_notification_type CHECK (notification_type IN ('Appointment', 'Medication', 'General')),
     CONSTRAINT chk_notification_status CHECK (status IN ('Pending', 'Sent', 'Failed', 'Cancelled')),
     CONSTRAINT chk_reference_id CHECK (
@@ -241,6 +243,120 @@ FOREIGN KEY (appointment_id) REFERENCES Appointments(appointment_id);
 ALTER TABLE Notifications
 ADD CONSTRAINT fk_notifications_treatment
 FOREIGN KEY (treatment_id) REFERENCES Treatment(treatment_id);
+
+-- Users table indexes
+-- Optimizes login authentication queries (LoginService.ValidateUserAsync)
+CREATE NONCLUSTERED INDEX IX_Users_Username_IsActive_IsVerified 
+ON Users (username, isActive, isVerified);
+
+-- Optimizes email verification and duplicate email checks (AdminService, DoctorService, PatientService)
+CREATE NONCLUSTERED INDEX IX_Users_Email_IsActive 
+ON Users (email, isActive);
+
+-- Optimizes role-based user retrieval (AdminService.GetAllAdminsAsync, DoctorService.GetAllDoctorsAsync, PatientService.GetAllActivePatientsAsync)
+CREATE NONCLUSTERED INDEX IX_Users_UserRole_IsActive 
+ON Users (user_role, isActive);
+
+-- Optimizes full name searches (UserService.GetUserByFullnameAsync)
+CREATE NONCLUSTERED INDEX IX_Users_FullName_IsActive 
+ON Users (full_name, isActive);
+
+-- Appointments table indexes
+-- Optimizes patient appointment retrieval (AppointmentService.GetAllAppointmentsByPatientIdAsync)
+CREATE NONCLUSTERED INDEX IX_Appointments_PatientId 
+ON Appointments (patient_id);
+
+-- Optimizes doctor appointment retrieval (AppointmentService.GetAllAppointmentsByDoctorIdAsync)
+CREATE NONCLUSTERED INDEX IX_Appointments_DoctorId 
+ON Appointments (doctor_id);
+
+-- Optimizes appointment scheduling queries with date/time filtering
+CREATE NONCLUSTERED INDEX IX_Appointments_Date_Time_Doctor 
+ON Appointments (appointment_date, appointment_time, doctor_id);
+
+-- Articles table indexes
+-- Optimizes article retrieval by category (ArticleService filters)
+CREATE NONCLUSTERED INDEX IX_Articles_CategoryId_IsActive 
+ON Articles (category_id, isActive);
+
+-- Optimizes article retrieval by author (ArticleService filters)
+CREATE NONCLUSTERED INDEX IX_Articles_UserId_IsActive 
+ON Articles (user_id, isActive);
+
+-- Optimizes title uniqueness checks (ArticleService.CreateArticleAsync, UpdateArticleAsync)
+CREATE NONCLUSTERED INDEX IX_Articles_Title 
+ON Articles (title);
+
+-- Doctors table indexes
+-- Optimizes doctor-user joins (DoctorService.GetAllDoctorsAsync, GetDoctorByDoctorIDAsync)
+CREATE NONCLUSTERED INDEX IX_Doctors_UserId 
+ON Doctors (user_id);
+
+-- Patients table indexes
+-- Optimizes patient-user joins (PatientService.GetAllActivePatientsAsync, GetPatientByPatientIDAsync)
+CREATE NONCLUSTERED INDEX IX_Patients_UserId 
+ON Patients (user_id);
+
+-- DoctorSchedules table indexes
+-- Optimizes doctor schedule retrieval (DoctorScheduleService.GetDoctorScheduleByDoctorIdAsync)
+CREATE NONCLUSTERED INDEX IX_DoctorSchedules_DoctorId 
+ON DoctorSchedules (doctor_id);
+
+-- Optimizes schedule conflict checking (DoctorScheduleUtils.CheckDoctorScheduleExist)
+CREATE NONCLUSTERED INDEX IX_DoctorSchedules_DoctorId_WorkDay 
+ON DoctorSchedules (doctor_id, work_day);
+
+-- TestResults table indexes
+-- Optimizes test result retrieval by patient (TestResultService queries)
+CREATE NONCLUSTERED INDEX IX_TestResults_PatientId 
+ON TestResults (patient_id);
+
+-- Optimizes test result retrieval by doctor (TestResultService queries)
+CREATE NONCLUSTERED INDEX IX_TestResults_DoctorId 
+ON TestResults (doctor_id);
+
+-- Optimizes test result retrieval by type (TestResultService queries)
+CREATE NONCLUSTERED INDEX IX_TestResults_TestTypeId 
+ON TestResults (test_type_id);
+
+-- Optimizes appointment-test result relationship (1-1 relationship queries)
+CREATE NONCLUSTERED INDEX IX_TestResults_AppointmentId 
+ON TestResults (appointment_id);
+
+-- Treatment table indexes
+-- Optimizes treatment retrieval by regimen (TreatmentService queries)
+CREATE NONCLUSTERED INDEX IX_Treatment_RegimenId 
+ON Treatment (regimen_id);
+
+-- Optimizes treatment retrieval by test result (TreatmentService queries)
+CREATE NONCLUSTERED INDEX IX_Treatment_TestResultId 
+ON Treatment (test_result_id);
+
+-- Optimizes active treatment filtering (TreatmentService status-based queries)
+CREATE NONCLUSTERED INDEX IX_Treatment_Status 
+ON Treatment (status);
+
+-- ARVRegimens table indexes
+-- Optimizes active regimen filtering (ARVRegimensService.GetAllARVRegimensAsync, GetARVRegimensByIdAsync)
+CREATE NONCLUSTERED INDEX IX_ARVRegimens_IsActive 
+ON ARVRegimens (isActive);
+
+-- Optimizes customized regimen filtering (ARVRegimensService queries)
+CREATE NONCLUSTERED INDEX IX_ARVRegimens_IsCustomized_IsActive 
+ON ARVRegimens (isCustomized, isActive);
+
+-- Notifications table indexes
+-- Optimizes user notification retrieval (notification services)
+CREATE NONCLUSTERED INDEX IX_Notifications_UserId 
+ON Notifications (user_id);
+
+-- Optimizes notification status and scheduling queries
+CREATE NONCLUSTERED INDEX IX_Notifications_Status_ScheduledTime 
+ON Notifications (status, scheduled_time);
+
+-- Optimizes notification type filtering
+CREATE NONCLUSTERED INDEX IX_Notifications_NotificationType 
+ON Notifications (notification_type);
 
 -- INSERT DATA
 
@@ -418,8 +534,8 @@ VALUES
 -- Chèn dữ liệu vào bảng Treatment
 INSERT INTO Treatment (test_result_id, regimen_id, start_date, end_date, status, notes)
 VALUES
-(1, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ TDF + 3TC + DTG Chuẩn'), '2025-06-01', NULL, 'Active', N'Đang điều trị với phác đồ TDF + 3TC + DTG'),
-(2, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ AZT + 3TC + NVP Chuẩn'), '2025-06-05', NULL, 'Active', N'Đang điều trị với phác đồ AZT + 3TC + NVP');
+(1, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ TDF + 3TC + DTG Chuẩn'), '2025-06-01', '2025-12-31', 'Active', N'Đang điều trị với phác đồ TDF + 3TC + DTG'),
+(2, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ AZT + 3TC + NVP Chuẩn'), '2025-06-05', '2025-12-31', 'Active', N'Đang điều trị với phác đồ AZT + 3TC + NVP');
 
 -- Chèn dữ liệu vào bảng Notifications
 INSERT INTO Notifications (user_id, appointment_id, treatment_id, notification_type, scheduled_time, status)
@@ -428,7 +544,7 @@ VALUES
 (1, 1, NULL, 'Appointment', '2025-06-29 15:00:00', 'Pending'),
 (2, 2, NULL, 'Appointment', '2025-06-30 10:00:00', 'Pending'),
 (1, 3, NULL, 'Appointment', '2025-07-04 14:00:00', 'Pending'),
--- Thông báo uống thuốc
+-- Thông báo uống thuốc (sử dụng treatment_id thực tế)
 (1, NULL, 1, 'Medication', '2025-06-26 08:00:00', 'Pending'),
 (1, NULL, 1, 'Medication', '2025-06-27 08:00:00', 'Pending'),
 (2, NULL, 2, 'Medication', '2025-06-26 07:00:00', 'Pending'),

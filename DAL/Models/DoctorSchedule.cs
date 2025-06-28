@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Models;
 
+[Index("DoctorId", Name = "IX_DoctorSchedules_DoctorId")]
+[Index("DoctorId", "WorkDay", Name = "IX_DoctorSchedules_DoctorId_WorkDay")]
 public partial class DoctorSchedule
 {
     [Key]

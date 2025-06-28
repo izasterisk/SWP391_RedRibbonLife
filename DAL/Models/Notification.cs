@@ -6,6 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Models;
 
+[Index("NotificationType", Name = "IX_Notifications_NotificationType")]
+[Index("Status", "ScheduledTime", Name = "IX_Notifications_Status_ScheduledTime")]
+[Index("UserId", Name = "IX_Notifications_UserId")]
 public partial class Notification
 {
     [Key]
@@ -34,6 +37,12 @@ public partial class Notification
 
     [Column("sent_at", TypeName = "datetime")]
     public DateTime? SentAt { get; set; }
+
+    [Column("retry_count")]
+    public int? RetryCount { get; set; }
+
+    [Column("error_message")]
+    public string? ErrorMessage { get; set; }
 
     [ForeignKey("AppointmentId")]
     [InverseProperty("Notifications")]

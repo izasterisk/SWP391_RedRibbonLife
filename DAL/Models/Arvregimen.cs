@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 namespace DAL.Models;
 
 [Table("ARVRegimens")]
+[Index("IsActive", Name = "IX_ARVRegimens_IsActive")]
+[Index("IsCustomized", "IsActive", Name = "IX_ARVRegimens_IsCustomized_IsActive")]
 public partial class Arvregimen
 {
     [Key]

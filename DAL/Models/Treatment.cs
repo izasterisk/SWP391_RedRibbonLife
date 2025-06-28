@@ -7,6 +7,9 @@ using Microsoft.EntityFrameworkCore;
 namespace DAL.Models;
 
 [Table("Treatment")]
+[Index("RegimenId", Name = "IX_Treatment_RegimenId")]
+[Index("Status", Name = "IX_Treatment_Status")]
+[Index("TestResultId", Name = "IX_Treatment_TestResultId")]
 public partial class Treatment
 {
     [Key]
@@ -23,7 +26,7 @@ public partial class Treatment
     public DateOnly StartDate { get; set; }
 
     [Column("end_date")]
-    public DateOnly? EndDate { get; set; }
+    public DateOnly EndDate { get; set; }
 
     [Column("status")]
     [StringLength(50)]

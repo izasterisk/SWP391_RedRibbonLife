@@ -6,6 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Models;
 
+[Index("CategoryId", "IsActive", Name = "IX_Articles_CategoryId_IsActive")]
+[Index("Title", Name = "IX_Articles_Title")]
+[Index("UserId", "IsActive", Name = "IX_Articles_UserId_IsActive")]
 public partial class Article
 {
     [Key]
