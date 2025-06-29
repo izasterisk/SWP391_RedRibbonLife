@@ -5,6 +5,8 @@ using BLL.Utils;
 using DAL.IRepository;
 using DAL.Models;
 using DAL.Repository;
+using Hangfire;
+using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -37,6 +39,9 @@ builder.Services.AddScoped<ITestResultService, TestResultService>();
 builder.Services.AddScoped<IARVComponentService, ARVComponentService>();
 builder.Services.AddScoped<IARVRegimenUtils, ARVRegimenUtils>();
 builder.Services.AddScoped<ITreatmentService, TreatmentService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<INotificationUtils, NotificationUtils>();
+builder.Services.AddScoped<IHangfireBackgroundJobService, HangfireBackgroundJobService>();
 
 builder.Services.AddScoped<IUserRepository<User>, UserRepository<User>>();
 builder.Services.AddScoped<IUserRepository<Doctor>, UserRepository<Doctor>>();
@@ -50,6 +55,7 @@ builder.Services.AddScoped<IUserRepository<TestType>, UserRepository<TestType>>(
 builder.Services.AddScoped<IUserRepository<TestResult>, UserRepository<TestResult>>();
 builder.Services.AddScoped<IUserRepository<Arvcomponent>, UserRepository<Arvcomponent>>();
 builder.Services.AddScoped<IUserRepository<Treatment>, UserRepository<Treatment>>();
+builder.Services.AddScoped<IUserRepository<Notification>, UserRepository<Notification>>();
 
 //CORS
 builder.Services.AddCors(options =>
@@ -143,6 +149,26 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// Hangfire Configuration
+builder.Services.AddHangfire(configuration => configuration
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection"), new SqlServerStorageOptions
+    {
+        CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+        SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+        QueuePollInterval = TimeSpan.Zero,
+        UseRecommendedIsolationLevel = true,
+        DisableGlobalLocks = true
+    }));
+
+builder.Services.AddHangfireServer();
+
+// Đăng ký background job service
+builder.Services.AddScoped<IHangfireBackgroundJobService, HangfireBackgroundJobService>();
+builder.Services.AddSingleton<SendGridEmailUtil>();
+
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
@@ -158,7 +184,33 @@ app.UseCors();
 
 app.UseAuthentication();
 app.UseAuthorization();
+// Hangfire Dashboard (chỉ trong development)
+if (app.Environment.IsDevelopment())
+{
+    app.UseHangfireDashboard();
+}
 
+// Configure recurring jobs
+using (var scope = app.Services.CreateScope())
+{
+    var recurringJobManager = scope.ServiceProvider.GetRequiredService<IRecurringJobManager>();
+    
+    // Morning job - 6:30 AM daily
+    recurringJobManager.AddOrUpdate<IHangfireBackgroundJobService>(
+        "morning-notifications",
+        service => service.ExecuteMorningJobAsync(),
+        "30 6 * * *", // Cron expression for 6:30 AM daily
+        TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time") // UTC+7
+    );
+    
+    // Evening job - 8:00 PM daily
+    recurringJobManager.AddOrUpdate<IHangfireBackgroundJobService>(
+        "evening-notifications", 
+        service => service.ExecuteEveningJobAsync(),
+        "0 20 * * *", // Cron expression for 8:00 PM daily
+        TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time") // UTC+7
+    );
+}
 app.MapControllers();
 
 app.Run();

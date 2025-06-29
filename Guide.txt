@@ -1,0 +1,798 @@
+# Kế Hoạch Thiết Kế Hệ Thống Hangfire Background Jobs
+
+## Mục tiêu
+Thiết lập hệ thống Hangfire Background Jobs để gửi thông báo sắp đến lịch hẹn và lịch uống thuốc qua email bằng SendGrid. Hệ thống chạy 2 lần mỗi ngày:
+- 6:30 sáng: Thông báo appointment + medication (frequency=2)
+- 20:00 tối: Thông báo appointment + medication (frequency=1,2)
+
+## 1. Thêm Dependencies cần thiết
+
+### Packages cần thêm vào SWP391_RedRibbonLife.csproj:
+```xml
+<PackageReference Include="Hangfire.Core" Version="1.8.6" />
+<PackageReference Include="Hangfire.SqlServer" Version="1.8.6" />
+<PackageReference Include="Hangfire.AspNetCore" Version="1.8.6" />
+```
+
+## 2. Tạo DTOs cho Notification
+
+### Tạo thư mục BLL/DTO/Notification/ với các file:
+
+#### NotificationCreateDTO.cs
+```csharp
+public class NotificationCreateDTO
+{
+    public int UserId { get; set; }
+    public int? AppointmentId { get; set; }
+    public int? TreatmentId { get; set; }
+    public string NotificationType { get; set; } // "Appointment", "Medication", "General"
+    public DateTime ScheduledTime { get; set; }
+}
+```
+
+#### NotificationDTO.cs
+```csharp
+public class NotificationDTO
+{
+    public int NotificationId { get; set; }
+    public int UserId { get; set; }
+    public int? AppointmentId { get; set; }
+    public int? TreatmentId { get; set; }
+    public string NotificationType { get; set; }
+    public DateTime ScheduledTime { get; set; }
+    public string Status { get; set; } // "Pending", "Sent", "Failed", "Cancelled"
+    public DateTime? SentAt { get; set; }
+    public int RetryCount { get; set; }
+    public string? ErrorMessage { get; set; }
+}
+```
+
+#### NotificationReadOnlyDTO.cs
+```csharp
+public class NotificationReadOnlyDTO
+{
+    public int NotificationId { get; set; }
+    public string UserFullName { get; set; }
+    public string UserEmail { get; set; }
+    public string NotificationType { get; set; }
+    public DateTime ScheduledTime { get; set; }
+    public string Status { get; set; }
+    public DateTime? SentAt { get; set; }
+    public int RetryCount { get; set; }
+    public string? ErrorMessage { get; set; }
+    
+    // Appointment info (if applicable)
+    public DateTime? AppointmentDateTime { get; set; }
+    public string? DoctorName { get; set; }
+    
+    // Treatment info (if applicable)
+    public string? RegimenName { get; set; }
+    public string? UsageInstructions { get; set; }
+}
+```
+
+#### NotificationUpdateDTO.cs
+```csharp
+public class NotificationUpdateDTO
+{
+    public int NotificationId { get; set; }
+    public string Status { get; set; }
+    public DateTime? SentAt { get; set; }
+    public int RetryCount { get; set; }
+    public string? ErrorMessage { get; set; }
+}
+```
+
+## 3. Mở rộng SendGridEmailUtil
+
+### Thêm vào BLL/Utils/SendGrid.cs:
+
+```csharp
+public async Task SendAppointmentReminderEmailAsync(string toEmail, string patientName, DateTime appointmentDateTime)
+{
+    var client = new SendGridClient(_apiKey);
+    var from = new EmailAddress(_fromEmail, "Red Ribbon Life");
+    var subject = "Nhắc nhở lịch hẹn - Red Ribbon Life";
+    var to = new EmailAddress(toEmail);
+
+    var plainTextContent = $@"
+Xin chào {patientName},
+
+Đây là thông báo nhắc nhở về lịch hẹn sắp tới của bạn:
+
+Thời gian: {appointmentDateTime:dd/MM/yyyy HH:mm}
+
+Vui lòng đến đúng giờ và mang theo các giấy tờ cần thiết.
+
+Trân trọng,
+Đội ngũ Red Ribbon Life";
+
+    var htmlContent = $@"
+<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
+    <h2 style='color: #dc3545;'>Red Ribbon Life - Nhắc nhở lịch hẹn</h2>
+    <p>Xin chào <strong>{patientName}</strong>,</p>
+    <p>Đây là thông báo nhắc nhở về lịch hẹn sắp tới của bạn:</p>
+    <div style='background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0;'>
+        <p><strong>Thời gian:</strong> {appointmentDateTime:dd/MM/yyyy HH:mm}</p>
+    </div>
+    <p>Vui lòng đến đúng giờ và mang theo các giấy tờ cần thiết.</p>
+    <hr style='border: none; border-top: 1px solid #dee2e6; margin: 20px 0;'>
+    <p style='color: #6c757d; font-size: 12px;'>
+        Trân trọng,<br>
+        <strong>Đội ngũ Red Ribbon Life</strong>
+    </p>
+</div>";
+
+    var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
+    var response = await client.SendEmailAsync(msg);
+
+    if (response.StatusCode != System.Net.HttpStatusCode.Accepted)
+    {
+        throw new Exception($"Failed to send appointment reminder email: {response.StatusCode}");
+    }
+}
+
+public async Task SendMedicationReminderEmailAsync(string toEmail, string patientName, string regimenName, string instructions, int frequency)
+{
+    var client = new SendGridClient(_apiKey);
+    var from = new EmailAddress(_fromEmail, "Red Ribbon Life");
+    var subject = "Nhắc nhở uống thuốc - Red Ribbon Life";
+    var to = new EmailAddress(toEmail);
+
+    var frequencyText = frequency == 1 ? "1 lần/ngày" : "2 lần/ngày";
+
+    var plainTextContent = $@"
+Xin chào {patientName},
+
+Đây là thông báo nhắc nhở uống thuốc của bạn:
+
+Phác đồ: {regimenName}
+Tần suất: {frequencyText}
+Hướng dẫn: {instructions}
+
+Vui lòng uống thuốc đúng giờ và theo đúng chỉ dẫn của bác sĩ.
+
+Trân trọng,
+Đội ngũ Red Ribbon Life";
+
+    var htmlContent = $@"
+<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
+    <h2 style='color: #dc3545;'>Red Ribbon Life - Nhắc nhở uống thuốc</h2>
+    <p>Xin chào <strong>{patientName}</strong>,</p>
+    <p>Đây là thông báo nhắc nhở uống thuốc của bạn:</p>
+    <div style='background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0;'>
+        <p><strong>Phác đồ:</strong> {regimenName}</p>
+        <p><strong>Tần suất:</strong> {frequencyText}</p>
+        <p><strong>Hướng dẫn:</strong> {instructions}</p>
+    </div>
+    <p>Vui lòng uống thuốc đúng giờ và theo đúng chỉ dẫn của bác sĩ.</p>
+    <hr style='border: none; border-top: 1px solid #dee2e6; margin: 20px 0;'>
+    <p style='color: #6c757d; font-size: 12px;'>
+        Trân trọng,<br>
+        <strong>Đội ngũ Red Ribbon Life</strong>
+    </p>
+</div>";
+
+    var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
+    var response = await client.SendEmailAsync(msg);
+
+    if (response.StatusCode != System.Net.HttpStatusCode.Accepted)
+    {
+        throw new Exception($"Failed to send medication reminder email: {response.StatusCode}");
+    }
+}
+```
+
+## 4. Implement NotificationUtils
+
+### Cập nhật BLL/Interfaces/INotificationUtils.cs:
+```csharp
+namespace BLL.Interfaces;
+
+public interface INotificationUtils
+{
+    Task<List<Appointment>> GetUpcomingAppointmentsAsync();
+    Task<List<Treatment>> GetActiveTreatmentsForMedicationReminder(int frequency);
+    Task<Notification> CreateNotificationAsync(int userId, int? appointmentId, int? treatmentId, string notificationType, DateTime scheduledTime);
+    Task MarkNotificationAsSentAsync(int notificationId);
+    Task MarkNotificationAsFailedAsync(int notificationId, string errorMessage);
+    Task<List<Notification>> GetPendingNotificationsAsync();
+}
+```
+
+### Implement BLL/Utils/NotificationUtils.cs:
+```csharp
+using BLL.Interfaces;
+using DAL.IRepository;
+using DAL.Models;
+using Microsoft.EntityFrameworkCore;
+
+namespace BLL.Utils;
+
+public class NotificationUtils : INotificationUtils
+{
+    private readonly IUserRepository<Appointment> _appointmentRepository;
+    private readonly IUserRepository<Treatment> _treatmentRepository;
+    private readonly IUserRepository<Notification> _notificationRepository;
+
+    public NotificationUtils(
+        IUserRepository<Appointment> appointmentRepository,
+        IUserRepository<Treatment> treatmentRepository,
+        IUserRepository<Notification> notificationRepository)
+    {
+        _appointmentRepository = appointmentRepository;
+        _treatmentRepository = treatmentRepository;
+        _notificationRepository = notificationRepository;
+    }
+
+    public async Task<List<Appointment>> GetUpcomingAppointmentsAsync()
+    {
+        var today = DateOnly.FromDateTime(DateTime.Now);
+        var tomorrow = DateOnly.FromDateTime(DateTime.Now.AddDays(1));
+        
+        // Lấy tất cả appointments trong hôm nay và ngày mai
+        var todayTomorrowAppointments = await _appointmentRepository.GetAllWithRelationsAsync(query =>
+            query.Include(a => a.Patient)
+                 .ThenInclude(p => p.User)
+                 .Include(a => a.Doctor)
+                 .ThenInclude(d => d.User)
+                 .Where(a => (a.AppointmentDate == today || a.AppointmentDate == tomorrow) && 
+                            (a.Status == "Scheduled" || a.Status == "Confirmed")));
+
+        // Lấy danh sách AppointmentId đã được gửi notification từ hôm qua đến hiện tại
+        var yesterday = DateTime.Now.Date.AddDays(-1); // 00:00:00 hôm qua
+        var sentNotificationAppointmentIds = await _notificationRepository.GetAllByFilterAsync(n => 
+            n.NotificationType == "Appointment" && 
+            n.AppointmentId.HasValue && 
+            n.Status == "Sent" &&
+            n.SentAt.HasValue && 
+            n.SentAt >= yesterday);
+
+        var sentAppointmentIds = sentNotificationAppointmentIds
+            .Select(n => n.AppointmentId.Value)
+            .ToHashSet(); 
+
+        // Loại bỏ những appointment đã gửi notification
+        var appointmentsToNotify = todayTomorrowAppointments
+            .Where(a => !sentAppointmentIds.Contains(a.AppointmentId))
+            .ToList();
+
+        return appointmentsToNotify;
+    }
+
+    public async Task<List<Treatment>> GetActiveTreatmentsForMedicationReminder(int frequency)
+    {
+        var today = DateOnly.FromDateTime(DateTime.Now);
+        
+        return await _treatmentRepository.GetAllWithRelationsAsync(query =>
+            query.Include(t => t.Regimen)
+                 .Include(t => t.TestResult)
+                 .ThenInclude(tr => tr.Patient)
+                 .ThenInclude(p => p.User)
+                 .Where(t => t.Status == "Active" &&
+                            t.StartDate <= today &&
+                            t.EndDate >= today &&
+                            (frequency == 1 ? t.Regimen.Frequency == 1 : t.Regimen.Frequency == frequency)));
+    }
+
+    public async Task<Notification> CreateNotificationAsync(int userId, int? appointmentId, int? treatmentId, string notificationType, DateTime scheduledTime)
+    {
+        var notification = new Notification
+        {
+            UserId = userId,
+            AppointmentId = appointmentId,
+            TreatmentId = treatmentId,
+            NotificationType = notificationType,
+            ScheduledTime = scheduledTime,
+            Status = "Pending",
+            RetryCount = 0
+        };
+
+        return await _notificationRepository.CreateAsync(notification);
+    }
+
+    public async Task MarkNotificationAsSentAsync(int notificationId)
+    {
+        var notification = await _notificationRepository.GetAsync(n => n.NotificationId == notificationId);
+        if (notification != null)
+        {
+            notification.Status = "Sent";
+            notification.SentAt = DateTime.Now;
+            await _notificationRepository.UpdateAsync(notification);
+        }
+    }
+
+    public async Task MarkNotificationAsFailedAsync(int notificationId, string errorMessage)
+    {
+        var notification = await _notificationRepository.GetAsync(n => n.NotificationId == notificationId);
+        if (notification != null)
+        {
+            notification.Status = "Failed";
+            notification.RetryCount = (notification.RetryCount ?? 0) + 1;
+            notification.ErrorMessage = errorMessage;
+            await _notificationRepository.UpdateAsync(notification);
+        }
+    }
+
+    public async Task<List<Notification>> GetPendingNotificationsAsync()
+    {
+        return await _notificationRepository.GetAllByFilterAsync(n => 
+            n.Status == "Pending" && 
+            n.ScheduledTime <= DateTime.Now &&
+            (n.RetryCount ?? 0) < 3);
+    }
+}
+```
+
+## 5. Implement NotificationService
+
+### Cập nhật BLL/Interfaces/INotificationService.cs:
+```csharp
+namespace BLL.Interfaces;
+
+public interface INotificationService
+{
+    Task SendAppointmentRemindersAsync();
+    Task SendMedicationRemindersAsync(int frequency);
+    Task ProcessPendingNotificationsAsync();
+    Task ProcessFailedNotificationsRetryAsync();
+}
+```
+
+### Implement BLL/Services/NotificationService.cs:
+```csharp
+using BLL.Interfaces;
+using BLL.Utils;
+using DAL.Models;
+
+namespace BLL.Services;
+
+public class NotificationService : INotificationService
+{
+    private readonly INotificationUtils _notificationUtils;
+    private readonly SendGridEmailUtil _emailUtil;
+
+    public NotificationService(INotificationUtils notificationUtils, SendGridEmailUtil emailUtil)
+    {
+        _notificationUtils = notificationUtils;
+        _emailUtil = emailUtil;
+    }
+
+    public async Task SendAppointmentRemindersAsync()
+    {
+        try
+        {
+            var upcomingAppointments = await _notificationUtils.GetUpcomingAppointmentsAsync();
+            
+            foreach (var appointment in upcomingAppointments)
+            {
+                if (appointment.Patient?.User != null)
+                {
+                    // Tạo notification record
+                    var notification = await _notificationUtils.CreateNotificationAsync(
+                        appointment.Patient.User.UserId,
+                        appointment.AppointmentId,
+                        null,
+                        "Appointment",
+                        DateTime.Now
+                    );
+
+                    try
+                    {
+                        // Gửi email
+                        var appointmentDateTime = appointment.AppointmentDate.ToDateTime(appointment.AppointmentTime);
+                        await _emailUtil.SendAppointmentReminderEmailAsync(
+                            appointment.Patient.User.Email,
+                            appointment.Patient.User.FullName ?? "Bệnh nhân",
+                            appointmentDateTime
+                        );
+
+                        // Đánh dấu thành công
+                        await _notificationUtils.MarkNotificationAsSentAsync(notification.NotificationId);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Đánh dấu thất bại
+                        await _notificationUtils.MarkNotificationAsFailedAsync(notification.NotificationId, ex.Message);
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            // Log error
+            Console.WriteLine($"Error in SendAppointmentRemindersAsync: {ex.Message}");
+            throw;
+        }
+    }
+
+    public async Task SendMedicationRemindersAsync(int frequency)
+    {
+        try
+        {
+            var activeTreatments = await _notificationUtils.GetActiveTreatmentsForMedicationReminder(frequency);
+            
+            foreach (var treatment in activeTreatments)
+            {
+                if (treatment.TestResult?.Patient?.User != null)
+                {
+                    // Tạo notification record
+                    var notification = await _notificationUtils.CreateNotificationAsync(
+                        treatment.TestResult.Patient.User.UserId,
+                        null,
+                        treatment.TreatmentId,
+                        "Medication",
+                        DateTime.Now
+                    );
+
+                    try
+                    {
+                        // Gửi email
+                        await _emailUtil.SendMedicationReminderEmailAsync(
+                            treatment.TestResult.Patient.User.Email,
+                            treatment.TestResult.Patient.User.FullName ?? "Bệnh nhân",
+                            treatment.Regimen.RegimenName ?? "Phác đồ điều trị",
+                            treatment.Regimen.UsageInstructions ?? "Theo chỉ dẫn của bác sĩ",
+                            treatment.Regimen.Frequency
+                        );
+
+                        // Đánh dấu thành công
+                        await _notificationUtils.MarkNotificationAsSentAsync(notification.NotificationId);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Đánh dấu thất bại
+                        await _notificationUtils.MarkNotificationAsFailedAsync(notification.NotificationId, ex.Message);
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            // Log error
+            Console.WriteLine($"Error in SendMedicationRemindersAsync: {ex.Message}");
+            throw;
+        }
+    }
+
+    public async Task ProcessPendingNotificationsAsync()
+    {
+        // Xử lý các notification bị treo
+        var pendingNotifications = await _notificationUtils.GetPendingNotificationsAsync();
+        
+        foreach (var notification in pendingNotifications)
+        {
+            try
+            {
+                if (notification.NotificationType == "Appointment" && notification.AppointmentId.HasValue)
+                {
+                    // Retry appointment notification
+                    // Implementation similar to SendAppointmentRemindersAsync for single notification
+                }
+                else if (notification.NotificationType == "Medication" && notification.TreatmentId.HasValue)
+                {
+                    // Retry medication notification
+                    // Implementation similar to SendMedicationRemindersAsync for single notification
+                }
+            }
+            catch (Exception ex)
+            {
+                await _notificationUtils.MarkNotificationAsFailedAsync(notification.NotificationId, ex.Message);
+            }
+        }
+    }
+
+    public async Task ProcessFailedNotificationsRetryAsync()
+    {
+        // Implement retry logic for failed notifications
+        // This can be called separately or as part of the main jobs
+    }
+}
+```
+
+## 6. Tạo HangfireBackgroundJobService
+
+### Tạo BLL/Interfaces/IHangfireBackgroundJobService.cs:
+```csharp
+namespace BLL.Interfaces;
+
+public interface IHangfireBackgroundJobService
+{
+    Task ExecuteMorningJobAsync();
+    Task ExecuteEveningJobAsync();
+}
+```
+
+### Tạo BLL/Services/HangfireBackgroundJobService.cs:
+```csharp
+using BLL.Interfaces;
+
+namespace BLL.Services;
+
+public class HangfireBackgroundJobService : IHangfireBackgroundJobService
+{
+    private readonly INotificationService _notificationService;
+
+    public HangfireBackgroundJobService(INotificationService notificationService)
+    {
+        _notificationService = notificationService;
+    }
+
+    public async Task ExecuteMorningJobAsync()
+    {
+        try
+        {
+            Console.WriteLine($"[{DateTime.Now}] Starting morning job execution...");
+            
+            // Gửi thông báo appointment
+            await _notificationService.SendAppointmentRemindersAsync();
+            
+            // Gửi thông báo medication cho frequency = 2 (2 lần/ngày)
+            await _notificationService.SendMedicationRemindersAsync(2);
+            
+            // Xử lý pending notifications
+            await _notificationService.ProcessPendingNotificationsAsync();
+            
+            Console.WriteLine($"[{DateTime.Now}] Morning job completed successfully.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[{DateTime.Now}] Error in morning job: {ex.Message}");
+            throw;
+        }
+    }
+
+    public async Task ExecuteEveningJobAsync()
+    {
+        try
+        {
+            Console.WriteLine($"[{DateTime.Now}] Starting evening job execution...");
+            
+            // Gửi thông báo appointment
+            await _notificationService.SendAppointmentRemindersAsync();
+            
+            // Gửi thông báo medication cho frequency = 1 (1 lần/ngày)
+            await _notificationService.SendMedicationRemindersAsync(1);
+            
+            // Gửi thông báo medication cho frequency = 2 (2 lần/ngày) - lần thứ 2 trong ngày
+            await _notificationService.SendMedicationRemindersAsync(2);
+            
+            // Xử lý pending notifications
+            await _notificationService.ProcessPendingNotificationsAsync();
+            
+            Console.WriteLine($"[{DateTime.Now}] Evening job completed successfully.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[{DateTime.Now}] Error in evening job: {ex.Message}");
+            throw;
+        }
+    }
+}
+```
+
+## 7. Cấu hình Hangfire trong Program.cs
+
+### Thêm vào Program.cs (sau line 40 - trước builder.Build()):
+```csharp
+// Hangfire Configuration
+builder.Services.AddHangfire(configuration => configuration
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection"), new SqlServerStorageOptions
+    {
+        CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+        SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+        QueuePollInterval = TimeSpan.Zero,
+        UseRecommendedIsolationLevel = true,
+        DisableGlobalLocks = true
+    }));
+
+builder.Services.AddHangfireServer();
+
+// Đăng ký background job service
+builder.Services.AddScoped<IHangfireBackgroundJobService, HangfireBackgroundJobService>();
+builder.Services.AddSingleton<SendGridEmailUtil>();
+```
+
+### Thêm vào phần middleware (sau app.UseAuthorization()):
+```csharp
+// Hangfire Dashboard (chỉ trong development)
+if (app.Environment.IsDevelopment())
+{
+    app.UseHangfireDashboard();
+}
+
+// Configure recurring jobs
+using (var scope = app.Services.CreateScope())
+{
+    var recurringJobManager = scope.ServiceProvider.GetRequiredService<IRecurringJobManager>();
+    
+    // Morning job - 6:30 AM daily
+    recurringJobManager.AddOrUpdate<IHangfireBackgroundJobService>(
+        "morning-notifications",
+        service => service.ExecuteMorningJobAsync(),
+        "30 6 * * *", // Cron expression for 6:30 AM daily
+        TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time") // UTC+7
+    );
+    
+    // Evening job - 8:00 PM daily
+    recurringJobManager.AddOrUpdate<IHangfireBackgroundJobService>(
+        "evening-notifications", 
+        service => service.ExecuteEveningJobAsync(),
+        "0 20 * * *", // Cron expression for 8:00 PM daily
+        TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time") // UTC+7
+    );
+}
+```
+
+## 8. Tạo NotificationController (Optional)
+
+### Tạo SWP391_RedRibbonLife/Controllers/NotificationController.cs:
+```csharp
+using BLL.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace SWP391_RedRibbonLife.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+public class NotificationController : ControllerBase
+{
+    private readonly INotificationService _notificationService;
+    private readonly IHangfireBackgroundJobService _backgroundJobService;
+
+    public NotificationController(
+        INotificationService notificationService,
+        IHangfireBackgroundJobService backgroundJobService)
+    {
+        _notificationService = notificationService;
+        _backgroundJobService = backgroundJobService;
+    }
+
+    [HttpPost("test-morning-job")]
+    [Authorize(AuthenticationSchemes = "LoginforLocaluser")]
+    public async Task<IActionResult> TestMorningJob()
+    {
+        try
+        {
+            await _backgroundJobService.ExecuteMorningJobAsync();
+            return Ok(new { message = "Morning job executed successfully" });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    [HttpPost("test-evening-job")]
+    [Authorize(AuthenticationSchemes = "LoginforLocaluser")]
+    public async Task<IActionResult> TestEveningJob()
+    {
+        try
+        {
+            await _backgroundJobService.ExecuteEveningJobAsync();
+            return Ok(new { message = "Evening job executed successfully" });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    [HttpPost("send-appointment-reminders")]
+    [Authorize(AuthenticationSchemes = "LoginforLocaluser")]
+    public async Task<IActionResult> SendAppointmentReminders()
+    {
+        try
+        {
+            await _notificationService.SendAppointmentRemindersAsync();
+            return Ok(new { message = "Appointment reminders sent successfully" });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    [HttpPost("send-medication-reminders/{frequency}")]
+    [Authorize(AuthenticationSchemes = "LoginforLocaluser")]
+    public async Task<IActionResult> SendMedicationReminders(int frequency)
+    {
+        try
+        {
+            if (frequency != 1 && frequency != 2)
+            {
+                return BadRequest(new { error = "Frequency must be 1 or 2" });
+            }
+
+            await _notificationService.SendMedicationRemindersAsync(frequency);
+            return Ok(new { message = $"Medication reminders (frequency {frequency}) sent successfully" });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+}
+```
+
+## 9. Các Using Statements cần thêm
+
+### Thêm vào các file tương ứng:
+```csharp
+// Program.cs
+using Hangfire;
+using Hangfire.SqlServer;
+
+// NotificationUtils.cs và NotificationService.cs
+using Microsoft.EntityFrameworkCore;
+
+// HangfireBackgroundJobService.cs
+using System;
+using System.Threading.Tasks;
+```
+
+## 10. Cron Expressions Reference
+
+```
+"30 6 * * *"  // 6:30 AM hàng ngày
+"0 20 * * *"  // 8:00 PM hàng ngày
+"0 */2 * * *" // Mỗi 2 giờ
+"0 0 * * 1"   // Thứ 2 hàng tuần lúc 12:00 AM
+```
+
+## 11. Testing & Debugging
+
+### Kiểm tra Hangfire Dashboard:
+- URL: `/hangfire` (chỉ trong development)
+- Monitor job execution status
+- View job history và logs
+
+### Test manually:
+```bash
+POST /api/notification/test-morning-job
+POST /api/notification/test-evening-job
+```
+
+## 12. Error Handling & Monitoring
+
+### Logging Strategy:
+1. Console.WriteLine cho debugging
+2. Sử dụng ILogger trong production
+3. Monitor notification success/failure rates
+4. Set up alerts cho failed jobs
+
+### Retry Logic:
+- Maximum 3 retries cho failed notifications
+- Exponential backoff
+- Mark permanently failed sau 3 attempts
+
+## 13. Security Considerations
+
+### Authorization:
+- Background jobs chạy với system privileges
+- API endpoints yêu cầu authentication
+- Validate user permissions trước khi gửi notifications
+
+### Data Privacy:
+- Không log sensitive patient information
+- Encrypt notification content if needed
+- Comply với healthcare data protection regulations
+
+## Các bước triển khai:
+
+1. **Thêm packages** vào project
+2. **Tạo DTOs** cho Notification
+3. **Mở rộng SendGrid utility** với email templates
+4. **Implement NotificationUtils** với database queries
+5. **Implement NotificationService** với business logic
+6. **Tạo HangfireBackgroundJobService** để orchestrate jobs
+7. **Cấu hình Hangfire** trong Program.cs
+8. **Test thoroughly** với manual triggers
+9. **Monitor** job execution trong production
+10. **Setup alerts** cho failed notifications
+
+Hệ thống này sẽ tự động gửi email reminders theo schedule và cung cấp monitoring capabilities qua Hangfire dashboard.

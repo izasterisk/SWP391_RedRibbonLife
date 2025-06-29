@@ -17,5 +17,6 @@ namespace BLL.Interfaces
         void CheckTestTypeExist(int testTypeId);
         void CheckDuplicateAppointment(int appointmentId);
         void CheckTestResultExist(int id);
+        void CheckTreatmentExist(int id);
     }
 }

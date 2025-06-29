@@ -36,11 +36,19 @@ public class TreatmentService : ITreatmentService
             // treatment.Status = "Active";
             var createdTreatment = await _treatmentRepository.CreateAsync(treatment);
             await transaction.CommitAsync();
-            var detailedTreatment = await GetTreatmentByIdAsync(createdTreatment.TreatmentId);
-            return new
-            {
-                TreatmentInfo = detailedTreatment
-            };
+            var detailedTreatment = await _treatmentRepository.GetWithRelationsAsync(
+                filter: t => t.TreatmentId == createdTreatment.TreatmentId,
+                useNoTracking: true,
+                includeFunc: query => query
+                    .Include(t => t.Regimen)
+                    .Include(t => t.TestResult)
+                        .ThenInclude(tr => tr.Patient)
+                        .ThenInclude(p => p.User)
+                    .Include(t => t.TestResult)
+                        .ThenInclude(tr => tr.Doctor)
+                        .ThenInclude(d => d.User)
+            );
+            return _mapper.Map<List<TreatmentDTO>>(detailedTreatment);
         }
         catch (Exception)
         {
@@ -71,11 +79,19 @@ public class TreatmentService : ITreatmentService
             _mapper.Map(dto, treatment);
             var updatedTreatment = await _treatmentRepository.UpdateAsync(treatment);
             await transaction.CommitAsync();
-            var detailedTreatment = await GetTreatmentByIdAsync(updatedTreatment.TreatmentId);
-            return new
-            {
-                TreatmentInfo = detailedTreatment
-            };
+            var detailedTreatment = await _treatmentRepository.GetWithRelationsAsync(
+                filter: t => t.TreatmentId == updatedTreatment.TreatmentId,
+                useNoTracking: true,
+                includeFunc: query => query
+                    .Include(t => t.Regimen)
+                    .Include(t => t.TestResult)
+                        .ThenInclude(tr => tr.Patient)
+                        .ThenInclude(p => p.User)
+                    .Include(t => t.TestResult)
+                        .ThenInclude(tr => tr.Doctor)
+                        .ThenInclude(d => d.User)
+            );
+            return _mapper.Map<List<TreatmentDTO>>(detailedTreatment);
         }
         catch (Exception)
         {

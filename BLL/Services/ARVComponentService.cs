@@ -19,6 +19,7 @@ public class ARVComponentService : IARVComponentService
 
     public async Task<ARVComponentDTO> CreateARVComponentAsync(ARVComponentCreateDTO dto)
     {
+        ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
         var arvComponent = _mapper.Map<Arvcomponent>(dto);
         await _arvComponentRepository.CreateAsync(arvComponent);
         return _mapper.Map<ARVComponentDTO>(arvComponent);

@@ -133,5 +133,14 @@ namespace BLL.Utils
                 throw new Exception("1 test result can only link to 1 treatment.");
             }
         }
+        
+        public void CheckTreatmentExist(int id)
+        {
+            var treatment = _treatmentRepository.GetAsync(t => t.TreatmentId == id, true).GetAwaiter().GetResult();
+            if (treatment == null)
+            {
+                throw new Exception("Treatment not found.");
+            }
+        }
     }
 }

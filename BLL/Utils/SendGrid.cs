@@ -75,4 +75,98 @@ Trân trọng,
             throw new Exception($"Failed to send email: {response.StatusCode}");
         }
     }
+    
+    public async Task SendAppointmentReminderEmailAsync(string toEmail, string patientName, DateTime appointmentDateTime)
+{
+    var client = new SendGridClient(_apiKey);
+    var from = new EmailAddress(_fromEmail, "Red Ribbon Life");
+    var subject = "Nhắc nhở lịch hẹn - Red Ribbon Life";
+    var to = new EmailAddress(toEmail);
+
+    var plainTextContent = $@"
+Xin chào {patientName},
+
+Đây là thông báo nhắc nhở về lịch hẹn sắp tới của bạn:
+
+Thời gian: {appointmentDateTime:dd/MM/yyyy HH:mm}
+
+Vui lòng đến đúng giờ và mang theo các giấy tờ cần thiết.
+
+Trân trọng,
+Đội ngũ Red Ribbon Life";
+
+    var htmlContent = $@"
+<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
+    <h2 style='color: #dc3545;'>Red Ribbon Life - Nhắc nhở lịch hẹn</h2>
+    <p>Xin chào <strong>{patientName}</strong>,</p>
+    <p>Đây là thông báo nhắc nhở về lịch hẹn sắp tới của bạn:</p>
+    <div style='background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0;'>
+        <p><strong>Thời gian:</strong> {appointmentDateTime:dd/MM/yyyy HH:mm}</p>
+    </div>
+    <p>Vui lòng đến đúng giờ và mang theo các giấy tờ cần thiết.</p>
+    <hr style='border: none; border-top: 1px solid #dee2e6; margin: 20px 0;'>
+    <p style='color: #6c757d; font-size: 12px;'>
+        Trân trọng,<br>
+        <strong>Đội ngũ Red Ribbon Life</strong>
+    </p>
+</div>";
+
+    var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
+    var response = await client.SendEmailAsync(msg);
+
+    if (response.StatusCode != System.Net.HttpStatusCode.Accepted)
+    {
+        throw new Exception($"Failed to send appointment reminder email: {response.StatusCode}");
+    }
+}
+
+public async Task SendMedicationReminderEmailAsync(string toEmail, string patientName, string regimenName, string instructions, int frequency)
+{
+    var client = new SendGridClient(_apiKey);
+    var from = new EmailAddress(_fromEmail, "Red Ribbon Life");
+    var subject = "Nhắc nhở uống thuốc - Red Ribbon Life";
+    var to = new EmailAddress(toEmail);
+
+    var frequencyText = frequency == 1 ? "1 lần/ngày" : "2 lần/ngày";
+
+    var plainTextContent = $@"
+Xin chào {patientName},
+
+Đây là thông báo nhắc nhở uống thuốc của bạn:
+
+Phác đồ: {regimenName}
+Tần suất: {frequencyText}
+Hướng dẫn: {instructions}
+
+Vui lòng uống thuốc đúng giờ và theo đúng chỉ dẫn của bác sĩ.
+
+Trân trọng,
+Đội ngũ Red Ribbon Life";
+
+    var htmlContent = $@"
+<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
+    <h2 style='color: #dc3545;'>Red Ribbon Life - Nhắc nhở uống thuốc</h2>
+    <p>Xin chào <strong>{patientName}</strong>,</p>
+    <p>Đây là thông báo nhắc nhở uống thuốc của bạn:</p>
+    <div style='background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0;'>
+        <p><strong>Phác đồ:</strong> {regimenName}</p>
+        <p><strong>Tần suất:</strong> {frequencyText}</p>
+        <p><strong>Hướng dẫn:</strong> {instructions}</p>
+    </div>
+    <p>Vui lòng uống thuốc đúng giờ và theo đúng chỉ dẫn của bác sĩ.</p>
+    <hr style='border: none; border-top: 1px solid #dee2e6; margin: 20px 0;'>
+    <p style='color: #6c757d; font-size: 12px;'>
+        Trân trọng,<br>
+        <strong>Đội ngũ Red Ribbon Life</strong>
+    </p>
+</div>";
+
+    var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
+    var response = await client.SendEmailAsync(msg);
+
+    if (response.StatusCode != System.Net.HttpStatusCode.Accepted)
+    {
+        throw new Exception($"Failed to send medication reminder email: {response.StatusCode}");
+    }
+}
 }
