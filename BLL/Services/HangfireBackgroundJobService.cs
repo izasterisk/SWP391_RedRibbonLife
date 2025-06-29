@@ -48,7 +48,7 @@ public class HangfireBackgroundJobService : IHangfireBackgroundJobService
             await _notificationService.SendMedicationRemindersAsync(1);
             
             // Gửi thông báo medication cho frequency = 2 (2 lần/ngày) - lần thứ 2 trong ngày
-            await _notificationService.SendMedicationRemindersAsync(2);
+            await _notificationService.SendMedicationRemindersAsync(2); 
             
             // Xử lý pending notifications
             await _notificationService.ProcessPendingNotificationsAsync();
