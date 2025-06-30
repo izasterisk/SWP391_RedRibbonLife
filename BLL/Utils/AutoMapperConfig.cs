@@ -37,7 +37,17 @@ namespace BLL.Utils
             
             CreateMap<DoctorCreateDTO, Doctor>().ReverseMap();
             CreateMap<DoctorCreateDTO, User>().ReverseMap();
-            CreateMap<DoctorReadOnlyDTO, Doctor>().ReverseMap();
+            CreateMap<Doctor, DoctorReadOnlyDTO>()
+                .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.User != null ? src.User.Username : null))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.User != null ? src.User.Email : null))
+                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.User != null ? src.User.PhoneNumber : null))
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.User != null ? src.User.FullName : null))
+                .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => src.User != null ? src.User.DateOfBirth : null))
+                .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.User != null ? src.User.Gender : null))
+                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.User != null ? src.User.Address : null))
+                .ForMember(dest => dest.DoctorId, opt => opt.MapFrom(src => src.DoctorId))
+                .ForMember(dest => dest.DoctorImage, opt => opt.MapFrom(src => src.DoctorImage))
+                .ForMember(dest => dest.Bio, opt => opt.MapFrom(src => src.Bio));
             CreateMap<DoctorReadOnlyDTO, User>().ReverseMap();
             CreateMap<DoctorUpdateDTO, Doctor>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
@@ -46,7 +56,20 @@ namespace BLL.Utils
             
             CreateMap<PatientCreateDTO, Patient>().ReverseMap();
             CreateMap<PatientCreateDTO, User>().ReverseMap();
-            CreateMap<PatientReadOnlyDTO, Patient>().ReverseMap();
+            CreateMap<Patient, PatientReadOnlyDTO>()
+                .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.User != null ? src.User.Username : null))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.User != null ? src.User.Email : null))
+                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.User != null ? src.User.PhoneNumber : null))
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.User != null ? src.User.FullName : null))
+                .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => src.User != null ? src.User.DateOfBirth : null))
+                .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.User != null ? src.User.Gender : null))
+                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.User != null ? src.User.Address : null))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.User != null ? src.User.IsActive : false))
+                .ForMember(dest => dest.IsVerified, opt => opt.MapFrom(src => src.User != null ? src.User.IsVerified : false))
+                .ForMember(dest => dest.PatientId, opt => opt.MapFrom(src => src.PatientId))
+                .ForMember(dest => dest.BloodType, opt => opt.MapFrom(src => src.BloodType))
+                .ForMember(dest => dest.IsPregnant, opt => opt.MapFrom(src => src.IsPregnant))
+                .ForMember(dest => dest.SpecialNotes, opt => opt.MapFrom(src => src.SpecialNotes));
             CreateMap<PatientReadOnlyDTO, User>().ReverseMap();
             CreateMap<PatientUpdateDTO, Patient>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
@@ -68,7 +91,8 @@ namespace BLL.Utils
             CreateMap<AdminUpdateDTO, User>()//.ReverseMap()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
             
-            CreateMap<DoctorScheduleDTO, DoctorSchedule>().ReverseMap();
+            CreateMap<DoctorSchedule, DoctorScheduleDTO>()
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.Doctor != null && src.Doctor.User != null ? src.Doctor.User.FullName : null));
             CreateMap<DoctorScheduleCreateDTO, DoctorSchedule>().ReverseMap();
             CreateMap<DoctorScheduleUpdateDTO, DoctorSchedule>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));

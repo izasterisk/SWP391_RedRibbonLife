@@ -8,5 +8,5 @@ public interface IARVComponentService
     Task<ARVComponentDTO> UpdateARVComponentAsync(ARVComponentUpdateDTO dto);
     Task<List<ARVComponentDTO>> GetAllARVComponentAsync();
     Task<ARVComponentDTO> GetARVComponentByIdAsync(int id);
-    Task<bool> DeleteARVComponentAsync(int id);
+    Task<bool> DeleteARVComponentByIdAsync(int id);
 }

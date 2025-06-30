@@ -46,11 +46,7 @@ namespace SWP391_RedRibbonLife.Controllers
                 apiResponse.Data = treatmentCreated;
                 apiResponse.Status = true;
                 apiResponse.StatusCode = HttpStatusCode.Created;
-                
-                // Extract TreatmentId from the response for location header
-                var treatmentInfo = treatmentCreated.GetType().GetProperty("TreatmentInfo")?.GetValue(treatmentCreated);
-                var treatmentId = treatmentInfo?.GetType().GetProperty("TreatmentId")?.GetValue(treatmentInfo);
-                
+                var treatmentId = treatmentCreated.TreatmentId;
                 return Created($"api/Treatment/GetByID/{treatmentId}", apiResponse);
             }
             catch (Exception ex)

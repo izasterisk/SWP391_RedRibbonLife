@@ -44,8 +44,9 @@ namespace SWP391_RedRibbonLife.Controllers
                 var testTypeCreated = await _testTypeService.CreateTestTypeAsync(dto);
                 apiResponse.Data = testTypeCreated;
                 apiResponse.Status = true;
-                apiResponse.StatusCode = HttpStatusCode.OK;
-                return Ok(apiResponse);
+                apiResponse.StatusCode = HttpStatusCode.Created;
+                var testTypeId = testTypeCreated.TestTypeId;
+                return Created($"api/TestType/GetByID/{testTypeId}", apiResponse);
             }
             catch (Exception ex)
             {
@@ -194,21 +195,11 @@ namespace SWP391_RedRibbonLife.Controllers
                     apiResponse.Status = false;
                     return BadRequest(apiResponse);
                 }
-                var result = await _testTypeService.DeleteTestTypeAsync(id);
-                if (result)
-                {
-                    apiResponse.Data = new { message = "TestType deleted successfully" };
-                    apiResponse.Status = true;
-                    apiResponse.StatusCode = HttpStatusCode.OK;
-                    return Ok(apiResponse);
-                }
-                else
-                {
-                    apiResponse.Errors.Add("Failed to delete test type");
-                    apiResponse.StatusCode = HttpStatusCode.InternalServerError;
-                    apiResponse.Status = false;
-                    return StatusCode(500, apiResponse);
-                }
+                var result = await _testTypeService.DeleteTestTypeByIdAsync(id);
+                apiResponse.Data = result;
+                apiResponse.Status = true;
+                apiResponse.StatusCode = HttpStatusCode.OK;
+                return Ok(apiResponse);
             }
             catch (Exception ex)
             {

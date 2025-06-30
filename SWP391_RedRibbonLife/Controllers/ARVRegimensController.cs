@@ -1,4 +1,5 @@
 using System.Net;
+using System.Linq;
 using BLL.DTO;
 using BLL.DTO.ARVRegimens;
 using BLL.Interfaces;
@@ -44,15 +45,16 @@ namespace SWP391_RedRibbonLife.Controllers
                 var regimenCreated = await _arvRegimensService.CreateARVRegimensAsync(dto);
                 apiResponse.Data = regimenCreated;
                 apiResponse.Status = true;
-                apiResponse.StatusCode = HttpStatusCode.OK;
-                return Ok(apiResponse);
+                apiResponse.StatusCode = HttpStatusCode.Created;
+                var regimenId = regimenCreated.RegimenId;
+                return Created($"api/ARVRegimens/GetByID/{regimenId}", apiResponse);
             }
             catch (Exception ex)
             {
                 apiResponse.Errors.Add(ex.Message);
                 apiResponse.StatusCode = HttpStatusCode.InternalServerError;
                 apiResponse.Status = false;
-                return apiResponse;
+                return StatusCode(500, apiResponse);
             }
         }
 
@@ -84,13 +86,6 @@ namespace SWP391_RedRibbonLife.Controllers
                 apiResponse.Status = true;
                 apiResponse.StatusCode = HttpStatusCode.OK;
                 return Ok(apiResponse);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                apiResponse.Errors.Add(ex.Message);
-                apiResponse.StatusCode = HttpStatusCode.Unauthorized;
-                apiResponse.Status = false;
-                return Unauthorized(apiResponse);
             }
             catch (Exception ex)
             {
@@ -216,7 +211,6 @@ namespace SWP391_RedRibbonLife.Controllers
                     apiResponse.Status = false;
                     return NotFound(apiResponse);
                 }
-
                 apiResponse.Errors.Add(ex.Message);
                 apiResponse.StatusCode = HttpStatusCode.InternalServerError;
                 apiResponse.Status = false;

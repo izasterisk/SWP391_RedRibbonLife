@@ -47,8 +47,8 @@ public class TestResultService : ITestResultService
             await transaction.CommitAsync();
             var fullTestResult = await _testResultRepository.GetWithRelationsAsync(
                 t => t.TestResultId == createdTestResult.TestResultId, 
-                true,
-                query => query.Include(t => t.TestType)
+                useNoTracking: true,
+                includeFunc: query => query.Include(t => t.TestType)
                               .Include(t => t.Patient).ThenInclude(p => p.User)
                               .Include(t => t.Doctor).ThenInclude(d => d.User)
                               .Include(t => t.Appointment)
@@ -62,36 +62,45 @@ public class TestResultService : ITestResultService
         }
     }
     
-    public async Task<dynamic> UpdateTestResultAsync(TestResultUpdateDTO dto)
+    public async Task<TestResultDTO> UpdateTestResultAsync(TestResultUpdateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-        dto.PatientId.ValidateIfNotNull(_userUtils.CheckPatientExist);
-        dto.DoctorId.ValidateIfNotNull(_userUtils.CheckDoctorExist);
-        dto.TestTypeId.ValidateIfNotNull(_userUtils.CheckTestTypeExist);
-        dto.AppointmentId.ValidateIfNotNull(_userUtils.CheckDuplicateAppointment);
-        // Get existing test result
-        var testResult = await _testResultRepository.GetAsync(t => t.TestResultId == dto.TestResultId, true);
-        if (testResult == null)
+        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        try
         {
-            throw new Exception("Test result not found.");
+            dto.PatientId.ValidateIfNotNull(_userUtils.CheckPatientExist);
+            dto.DoctorId.ValidateIfNotNull(_userUtils.CheckDoctorExist);
+            dto.TestTypeId.ValidateIfNotNull(_userUtils.CheckTestTypeExist);
+            dto.AppointmentId.ValidateIfNotNull(_userUtils.CheckDuplicateAppointment);
+            var testResult = await _testResultRepository.GetAsync(t => t.TestResultId == dto.TestResultId, true);
+            if (testResult == null)
+            {
+                throw new Exception("Test result not found.");
+            }
+            _mapper.Map(dto, testResult);
+            var updatedTestResult = await _testResultRepository.UpdateAsync(testResult);
+            await transaction.CommitAsync();
+            var fullTestResult = await _testResultRepository.GetWithRelationsAsync(
+                filter: t => t.TestResultId == updatedTestResult.TestResultId, 
+                useNoTracking: true,
+                includeFunc: query => query.Include(t => t.TestType)
+                              .Include(t => t.Patient).ThenInclude(p => p.User)
+                              .Include(t => t.Doctor).ThenInclude(d => d.User)
+                              .Include(t => t.Appointment)
+            );
+            return _mapper.Map<TestResultDTO>(fullTestResult);
         }
-        // Update test result
-        _mapper.Map(dto, testResult);
-        var fullTestResult = await _testResultRepository.GetWithRelationsAsync(
-            t => t.TestResultId == testResult.TestResultId, 
-            true,
-            query => query.Include(t => t.TestType)
-                          .Include(t => t.Patient).ThenInclude(p => p.User)
-                          .Include(t => t.Doctor).ThenInclude(d => d.User)
-                          .Include(t => t.Appointment)
-        );
-        return _mapper.Map<TestResultDTO>(fullTestResult);
+        catch (Exception)
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
     
     public async Task<List<TestResultDTO>> GetAllTestResultAsync()
     {
         var testResults = await _testResultRepository.GetAllWithRelationsAsync(
-            query => query.Include(t => t.TestType)
+            includeFunc: query => query.Include(t => t.TestType)
                           .Include(t => t.Patient).ThenInclude(p => p.User)
                           .Include(t => t.Doctor).ThenInclude(d => d.User)
                           .Include(t => t.Appointment)
@@ -101,20 +110,19 @@ public class TestResultService : ITestResultService
     
     public async Task<TestResultDTO> GetTestResultByIdAsync(int id)
     {
-        var testResult = await _testResultRepository.GetAsync(t => t.TestResultId == id, true);
-        if (testResult == null)
-        {
-            throw new Exception("Test result not found.");
-        }
-        var fullTestResult = await _testResultRepository.GetWithRelationsAsync(
-            t => t.TestResultId == testResult.TestResultId, 
-            true,
-            query => query.Include(t => t.TestType)
+        var testResult = await _testResultRepository.GetWithRelationsAsync(
+            filter: t => t.TestResultId == id, 
+            useNoTracking: true,
+            includeFunc: query => query.Include(t => t.TestType)
                           .Include(t => t.Patient).ThenInclude(p => p.User)
                           .Include(t => t.Doctor).ThenInclude(d => d.User)
                           .Include(t => t.Appointment)
         );
-        return _mapper.Map<TestResultDTO>(fullTestResult);
+        if (testResult == null)
+        {
+            throw new Exception("Test result not found.");
+        }
+        return _mapper.Map<TestResultDTO>(testResult);
     }
     
     public async Task<bool> DeleteTestResultByIdAsync(int id)

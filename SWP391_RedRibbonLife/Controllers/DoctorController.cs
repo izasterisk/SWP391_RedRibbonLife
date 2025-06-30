@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Linq;
 using AutoMapper;
 using BLL.DTO;
 using BLL.DTO.Doctor;
@@ -45,16 +46,16 @@ namespace SWP391_RedRibbonLife.Controllers
                 var doctorCreated = await _doctorService.CreateDoctorAsync(dto);
                 apiResponse.Data = doctorCreated;
                 apiResponse.Status = true;
-                apiResponse.StatusCode = HttpStatusCode.OK;
-                //Ok - 200
-                return Ok(apiResponse);
+                apiResponse.StatusCode = HttpStatusCode.Created;
+                var doctorId = doctorCreated.DoctorId;
+                return Created($"api/Doctor/GetByID/{doctorId}", apiResponse);
             }
             catch (Exception ex)
             {
                 apiResponse.Errors.Add(ex.Message);
                 apiResponse.StatusCode = HttpStatusCode.InternalServerError;
                 apiResponse.Status = false;
-                return apiResponse;
+                return StatusCode(500, apiResponse);
             }
         }
 
@@ -88,13 +89,6 @@ namespace SWP391_RedRibbonLife.Controllers
                 apiResponse.Status = true;
                 apiResponse.StatusCode = HttpStatusCode.OK;
                 return Ok(apiResponse);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                apiResponse.Errors.Add(ex.Message);
-                apiResponse.StatusCode = HttpStatusCode.Unauthorized;
-                apiResponse.Status = false;
-                return Unauthorized(apiResponse);
             }
             catch (Exception ex)
             {
@@ -147,7 +141,7 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Customer, Admin, Manager, Doctor")]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Patient, Admin, Manager, Doctor")]
         public async Task<ActionResult<APIResponse>> GetDoctorByDoctorIDAsync(int id)
         {
             var apiResponse = new APIResponse();
@@ -207,20 +201,10 @@ namespace SWP391_RedRibbonLife.Controllers
                 }
 
                 var result = await _doctorService.DeleteDoctorByDoctorIdAsync(id);
-                if (result)
-                {
-                    apiResponse.Data = "Doctor deleted successfully.";
-                    apiResponse.Status = true;
-                    apiResponse.StatusCode = HttpStatusCode.OK;
-                    return Ok(apiResponse);
-                }
-                else
-                {
-                    apiResponse.Errors.Add("Failed to delete doctor.");
-                    apiResponse.StatusCode = HttpStatusCode.InternalServerError;
-                    apiResponse.Status = false;
-                    return StatusCode(500, apiResponse);
-                }
+                apiResponse.Data = result;
+                apiResponse.Status = true;
+                apiResponse.StatusCode = HttpStatusCode.OK;
+                return Ok(apiResponse);
             }
             catch (Exception ex)
             {
@@ -231,7 +215,6 @@ namespace SWP391_RedRibbonLife.Controllers
                     apiResponse.Status = false;
                     return NotFound(apiResponse);
                 }
-
                 apiResponse.Errors.Add(ex.Message);
                 apiResponse.StatusCode = HttpStatusCode.InternalServerError;
                 apiResponse.Status = false;

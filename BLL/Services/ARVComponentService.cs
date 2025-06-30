@@ -1,40 +1,64 @@
 using AutoMapper;
-using BLL.Interfaces;
 using BLL.DTO.ARVComponent;
+using BLL.Interfaces;
 using DAL.IRepository;
 using DAL.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BLL.Services;
 
 public class ARVComponentService : IARVComponentService
 {
-    private readonly IUserRepository<Arvcomponent> _arvComponentRepository;
     private readonly IMapper _mapper;
+    private readonly SWP391_RedRibbonLifeContext _dbContext;
+    private readonly IUserRepository<Arvcomponent> _arvComponentRepository;
 
-    public ARVComponentService(IUserRepository<Arvcomponent> arvComponentRepository, IMapper mapper)
+    public ARVComponentService(IMapper mapper, SWP391_RedRibbonLifeContext dbContext, IUserRepository<Arvcomponent> arvComponentRepository)
     {
-        _arvComponentRepository = arvComponentRepository;
         _mapper = mapper;
+        _dbContext = dbContext;
+        _arvComponentRepository = arvComponentRepository;
     }
 
     public async Task<ARVComponentDTO> CreateARVComponentAsync(ARVComponentCreateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-        var arvComponent = _mapper.Map<Arvcomponent>(dto);
-        await _arvComponentRepository.CreateAsync(arvComponent);
-        return _mapper.Map<ARVComponentDTO>(arvComponent);
+        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        try
+        {
+            var arvComponent = _mapper.Map<Arvcomponent>(dto);
+            var createdARVComponent = await _arvComponentRepository.CreateAsync(arvComponent);
+            await transaction.CommitAsync();
+            return _mapper.Map<ARVComponentDTO>(createdARVComponent);
+        }
+        catch (Exception)
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
 
     public async Task<ARVComponentDTO> UpdateARVComponentAsync(ARVComponentUpdateDTO dto)
     {
-        var arvComponent = await _arvComponentRepository.GetAsync(u => u.ComponentId == dto.ComponentId, true);
-        if (arvComponent == null)
+        ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
+        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        try
         {
-            throw new Exception($"ARVComponent with ID {dto.ComponentId} not found");
+            var arvComponent = await _arvComponentRepository.GetAsync(u => u.ComponentId == dto.ComponentId, true);
+            if (arvComponent == null)
+            {
+                throw new Exception("ARVComponent not found.");
+            }
+            _mapper.Map(dto, arvComponent);
+            var updatedARVComponent = await _arvComponentRepository.UpdateAsync(arvComponent);
+            await transaction.CommitAsync();
+            return _mapper.Map<ARVComponentDTO>(updatedARVComponent);
         }
-        _mapper.Map(dto, arvComponent);
-        await _arvComponentRepository.UpdateAsync(arvComponent);
-        return _mapper.Map<ARVComponentDTO>(arvComponent);
+        catch (Exception)
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
 
     public async Task<List<ARVComponentDTO>> GetAllARVComponentAsync()
@@ -48,17 +72,17 @@ public class ARVComponentService : IARVComponentService
         var arvComponent = await _arvComponentRepository.GetAsync(u => u.ComponentId == id, true);
         if (arvComponent == null)
         {
-            throw new Exception($"ARVComponent with ID {id} not found");
+            throw new Exception("ARVComponent not found.");
         }
         return _mapper.Map<ARVComponentDTO>(arvComponent);
     }
 
-    public async Task<bool> DeleteARVComponentAsync(int id)
+    public async Task<bool> DeleteARVComponentByIdAsync(int id)
     {
         var arvComponent = await _arvComponentRepository.GetAsync(u => u.ComponentId == id, true);
         if (arvComponent == null)
         {
-            throw new Exception($"ARVComponent with ID {id} not found");
+            throw new Exception("ARVComponent not found.");
         }
         await _arvComponentRepository.DeleteAsync(arvComponent);
         return true;

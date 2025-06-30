@@ -46,8 +46,9 @@ namespace SWP391_RedRibbonLife.Controllers
                 var categoryCreated = await _categoryService.CreateCategoryAsync(dto);
                 apiResponse.Data = categoryCreated;
                 apiResponse.Status = true;
-                apiResponse.StatusCode = HttpStatusCode.OK;
-                return Ok(apiResponse);
+                apiResponse.StatusCode = HttpStatusCode.Created;
+                var categoryId = categoryCreated.CategoryId;
+                return Created($"api/Category/GetByID/{categoryId}", apiResponse);
             }
             catch (Exception ex)
             {
@@ -197,20 +198,10 @@ namespace SWP391_RedRibbonLife.Controllers
                     return BadRequest(apiResponse);
                 }
                 var result = await _categoryService.DeleteCategoryByIdAsync(id);
-                if (result)
-                {
-                    apiResponse.Data = new { message = "Category deleted successfully" };
-                    apiResponse.Status = true;
-                    apiResponse.StatusCode = HttpStatusCode.OK;
-                    return Ok(apiResponse);
-                }
-                else
-                {
-                    apiResponse.Errors.Add("Failed to delete category");
-                    apiResponse.StatusCode = HttpStatusCode.InternalServerError;
-                    apiResponse.Status = false;
-                    return StatusCode(500, apiResponse);
-                }
+                apiResponse.Data = result;
+                apiResponse.Status = true;
+                apiResponse.StatusCode = HttpStatusCode.OK;
+                return Ok(apiResponse);
             }
             catch (Exception ex)
             {

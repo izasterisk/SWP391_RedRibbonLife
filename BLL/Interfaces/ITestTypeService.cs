@@ -8,5 +8,5 @@ public interface ITestTypeService
     Task<TestTypeDTO> UpdateTestTypeAsync(TestTypeUpdateDTO dto);
     Task<List<TestTypeDTO>> GetAllTestTypeAsync();
     Task<TestTypeDTO> GetTestTypeByIdAsync(int id);
-    Task<bool> DeleteTestTypeAsync(int id);
+    Task<bool> DeleteTestTypeByIdAsync(int id);
 }

@@ -49,7 +49,7 @@ public class ArticleService : IArticleService
         return _mapper.Map<ArticleReadOnlyDTO>(article);
     }
     
-    public async Task<dynamic> CreateArticleAsync(ArticleDTO dto)
+    public async Task<ArticleReadOnlyDTO> CreateArticleAsync(ArticleDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
         using var transaction = await _dbContext.Database.BeginTransactionAsync();
@@ -73,16 +73,13 @@ public class ArticleService : IArticleService
             article.IsActive = true;
             article.CreatedDate = DateOnly.FromDateTime(DateTime.Now);
             var createdArticle = await _articleRepository.CreateAsync(article);
+            await transaction.CommitAsync();
             var articleWithRelations = await _articleRepository.GetWithRelationsAsync(
                 a => a.ArticleId == createdArticle.ArticleId, 
                 true, 
                 query => query.Include(a => a.Category).Include(a => a.User)
             );
-            await transaction.CommitAsync();
-            return new
-            {
-                ArticleInfo = _mapper.Map<ArticleReadOnlyDTO>(articleWithRelations)
-            };
+            return _mapper.Map<ArticleReadOnlyDTO>(articleWithRelations);
         }
         catch (Exception)
         {
@@ -91,7 +88,7 @@ public class ArticleService : IArticleService
         }
     }
     
-    public async Task<dynamic> UpdateArticleAsync(ArticleUpdateDTO dto)
+    public async Task<ArticleReadOnlyDTO> UpdateArticleAsync(ArticleUpdateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
         using var transaction = await _dbContext.Database.BeginTransactionAsync();
@@ -122,16 +119,13 @@ public class ArticleService : IArticleService
             }
             _mapper.Map(dto, article);
             var updatedArticle = await _articleRepository.UpdateAsync(article);
+            await transaction.CommitAsync();
             var articleWithRelations = await _articleRepository.GetWithRelationsAsync(
                 a => a.ArticleId == updatedArticle.ArticleId, 
                 true, 
                 query => query.Include(a => a.Category).Include(a => a.User)
             );
-            await transaction.CommitAsync();
-            return new
-            {
-                ArticleInfo = _mapper.Map<ArticleReadOnlyDTO>(articleWithRelations)
-            };
+            return _mapper.Map<ArticleReadOnlyDTO>(articleWithRelations);
         }
         catch (Exception)
         {

@@ -24,7 +24,7 @@ public class TreatmentService : ITreatmentService
         _userUtils = userUtils;
     }
     
-    public async Task<dynamic> CreateTreatmentAsync(TreatmentCreateDTO dto)
+    public async Task<TreatmentDTO> CreateTreatmentAsync(TreatmentCreateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
         _arvRegimenUtils.CheckARVRegimenExist(dto.RegimenId);
@@ -57,11 +57,9 @@ public class TreatmentService : ITreatmentService
         }
     }
     
-    public async Task<dynamic> UpdateTreatmentAsync(TreatmentUpdateDTO dto)
+    public async Task<TreatmentDTO> UpdateTreatmentAsync(TreatmentUpdateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-        dto.TestResultId.ValidateIfNotNull(_userUtils.CheckTestResultExist);
-        dto.RegimenId.ValidateIfNotNull(_arvRegimenUtils.CheckARVRegimenExist);
         using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
@@ -70,6 +68,12 @@ public class TreatmentService : ITreatmentService
             {
                 throw new Exception("Treatment not found.");
             }
+            if (treatment.Status != "Active")
+            {
+                throw new InvalidOperationException("Cannot update completed or cancelled treatment");
+            }
+            dto.TestResultId.ValidateIfNotNull(_userUtils.CheckTestResultExist);
+            dto.RegimenId.ValidateIfNotNull(_arvRegimenUtils.CheckARVRegimenExist);
             var startDate = dto.StartDate ?? treatment.StartDate;
             var endDate = dto.EndDate ?? treatment.EndDate;
             if (startDate >= endDate)
@@ -91,7 +95,7 @@ public class TreatmentService : ITreatmentService
                         .ThenInclude(tr => tr.Doctor)
                         .ThenInclude(d => d.User)
             );
-            return _mapper.Map<List<TreatmentDTO>>(detailedTreatment);
+            return _mapper.Map<TreatmentDTO>(detailedTreatment);
         }
         catch (Exception)
         {

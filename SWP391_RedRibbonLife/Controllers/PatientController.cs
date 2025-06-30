@@ -31,7 +31,8 @@ namespace SWP391_RedRibbonLife.Controllers
         {
             var apiResponse = new APIResponse();
             if (!ModelState.IsValid)
-            { apiResponse.Status = false;
+            {
+                apiResponse.Status = false;
                 apiResponse.StatusCode = HttpStatusCode.BadRequest;
                 apiResponse.Errors.AddRange(ModelState.Values
                     .SelectMany(v => v.Errors)
@@ -43,15 +44,16 @@ namespace SWP391_RedRibbonLife.Controllers
                 var patientCreated = await _patientService.CreatePatientAsync(dto);
                 apiResponse.Data = patientCreated;
                 apiResponse.Status = true;
-                apiResponse.StatusCode = HttpStatusCode.OK;
-                return Ok(apiResponse);
+                apiResponse.StatusCode = HttpStatusCode.Created;
+                var patientId = patientCreated.PatientId;
+                return Created($"api/Patient/GetByID/{patientId}", apiResponse);
             }
             catch (Exception ex)
             {
                 apiResponse.Errors.Add(ex.Message);
                 apiResponse.StatusCode = HttpStatusCode.InternalServerError;
                 apiResponse.Status = false;
-                return apiResponse;
+                return StatusCode(500, apiResponse);
             }
         }
 
@@ -83,13 +85,6 @@ namespace SWP391_RedRibbonLife.Controllers
                 apiResponse.Status = true;
                 apiResponse.StatusCode = HttpStatusCode.OK;
                 return Ok(apiResponse);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                apiResponse.Errors.Add(ex.Message);
-                apiResponse.StatusCode = HttpStatusCode.Unauthorized;
-                apiResponse.Status = false;
-                return Unauthorized(apiResponse);
             }
             catch (Exception ex)
             {

@@ -44,8 +44,9 @@ namespace SWP391_RedRibbonLife.Controllers
                 var arvComponentCreated = await _arvComponentService.CreateARVComponentAsync(dto);
                 apiResponse.Data = arvComponentCreated;
                 apiResponse.Status = true;
-                apiResponse.StatusCode = HttpStatusCode.OK;
-                return Ok(apiResponse);
+                apiResponse.StatusCode = HttpStatusCode.Created;
+                var componentId = arvComponentCreated.ComponentId;
+                return Created($"api/ARVComponents/GetByID/{componentId}", apiResponse);
             }
             catch (Exception ex)
             {
@@ -182,7 +183,7 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin, Manager, Staff")]
-        public async Task<ActionResult<APIResponse>> DeleteARVComponentAsync(int id)
+        public async Task<ActionResult<APIResponse>> DeleteARVComponentByIdAsync(int id)
         {
             var apiResponse = new APIResponse();
             try
@@ -194,21 +195,11 @@ namespace SWP391_RedRibbonLife.Controllers
                     apiResponse.Status = false;
                     return BadRequest(apiResponse);
                 }
-                var result = await _arvComponentService.DeleteARVComponentAsync(id);
-                if (result)
-                {
-                    apiResponse.Data = new { message = "ARVComponent deleted successfully" };
-                    apiResponse.Status = true;
-                    apiResponse.StatusCode = HttpStatusCode.OK;
-                    return Ok(apiResponse);
-                }
-                else
-                {
-                    apiResponse.Errors.Add("Failed to delete ARVComponent");
-                    apiResponse.StatusCode = HttpStatusCode.InternalServerError;
-                    apiResponse.Status = false;
-                    return StatusCode(500, apiResponse);
-                }
+                var result = await _arvComponentService.DeleteARVComponentByIdAsync(id);
+                apiResponse.Data = result;
+                apiResponse.Status = true;
+                apiResponse.StatusCode = HttpStatusCode.OK;
+                return Ok(apiResponse);
             }
             catch (Exception ex)
             {

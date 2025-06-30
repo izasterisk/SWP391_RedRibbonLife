@@ -10,6 +10,8 @@ public class DoctorScheduleDTO
     [Range(1, int.MaxValue, ErrorMessage = "Doctor ID must be a positive number")]
     public int? DoctorId { get; set; }
     
+    public string? FullName { get; set; }
+    
     [Required(ErrorMessage = "Work day is required")]
     [StringLength(50, ErrorMessage = "Work day cannot exceed 50 characters")]
     [RegularExpression("^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)$", 

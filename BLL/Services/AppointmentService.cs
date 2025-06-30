@@ -30,7 +30,7 @@ public class AppointmentService : IAppointmentService
         _doctorScheduleUtils = doctorScheduleUtils;
     }
     
-    public async Task<dynamic> CreateAppointmentAsync(AppointmentCreateDTO dto)
+    public async Task<AppointmentReadOnlyDTO> CreateAppointmentAsync(AppointmentCreateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
         _userUtils.CheckDoctorExist(dto.DoctorId);
@@ -61,7 +61,7 @@ public class AppointmentService : IAppointmentService
         }
     }
 
-    public async Task<dynamic> UpdateAppointmentAsync(AppointmentUpdateDTO dto)
+    public async Task<AppointmentReadOnlyDTO> UpdateAppointmentAsync(AppointmentUpdateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
         if (!string.IsNullOrEmpty(dto.AppointmentType) && dto.AppointmentType != "Appointment" && dto.AppointmentType != "Medication")
@@ -166,6 +166,24 @@ public class AppointmentService : IAppointmentService
             AppointmentTime = appointmentTime,
             AvailableDoctors = availableDoctors
         };
+    }
+    
+    public async Task<AppointmentReadOnlyDTO> GetAppointmentByIdAsync(int id)
+    {
+        var appointment = await _appointmentRepository.GetWithRelationsAsync(
+            filter: a => a.AppointmentId == id,
+            useNoTracking: true,
+            includeFunc: query => query
+                .Include(a => a.Patient)
+                    .ThenInclude(p => p.User)
+                .Include(a => a.Doctor)
+                    .ThenInclude(d => d.User)
+        );
+        if (appointment == null)
+        {
+            throw new Exception($"Appointment with ID {id} not found");
+        }
+        return _mapper.Map<AppointmentReadOnlyDTO>(appointment);
     }
     
     // public async Task<bool> DeleteAppointmentByIdAsync(int id)

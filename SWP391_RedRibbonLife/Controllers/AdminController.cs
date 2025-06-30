@@ -44,8 +44,9 @@ namespace SWP391_RedRibbonLife.Controllers
                 var adminCreated = await _adminService.CreateAdminAsync(dto);
                 apiResponse.Data = adminCreated;
                 apiResponse.Status = true;
-                apiResponse.StatusCode = HttpStatusCode.OK;
-                return Ok(apiResponse);
+                apiResponse.StatusCode = HttpStatusCode.Created;
+                var adminId = adminCreated.UserId;
+                return Created($"api/Admin/GetByID/{adminId}", apiResponse);
             }
             catch (Exception ex)
             {
@@ -145,7 +146,7 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin")]
-        public async Task<ActionResult<APIResponse>> GetAdminByAdminIDAsync(int id)
+        public async Task<ActionResult<APIResponse>> GetAdminByIdAsync(int id)
         {
             var apiResponse = new APIResponse();
             try
@@ -157,7 +158,7 @@ namespace SWP391_RedRibbonLife.Controllers
                     apiResponse.Status = false;
                     return BadRequest(apiResponse);
                 }
-                var admin = await _adminService.GetAdminByAdminIDAsync(id);
+                var admin = await _adminService.GetAdminByIdAsync(id);
                 apiResponse.Data = admin;
                 apiResponse.Status = true;
                 apiResponse.StatusCode = HttpStatusCode.OK;
@@ -189,7 +190,7 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin")]
-        public async Task<ActionResult<APIResponse>> DeleteAdminAsync(int id)
+        public async Task<ActionResult<APIResponse>> DeleteAdminByIdAsync(int id)
         {
             var apiResponse = new APIResponse();
             try
@@ -201,7 +202,7 @@ namespace SWP391_RedRibbonLife.Controllers
                     apiResponse.Status = false;
                     return BadRequest(apiResponse);
                 }
-                var result = await _adminService.DeleteAdminAsync(id);
+                var result = await _adminService.DeleteAdminByIdAsync(id);
                 apiResponse.Data = result;
                 apiResponse.Status = true;
                 apiResponse.StatusCode = HttpStatusCode.OK;

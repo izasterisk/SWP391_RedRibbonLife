@@ -4,9 +4,9 @@ namespace BLL.Interfaces;
 
 public interface IAdminService
 {
-    Task<dynamic> CreateAdminAsync(AdminDTO dto);
-    Task<dynamic> UpdateAdminAsync(AdminUpdateDTO dto);
+    Task<AdminReadOnlyDTO> CreateAdminAsync(AdminDTO dto);
+    Task<AdminReadOnlyDTO> UpdateAdminAsync(AdminUpdateDTO dto);
     Task<List<AdminReadOnlyDTO>> GetAllAdminsAsync();
-    Task<AdminReadOnlyDTO> GetAdminByAdminIDAsync(int id);
-    Task<bool> DeleteAdminAsync(int id);
+    Task<AdminReadOnlyDTO> GetAdminByIdAsync(int id);
+    Task<bool> DeleteAdminByIdAsync(int id);
 }

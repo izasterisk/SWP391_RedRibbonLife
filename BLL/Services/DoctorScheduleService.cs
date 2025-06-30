@@ -1,90 +1,126 @@
 using AutoMapper;
 using BLL.DTO.DoctorSchedule;
 using BLL.Interfaces;
+using BLL.Utils;
 using DAL.IRepository;
 using DAL.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BLL.Services;
 
 public class DoctorScheduleService : IDoctorScheduleService
 {
+    private readonly IMapper _mapper;
+    private readonly SWP391_RedRibbonLifeContext _dbContext;
     private readonly IUserRepository<DoctorSchedule> _doctorScheduleRepository;
     private readonly IUserRepository<Doctor> _doctorRepository;
-    private readonly IMapper _mapper;
     private readonly IUserUtils _userUtils;
-    private readonly SWP391_RedRibbonLifeContext _dbContext;
     private readonly IDoctorScheduleUtils _doctorScheduleUtils;
-    public DoctorScheduleService(IUserRepository<DoctorSchedule> doctorScheduleRepository, IUserRepository<Doctor> doctorRepository, IMapper mapper, IUserUtils userUtils, SWP391_RedRibbonLifeContext dbContext, IDoctorScheduleUtils doctorScheduleUtils)
+    
+    public DoctorScheduleService(IMapper mapper, SWP391_RedRibbonLifeContext dbContext, IUserRepository<DoctorSchedule> doctorScheduleRepository, IUserRepository<Doctor> doctorRepository, IUserUtils userUtils, IDoctorScheduleUtils doctorScheduleUtils)
     {
+        _mapper = mapper;
+        _dbContext = dbContext;
         _doctorScheduleRepository = doctorScheduleRepository;
         _doctorRepository = doctorRepository;
-        _mapper = mapper;
         _userUtils = userUtils;
-        _dbContext = dbContext;
         _doctorScheduleUtils = doctorScheduleUtils;
     }
     
-    public async Task<dynamic> CreateDoctorScheduleAsync(DoctorScheduleCreateDTO dto)
+    public async Task<DoctorScheduleDTO> CreateDoctorScheduleAsync(DoctorScheduleCreateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
         _userUtils.CheckDoctorExist(dto.DoctorId);
         _userUtils.ValidateEndTimeStartTime(dto.StartTime, dto.EndTime);
         _doctorScheduleUtils.CheckDoctorScheduleExist(dto.DoctorId, dto.WorkDay);
-        // Begin transaction
         using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
-            // Create doctor schedule
             DoctorSchedule doctorSchedule = _mapper.Map<DoctorSchedule>(dto);
             var createdDoctorSchedule = await _doctorScheduleRepository.CreateAsync(doctorSchedule);
-            // Commit transaction
             await transaction.CommitAsync();
-            return new
-            {
-                DoctorScheduleInfo = _mapper.Map<DoctorScheduleDTO>(createdDoctorSchedule)
-            };
+            var detailedDoctorSchedule = await _doctorScheduleRepository.GetWithRelationsAsync(
+                filter: ds => ds.ScheduleId == createdDoctorSchedule.ScheduleId,
+                useNoTracking: true,
+                includeFunc: query => query
+                    .Include(ds => ds.Doctor)
+                        .ThenInclude(d => d.User)
+            );
+            return _mapper.Map<DoctorScheduleDTO>(detailedDoctorSchedule);
         }
         catch (Exception)
         {
-            // Rollback transaction on error
             await transaction.RollbackAsync();
-            throw; // Re-throw the exception
+            throw;
         }
     }
     
-    public async Task<dynamic> UpdateDoctorScheduleAsync(DoctorScheduleUpdateDTO dto)
+    public async Task<DoctorScheduleDTO> UpdateDoctorScheduleAsync(DoctorScheduleUpdateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-        // Get existing doctor schedule
-        var doctorSchedule = await _doctorScheduleRepository.GetAsync(d => d.ScheduleId == dto.ScheduleId, true);
+        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        try
+        {
+            var doctorSchedule = await _doctorScheduleRepository.GetAsync(d => d.ScheduleId == dto.ScheduleId, true);
+            if (doctorSchedule == null)
+            {
+                throw new Exception("Doctor schedule not found.");
+            }
+            var finalStartTime = dto.StartTime ?? doctorSchedule.StartTime;
+            var finalEndTime = dto.EndTime ?? doctorSchedule.EndTime;
+            _userUtils.ValidateEndTimeStartTime(finalStartTime, finalEndTime);
+            _mapper.Map(dto, doctorSchedule);
+            var updatedDoctorSchedule = await _doctorScheduleRepository.UpdateAsync(doctorSchedule);
+            await transaction.CommitAsync();
+            var detailedDoctorSchedule = await _doctorScheduleRepository.GetWithRelationsAsync(
+                filter: ds => ds.ScheduleId == updatedDoctorSchedule.ScheduleId,
+                useNoTracking: true,
+                includeFunc: query => query
+                    .Include(ds => ds.Doctor)
+                        .ThenInclude(d => d.User)
+            );
+            return _mapper.Map<DoctorScheduleDTO>(detailedDoctorSchedule);
+        }
+        catch (Exception)
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+    
+    public async Task<List<DoctorScheduleDTO>> GetAllDoctorScheduleByDoctorIdAsync(int id)
+    {
+        var doctorSchedules = await _dbContext.DoctorSchedules
+            .Where(ds => ds.DoctorId == id)
+            .Include(ds => ds.Doctor)
+                .ThenInclude(d => d.User)
+            .AsNoTracking()
+            .ToListAsync();
+        return _mapper.Map<List<DoctorScheduleDTO>>(doctorSchedules);
+    }
+    
+    public async Task<DoctorScheduleDTO> GetDoctorScheduleByIdAsync(int id)
+    {
+        var doctorSchedule = await _doctorScheduleRepository.GetWithRelationsAsync(
+            filter: ds => ds.ScheduleId == id,
+            useNoTracking: true,
+            includeFunc: query => query
+                .Include(ds => ds.Doctor)
+                    .ThenInclude(d => d.User)
+        );
         if (doctorSchedule == null)
         {
             throw new Exception("Doctor schedule not found.");
         }
-        var finalStartTime = dto.StartTime ?? doctorSchedule.StartTime;
-        var finalEndTime = dto.EndTime ?? doctorSchedule.EndTime;
-        _userUtils.ValidateEndTimeStartTime(finalStartTime, finalEndTime);
-        // Update doctor schedule
-        _mapper.Map(dto, doctorSchedule);
-        var updatedDoctorSchedule = await _doctorScheduleRepository.UpdateAsync(doctorSchedule);
-        return new
-        {
-            DoctorScheduleInfo = _mapper.Map<DoctorScheduleDTO>(updatedDoctorSchedule)
-        };
+        return _mapper.Map<DoctorScheduleDTO>(doctorSchedule);
     }
     
-    public async Task<List<DoctorScheduleDTO>> GetDoctorScheduleByDoctorIdAsync(int id)
-    {
-        var doctorSchedule = await _doctorScheduleRepository.GetAllByFilterAsync(u => u.DoctorId == id, true);
-        return _mapper.Map<List<DoctorScheduleDTO>>(doctorSchedule);
-    }
-    
-    public async Task<bool> DeleteDoctorScheduleAsync(int id)
+    public async Task<bool> DeleteDoctorScheduleByIdAsync(int id)
     {
         var doctorSchedule = await _doctorScheduleRepository.GetAsync(u => u.ScheduleId == id, true);
         if (doctorSchedule == null)
         {
-            throw new Exception($"Doctor schedule with ID {id} not found");
+            throw new Exception("Doctor schedule not found.");
         }
         await _doctorScheduleRepository.DeleteAsync(doctorSchedule);
         return true;

@@ -114,18 +114,12 @@ namespace SWP391_RedRibbonLife.Controllers
             }
             try
             {
-                var result = await _articleService.CreateArticleAsync(dto);
-                apiResponse.Data = result;
+                var articleCreated = await _articleService.CreateArticleAsync(dto);
+                apiResponse.Data = articleCreated;
                 apiResponse.Status = true;
                 apiResponse.StatusCode = HttpStatusCode.Created;
-                return StatusCode((int)HttpStatusCode.Created, apiResponse);
-            }
-            catch (ArgumentException ex)
-            {
-                apiResponse.Errors.Add(ex.Message);
-                apiResponse.StatusCode = HttpStatusCode.BadRequest;
-                apiResponse.Status = false;
-                return BadRequest(apiResponse);
+                var articleId = articleCreated.ArticleId;
+                return Created($"api/Article/GetByID/{articleId}", apiResponse);
             }
             catch (Exception ex)
             {
@@ -159,18 +153,11 @@ namespace SWP391_RedRibbonLife.Controllers
             }
             try
             {
-                var result = await _articleService.UpdateArticleAsync(dto);
-                apiResponse.Data = result;
+                var articleUpdated = await _articleService.UpdateArticleAsync(dto);
+                apiResponse.Data = articleUpdated;
                 apiResponse.Status = true;
                 apiResponse.StatusCode = HttpStatusCode.OK;
                 return Ok(apiResponse);
-            }
-            catch (ArgumentException ex)
-            {
-                apiResponse.Errors.Add(ex.Message);
-                apiResponse.StatusCode = HttpStatusCode.BadRequest;
-                apiResponse.Status = false;
-                return BadRequest(apiResponse);
             }
             catch (Exception ex)
             {
@@ -216,15 +203,15 @@ namespace SWP391_RedRibbonLife.Controllers
                 apiResponse.StatusCode = HttpStatusCode.OK;
                 return Ok(apiResponse);
             }
-            catch (KeyNotFoundException ex)
-            {
-                apiResponse.Errors.Add(ex.Message);
-                apiResponse.StatusCode = HttpStatusCode.NotFound;
-                apiResponse.Status = false;
-                return NotFound(apiResponse);
-            }
             catch (Exception ex)
             {
+                if (ex.Message.Contains("not found"))
+                {
+                    apiResponse.Errors.Add(ex.Message);
+                    apiResponse.StatusCode = HttpStatusCode.NotFound;
+                    apiResponse.Status = false;
+                    return NotFound(apiResponse);
+                }
                 apiResponse.Errors.Add(ex.Message);
                 apiResponse.StatusCode = HttpStatusCode.InternalServerError;
                 apiResponse.Status = false;

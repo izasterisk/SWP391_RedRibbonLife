@@ -23,10 +23,9 @@ public class AdminService : IAdminService
         _userUtils = userUtils;
     }
     
-    public async Task<dynamic> CreateAdminAsync(AdminDTO dto)
+    public async Task<AdminReadOnlyDTO> CreateAdminAsync(AdminDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-        
         using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
@@ -37,7 +36,6 @@ public class AdminService : IAdminService
             }
             // Check if email already exists
             _userUtils.CheckEmailExist(dto.Email);
-            
             User user = _mapper.Map<User>(dto);
             user.IsActive = true;
             user.UserRole = "Admin";
@@ -45,11 +43,7 @@ public class AdminService : IAdminService
             user.Password = _userUtils.CreatePasswordHash(dto.Password);
             var createdAdmin = await _userRepository.CreateAsync(user);
             await transaction.CommitAsync();
-            
-            return new
-            {
-                UserInfo = _mapper.Map<AdminReadOnlyDTO>(createdAdmin)
-            };
+            return _mapper.Map<AdminReadOnlyDTO>(createdAdmin);
         }
         catch (Exception)
         {
@@ -57,12 +51,10 @@ public class AdminService : IAdminService
             throw;
         }
     }
-    
-    public async Task<dynamic> UpdateAdminAsync(AdminUpdateDTO dto)
+    public async Task<AdminReadOnlyDTO> UpdateAdminAsync(AdminUpdateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
         _userUtils.CheckUserExist(dto.UserId);
-        
         using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
@@ -88,11 +80,7 @@ public class AdminService : IAdminService
             var updatedAdmin = await _userRepository.UpdateAsync(admin);
             await transaction.CommitAsync();
             
-            var adminDto = _mapper.Map<AdminReadOnlyDTO>(updatedAdmin);
-            return new
-            {
-                UserInfo = adminDto
-            };
+            return _mapper.Map<AdminReadOnlyDTO>(updatedAdmin);
         }
         catch (Exception)
         {
@@ -107,7 +95,7 @@ public class AdminService : IAdminService
         return _mapper.Map<List<AdminReadOnlyDTO>>(admins);
     }
     
-    public async Task<AdminReadOnlyDTO> GetAdminByAdminIDAsync(int id)
+    public async Task<AdminReadOnlyDTO> GetAdminByIdAsync(int id)
     {
         var admin = await _userRepository.GetAsync(u => u.IsActive && u.UserId == id, true);
         if (admin == null)
@@ -117,7 +105,7 @@ public class AdminService : IAdminService
         return _mapper.Map<AdminReadOnlyDTO>(admin);
     }
     
-    public async Task<bool> DeleteAdminAsync(int id)
+    public async Task<bool> DeleteAdminByIdAsync(int id)
     {
         var admin = await _userRepository.GetAsync(u => u.UserId == id, true);
         if (admin == null)
