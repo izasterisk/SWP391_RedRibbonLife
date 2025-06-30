@@ -14,11 +14,13 @@ namespace BLL.Services
         private readonly SendGridEmailUtil _sendGridUtil;
         private readonly IUserRepository<User> _userRepository;
         private static readonly ConcurrentDictionary<string, string> _verificationCodes = new();
+        private readonly IUserUtils _userUtils;
 
-        public EmailService(IConfiguration configuration, IUserRepository<User> userRepository)
+        public EmailService(SendGridEmailUtil sendGridUtil, IUserRepository<User> userRepository, IUserUtils userUtils)
         {
-            _sendGridUtil = new SendGridEmailUtil(configuration);
+            _sendGridUtil = sendGridUtil;
             _userRepository = userRepository;
+            _userUtils = userUtils;
         }
 
         public async Task<bool> SendEmailAsync(string email)
@@ -70,6 +72,57 @@ namespace BLL.Services
                 throw new Exception($"Failed to verify patient: {ex.Message}", ex);
             }
         }
+
+        public async Task<bool> SendForgotPasswordEmailAsync(string email)
+        {
+            try
+            {
+                // Find user by email who is verified and active
+                var user = await _userRepository.GetAsync(u => u.Email.Equals(email));
+                if (user == null)
+                {
+                    throw new Exception("User not found");
+                }
+                // Generate and store verification code for password reset
+                var verificationCode = GenerateVerificationCode(email);
+                // Send password reset email
+                await _sendGridUtil.SendForgotPasswordEmailAsync(email, verificationCode);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to send forgot password email: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<bool> ChangePatientPasswordAsync(string email, string verifyCode, string newPassword)
+        {
+            try
+            {
+                // Check if verification code exists in dictionary
+                if (!_verificationCodes.TryGetValue(email, out var storedCode) || storedCode != verifyCode)
+                {
+                    throw new Exception("Invalid verification code");
+                }
+                // Find user by email
+                var user = await _userRepository.GetAsync(u => u.Email.Equals(email));
+                if (user == null)
+                {
+                    throw new Exception("User not found");
+                }
+                // Update user password using UserUtils
+                user.Password = _userUtils.CreatePasswordHash(newPassword);
+                await _userRepository.UpdateAsync(user);
+                // Remove verification code after successful password change
+                _verificationCodes.TryRemove(email, out _);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to change password: {ex.Message}", ex);
+            }
+        }
+
         public string GenerateVerificationCode(string email)
         {
             var random = new Random();

@@ -4,7 +4,7 @@ namespace BLL.DTO.Email;
 
 public class RequestDTO
 {
-    [Required(ErrorMessage = "Email là bắt buộc")]
-    [EmailAddress(ErrorMessage = "Email không hợp lệ")]
+    [Required(ErrorMessage = "Email is required")]
+    [EmailAddress(ErrorMessage = "Email format is invalid")]
     public string Email { get; set; }
 }

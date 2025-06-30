@@ -75,15 +75,63 @@ Trân trọng,
             throw new Exception($"Failed to send email: {response.StatusCode}");
         }
     }
+
+    public async Task SendForgotPasswordEmailAsync(string toEmail, string verificationCode)
+    {
+        var client = new SendGridClient(_apiKey);
+        var from = new EmailAddress(_fromEmail, "Red Ribbon Life");
+        var subject = "Khôi phục mật khẩu Red Ribbon Life";
+        var to = new EmailAddress(toEmail);
+
+        var plainTextContent = $@"
+Chào bạn,
+
+Chúng tôi nhận được yêu cầu khôi phục mật khẩu cho tài khoản Red Ribbon Life của bạn.
+Để đặt lại mật khẩu, vui lòng sử dụng mã 6 số sau:
+
+{verificationCode}
+
+Mã này có hiệu lực trong 15 phút.
+
+Nếu bạn không yêu cầu khôi phục mật khẩu, vui lòng bỏ qua email này và mật khẩu của bạn sẽ không thay đổi.
+
+Trân trọng,
+Đội ngũ Red Ribbon Life";
+
+        var htmlContent = $@"
+<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
+    <h2 style='color: #dc3545;'>Red Ribbon Life - Khôi phục mật khẩu</h2>
+    <p>Chào bạn,</p>
+    <p>Chúng tôi nhận được yêu cầu khôi phục mật khẩu cho tài khoản Red Ribbon Life của bạn. Để đặt lại mật khẩu, vui lòng sử dụng mã 6 số sau:</p>
+    <div style='background-color: #f8f9fa; padding: 20px; text-align: center; border-radius: 5px; margin: 20px 0;'>
+        <h1 style='color: #dc3545; font-size: 32px; margin: 0; letter-spacing: 5px;'>{verificationCode}</h1>
+    </div>
+    <p style='color: #6c757d; font-size: 14px;'>Mã này có hiệu lực trong 15 phút.</p>
+    <p>Nếu bạn không yêu cầu khôi phục mật khẩu, vui lòng bỏ qua email này và mật khẩu của bạn sẽ không thay đổi.</p>
+    <hr style='border: none; border-top: 1px solid #dee2e6; margin: 20px 0;'>
+    <p style='color: #6c757d; font-size: 12px;'>
+        Trân trọng,<br>
+        <strong>Đội ngũ Red Ribbon Life</strong>
+    </p>
+</div>";
+
+        var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
+        var response = await client.SendEmailAsync(msg);
+
+        if (response.StatusCode != System.Net.HttpStatusCode.Accepted)
+        {
+            throw new Exception($"Failed to send forgot password email: {response.StatusCode}");
+        }
+    }
     
     public async Task SendAppointmentReminderEmailAsync(string toEmail, string patientName, DateTime appointmentDateTime)
-{
-    var client = new SendGridClient(_apiKey);
-    var from = new EmailAddress(_fromEmail, "Red Ribbon Life");
-    var subject = "Nhắc nhở lịch hẹn - Red Ribbon Life";
-    var to = new EmailAddress(toEmail);
+    {
+        var client = new SendGridClient(_apiKey);
+        var from = new EmailAddress(_fromEmail, "Red Ribbon Life");
+        var subject = "Nhắc nhở lịch hẹn - Red Ribbon Life";
+        var to = new EmailAddress(toEmail);
 
-    var plainTextContent = $@"
+        var plainTextContent = $@"
 Xin chào {patientName},
 
 Đây là thông báo nhắc nhở về lịch hẹn sắp tới của bạn:
@@ -95,7 +143,7 @@ Vui lòng đến đúng giờ và mang theo các giấy tờ cần thiết.
 Trân trọng,
 Đội ngũ Red Ribbon Life";
 
-    var htmlContent = $@"
+        var htmlContent = $@"
 <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
     <h2 style='color: #dc3545;'>Red Ribbon Life - Nhắc nhở lịch hẹn</h2>
     <p>Xin chào <strong>{patientName}</strong>,</p>
@@ -111,25 +159,25 @@ Trân trọng,
     </p>
 </div>";
 
-    var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
-    var response = await client.SendEmailAsync(msg);
+        var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
+        var response = await client.SendEmailAsync(msg);
 
-    if (response.StatusCode != System.Net.HttpStatusCode.Accepted)
-    {
-        throw new Exception($"Failed to send appointment reminder email: {response.StatusCode}");
+        if (response.StatusCode != System.Net.HttpStatusCode.Accepted)
+        {
+            throw new Exception($"Failed to send appointment reminder email: {response.StatusCode}");
+        }
     }
-}
 
-public async Task SendMedicationReminderEmailAsync(string toEmail, string patientName, string regimenName, string instructions, int frequency)
-{
-    var client = new SendGridClient(_apiKey);
-    var from = new EmailAddress(_fromEmail, "Red Ribbon Life");
-    var subject = "Nhắc nhở uống thuốc - Red Ribbon Life";
-    var to = new EmailAddress(toEmail);
+    public async Task SendMedicationReminderEmailAsync(string toEmail, string patientName, string regimenName, string instructions, int frequency)
+    {
+        var client = new SendGridClient(_apiKey);
+        var from = new EmailAddress(_fromEmail, "Red Ribbon Life");
+        var subject = "Nhắc nhở uống thuốc - Red Ribbon Life";
+        var to = new EmailAddress(toEmail);
 
-    var frequencyText = frequency == 1 ? "1 lần/ngày" : "2 lần/ngày";
+        var frequencyText = frequency == 1 ? "1 lần/ngày" : "2 lần/ngày";
 
-    var plainTextContent = $@"
+        var plainTextContent = $@"
 Xin chào {patientName},
 
 Đây là thông báo nhắc nhở uống thuốc của bạn:
@@ -143,7 +191,7 @@ Vui lòng uống thuốc đúng giờ và theo đúng chỉ dẫn của bác sĩ
 Trân trọng,
 Đội ngũ Red Ribbon Life";
 
-    var htmlContent = $@"
+        var htmlContent = $@"
 <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
     <h2 style='color: #dc3545;'>Red Ribbon Life - Nhắc nhở uống thuốc</h2>
     <p>Xin chào <strong>{patientName}</strong>,</p>
@@ -161,12 +209,12 @@ Trân trọng,
     </p>
 </div>";
 
-    var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
-    var response = await client.SendEmailAsync(msg);
+        var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
+        var response = await client.SendEmailAsync(msg);
 
-    if (response.StatusCode != System.Net.HttpStatusCode.Accepted)
-    {
-        throw new Exception($"Failed to send medication reminder email: {response.StatusCode}");
+        if (response.StatusCode != System.Net.HttpStatusCode.Accepted)
+        {
+            throw new Exception($"Failed to send medication reminder email: {response.StatusCode}");
+        }
     }
-}
 }
