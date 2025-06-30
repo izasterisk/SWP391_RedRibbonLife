@@ -9,24 +9,25 @@ namespace BLL.Services;
 
 public class AppointmentService : IAppointmentService
 {
+    private readonly IMapper _mapper;
+    private readonly SWP391_RedRibbonLifeContext _dbContext;
     private readonly IUserRepository<Appointment> _appointmentRepository;
     private readonly IUserRepository<Patient> _patientRepository;
     private readonly IUserRepository<Doctor> _doctorRepository;
     private readonly IUserRepository<DoctorSchedule> _doctorScheduleRepository;
-    private readonly IMapper _mapper;
     private readonly IUserUtils _userUtils;
     private readonly IDoctorScheduleUtils _doctorScheduleUtils;
-    private readonly SWP391_RedRibbonLifeContext _dbContext;
-    public AppointmentService(IUserRepository<Appointment> appointmentRepository, IUserRepository<Patient> patientRepository, IUserRepository<Doctor> doctorRepository, IUserRepository<DoctorSchedule> doctorScheduleRepository, IMapper mapper, IUserUtils userUtils, IDoctorScheduleUtils doctorScheduleUtils, SWP391_RedRibbonLifeContext dbContext)
+    
+    public AppointmentService(IMapper mapper, SWP391_RedRibbonLifeContext dbContext, IUserRepository<Appointment> appointmentRepository, IUserRepository<Patient> patientRepository, IUserRepository<Doctor> doctorRepository, IUserRepository<DoctorSchedule> doctorScheduleRepository, IUserUtils userUtils, IDoctorScheduleUtils doctorScheduleUtils)
     {
+        _mapper = mapper;
+        _dbContext = dbContext;
         _appointmentRepository = appointmentRepository;
         _patientRepository = patientRepository;
         _doctorRepository = doctorRepository;
         _doctorScheduleRepository = doctorScheduleRepository;
-        _mapper = mapper;
         _userUtils = userUtils;
         _doctorScheduleUtils = doctorScheduleUtils;
-        _dbContext = dbContext;
     }
     
     public async Task<dynamic> CreateAppointmentAsync(AppointmentCreateDTO dto)
@@ -35,68 +36,59 @@ public class AppointmentService : IAppointmentService
         _userUtils.CheckDoctorExist(dto.DoctorId);
         _userUtils.CheckPatientExist(dto.PatientId);
         _doctorScheduleUtils.CheckDoctorIfAvailable(dto.DoctorId, dto.AppointmentDate, dto.AppointmentTime);
-        // Begin transaction
         using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
-            // Create appointment
             Appointment appointment = _mapper.Map<Appointment>(dto);
             appointment.Status = "Scheduled";
             var createdAppointment = await _appointmentRepository.CreateAsync(appointment);
-            // Load appointment với navigation properties để lấy PatientName và DoctorName
-            var appointmentWithNavigations = await _dbContext.Appointments
-                .Include(a => a.Patient).ThenInclude(p => p.User)
-                .Include(a => a.Doctor).ThenInclude(d => d.User)
-                .FirstOrDefaultAsync(a => a.AppointmentId == createdAppointment.AppointmentId);
-            // Commit transaction
             await transaction.CommitAsync();
-            // Sử dụng AutoMapper để map appointment với navigation properties
-            return _mapper.Map<AppointmentReadOnlyDTO>(appointmentWithNavigations);
+            var detailedAppointment = await _appointmentRepository.GetWithRelationsAsync(
+                filter: a => a.AppointmentId == createdAppointment.AppointmentId,
+                useNoTracking: true,
+                includeFunc: query => query
+                    .Include(a => a.Patient)
+                        .ThenInclude(p => p.User)
+                    .Include(a => a.Doctor)
+                        .ThenInclude(d => d.User)
+            );
+            return _mapper.Map<AppointmentReadOnlyDTO>(detailedAppointment);
         }
         catch (Exception)
         {
-            // Rollback transaction on error
             await transaction.RollbackAsync();
-            throw; // Re-throw the exception
+            throw;
         }
     }
 
     public async Task<dynamic> UpdateAppointmentAsync(AppointmentUpdateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-        // Validate AppointmentType nếu có giá trị
-        if (!string.IsNullOrEmpty(dto.AppointmentType))
+        if (!string.IsNullOrEmpty(dto.AppointmentType) && dto.AppointmentType != "Appointment" && dto.AppointmentType != "Medication")
         {
-            var allowedTypes = new[] { "Appointment", "Medication" };
-            if (!allowedTypes.Contains(dto.AppointmentType))
-            {
-                throw new ArgumentException("Appointment type must be either 'Appointment' or 'Medication'");
-            }
+            throw new ArgumentException("Appointment type must be either 'Appointment' or 'Medication'");
         }
-    
-        // Validate Status nếu có giá trị
-        if (!string.IsNullOrEmpty(dto.Status))
+        if (!string.IsNullOrEmpty(dto.Status) && dto.Status != "Scheduled" && dto.Status != "Confirmed" && 
+            dto.Status != "Completed" && dto.Status != "Cancelled")
         {
-            var allowedStatuses = new[] { "Scheduled", "Confirmed", "Completed", "Cancelled" };
-            if (!allowedStatuses.Contains(dto.Status))
-            {
-                throw new ArgumentException("Status must be one of: Scheduled, Confirmed, Completed, Cancelled");
-            }
+            throw new ArgumentException("Status must be one of: Scheduled, Confirmed, Completed, Cancelled");
         }
-        // Begin transaction for consistency
         using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
-            // Get existing appointment with navigation properties
-            var appointment = await _dbContext.Appointments
-                .Include(a => a.Patient).ThenInclude(p => p.User)
-                .Include(a => a.Doctor).ThenInclude(d => d.User)
-                .FirstOrDefaultAsync(a => a.AppointmentId == dto.AppointmentId);
+            var appointment = await _appointmentRepository.GetWithRelationsAsync(
+                filter: a => a.AppointmentId == dto.AppointmentId,
+                useNoTracking: false,
+                includeFunc: query => query
+                    .Include(a => a.Patient)
+                        .ThenInclude(p => p.User)
+                    .Include(a => a.Doctor)
+                        .ThenInclude(d => d.User)
+            );
             if (appointment == null)
             {
                 throw new Exception("Appointment not found.");
             }
-            // Validate doctor availability if schedule-related fields are changing
             var finalDate = dto.AppointmentDate ?? appointment.AppointmentDate;
             var finalTime = dto.AppointmentTime ?? appointment.AppointmentTime;
             if (dto.DoctorId != null)
@@ -108,47 +100,48 @@ public class AppointmentService : IAppointmentService
             {
                 _doctorScheduleUtils.CheckDoctorIfAvailable(appointment.DoctorId, finalDate, finalTime);
             }
-            // Update appointment using AutoMapper
             _mapper.Map(dto, appointment);
-            // Save changes
-            await _appointmentRepository.UpdateAsync(appointment);
-            // Commit transaction
+            var updatedAppointment = await _appointmentRepository.UpdateAsync(appointment);
             await transaction.CommitAsync();
-            // Return mapped DTO (appointment already has navigation properties loaded)
-            return _mapper.Map<AppointmentReadOnlyDTO>(appointment);
+            return _mapper.Map<AppointmentReadOnlyDTO>(updatedAppointment);
         }
         catch (Exception)
         {
-            // Rollback transaction on error
             await transaction.RollbackAsync();
-            throw; // Re-throw the exception
+            throw;
         }
     }
     
     public async Task<List<AppointmentReadOnlyDTO>> GetAllAppointmentsByPatientIdAsync(int id)
     {
-        var appointments = await _dbContext.Appointments
-            .Include(a => a.Patient).ThenInclude(p => p.User)
-            .Include(a => a.Doctor).ThenInclude(d => d.User)
-            .Where(a => a.PatientId == id)
-            .ToListAsync();
+        var appointments = await _appointmentRepository.GetAllWithRelationsAsync(
+            includeFunc: query => query
+                .Include(a => a.Patient)
+                    .ThenInclude(p => p.User)
+                .Include(a => a.Doctor)
+                    .ThenInclude(d => d.User)
+                .Where(a => a.PatientId == id)
+        );
         return _mapper.Map<List<AppointmentReadOnlyDTO>>(appointments);
     }
     
     public async Task<List<AppointmentReadOnlyDTO>> GetAllAppointmentsByDoctorIdAsync(int id)
     {
-        var appointments = await _dbContext.Appointments
-            .Include(a => a.Patient).ThenInclude(p => p.User)
-            .Include(a => a.Doctor).ThenInclude(d => d.User)
-            .Where(a => a.DoctorId == id)
-            .ToListAsync();
+        var appointments = await _appointmentRepository.GetAllWithRelationsAsync(
+            includeFunc: query => query
+                .Include(a => a.Patient)
+                    .ThenInclude(p => p.User)
+                .Include(a => a.Doctor)
+                    .ThenInclude(d => d.User)
+                .Where(a => a.DoctorId == id)
+        );
         return _mapper.Map<List<AppointmentReadOnlyDTO>>(appointments);
     }
     
     public async Task<dynamic> GetAvailableDoctorsAsync(DateOnly appointmentDate, TimeOnly appointmentTime)
     {
         var allDoctors = await _doctorRepository.GetAllWithRelationsAsync(
-            query => query.Include(d => d.User)
+            includeFunc: query => query.Include(d => d.User)
         );
         var availableDoctors = new List<object>();
         foreach (var doctor in allDoctors)
@@ -175,14 +168,14 @@ public class AppointmentService : IAppointmentService
         };
     }
     
-    public async Task<bool> DeleteAppointmentByIdAsync(int id)
-    {
-        var appointment = await _appointmentRepository.GetAsync(u => u.AppointmentId == id, true);
-        if (appointment == null)
-        {
-            throw new Exception($"Appointment with ID {id} not found");
-        }
-        await _appointmentRepository.DeleteAsync(appointment);
-        return true;
-    }
+    // public async Task<bool> DeleteAppointmentByIdAsync(int id)
+    // {
+    //     var appointment = await _appointmentRepository.GetAsync(a => a.AppointmentId == id, true);
+    //     if (appointment == null)
+    //     {
+    //         throw new Exception($"Appointment with ID {id} not found");
+    //     }
+    //     await _appointmentRepository.DeleteAsync(appointment);
+    //     return true;
+    // }
 }

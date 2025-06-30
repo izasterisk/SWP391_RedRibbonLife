@@ -32,8 +32,8 @@ namespace BLL.Utils
             CreateMap<LoginDTO, User>().ReverseMap();
             CreateMap<LoginResponseDTO, User>().ReverseMap();
             
-            CreateMap<UserDTO, User>().ReverseMap(); // Includes IsVerified field mapping
-            CreateMap<UserReadonlyDTO, User>().ReverseMap(); // Includes IsVerified field mapping
+            CreateMap<UserDTO, User>().ReverseMap();
+            CreateMap<UserReadonlyDTO, User>().ReverseMap();
             
             CreateMap<DoctorCreateDTO, Doctor>().ReverseMap();
             CreateMap<DoctorCreateDTO, User>().ReverseMap();

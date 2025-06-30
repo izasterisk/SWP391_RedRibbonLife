@@ -48,7 +48,7 @@ public class TreatmentService : ITreatmentService
                         .ThenInclude(tr => tr.Doctor)
                         .ThenInclude(d => d.User)
             );
-            return _mapper.Map<List<TreatmentDTO>>(detailedTreatment);
+            return _mapper.Map<TreatmentDTO>(detailedTreatment);
         }
         catch (Exception)
         {

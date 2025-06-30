@@ -20,8 +20,8 @@ public class DoctorCreateDTO
     [StringLength(100, ErrorMessage = "Email cannot exceed 100 characters")]
     public string? Email { get; set; }
 
-    [Phone(ErrorMessage = "Phone number format is invalid")]
-    [StringLength(20, ErrorMessage = "Phone number cannot exceed 20 characters")]
+    [Phone(ErrorMessage = "Invalid phone number format")]
+    [StringLength(20, MinimumLength = 7, ErrorMessage = "Phone number must be between 7-20 characters")]
     public string? PhoneNumber { get; set; }
 
     [Required(ErrorMessage = "FullName is required")]

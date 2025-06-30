@@ -18,5 +18,6 @@ namespace BLL.Interfaces
         void CheckDuplicateAppointment(int appointmentId);
         void CheckTestResultExist(int id);
         void CheckTreatmentExist(int id);
+        void CheckEmailExist(string email);
     }
 }

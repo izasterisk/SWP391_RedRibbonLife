@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 public class AdminUpdateDTO
 {
+    [Required(ErrorMessage = "User ID is required")]
     public int UserId { get; set; }
         
     // [Required(ErrorMessage = "Username is required")]
@@ -21,8 +22,9 @@ public class AdminUpdateDTO
         
     //[Required(ErrorMessage = "Phone number is required")]
     // [Phone(ErrorMessage = "Invalid phone number format")]
-    [StringLength(20, ErrorMessage = "Phone number cannot exceed 20 characters")]
-    [RegularExpression(@"^\d+$", ErrorMessage = "Phone number must contain only digits")]
+    
+    [Phone(ErrorMessage = "Invalid phone number format")]
+    [StringLength(20, MinimumLength = 7, ErrorMessage = "Phone number must be between 7-20 characters")]
     public string? PhoneNumber { get; set; }
         
     //[Required(ErrorMessage = "Full name is required")]

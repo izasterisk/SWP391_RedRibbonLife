@@ -58,15 +58,15 @@ CREATE TABLE Category (
     category_name NVARCHAR(100) NOT NULL
 );
 
--- 6. Bảng Articles (Lưu tất cả các bài viết trên trang, xóa thumbnail_image, thêm createdDate và user_id)
+-- 6. Bảng Articles
 CREATE TABLE Articles (
     article_id INT PRIMARY KEY IDENTITY(1,1),
     title NVARCHAR(200) NOT NULL,
-    content NVARCHAR(MAX),
+    content NVARCHAR(MAX) NOT NULL,
     category_id INT,
     isActive BIT DEFAULT 1,
     createdDate DATE NOT NULL DEFAULT GETDATE(),
-    user_id INT NOT NULL
+    user_id INT
 );
 
 -- 7. Bảng Appointments (Lưu thông tin lịch hẹn)

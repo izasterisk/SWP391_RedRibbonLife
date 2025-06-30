@@ -19,7 +19,7 @@ public class AdminReadOnlyDTO
         
     [Required(ErrorMessage = "Phone number is required")]
     [Phone(ErrorMessage = "Invalid phone number format")]
-    [StringLength(20, ErrorMessage = "Phone number cannot exceed 20 characters")]
+    [StringLength(20, MinimumLength = 7, ErrorMessage = "Phone number must be between 7-20 characters")]
     public string? PhoneNumber { get; set; }
         
     [Required(ErrorMessage = "Full name is required")]

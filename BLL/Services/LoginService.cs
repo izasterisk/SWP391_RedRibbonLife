@@ -35,19 +35,17 @@ namespace BLL.Services
         {
             ArgumentNullException.ThrowIfNull(username, $"{nameof(username)} is null");
             ArgumentNullException.ThrowIfNull(password, $"{nameof(password)} is null");
-            // Tìm user theo username, isActive = true và isVerified = true
             var user = await _userRepository.GetAsync(u => u.Username.Equals(username) && u.IsActive && u.IsVerified);
             if (user == null)
             {
-                return null; // User không tồn tại hoặc chưa được verify
+                return null;
             }
-            // Kiểm tra password sử dụng method từ UserService
             var hashedPassword = _userService.CreatePasswordHash(password);
             if (user.Password.Equals(hashedPassword))
             {
                 return _mapper.Map<UserReadonlyDTO>(user);
             }
-            return null; // Password không đúng
+            return null;
         }
         public async Task<dynamic> ChangePasswordAsync(ChangePasswordDTO dto)
         {
@@ -67,7 +65,6 @@ namespace BLL.Services
             // Update password
             user.Password = _userService.CreatePasswordHash(dto.newPassword);
             var user1 = await _userRepository.UpdateAsync(user);
-            // Trả về dữ liệu cụ thể dựa trên role
             switch (user.UserRole)
             {
                 case "Patient":
@@ -113,8 +110,6 @@ namespace BLL.Services
                         };
                     }
                     break;
-            
-                // Có thể thêm các trường hợp khác tùy theo role của ứng dụng
             }
             return null;
         }

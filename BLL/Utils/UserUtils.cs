@@ -51,7 +51,6 @@ namespace BLL.Utils
         
         public void CheckDoctorExist(int doctorId)
         {
-            // Check if doctor exists
             var doctor = _doctorRepository.GetAsync(u => u.DoctorId == doctorId, true).GetAwaiter().GetResult();
             if (doctor == null)
             {
@@ -61,7 +60,6 @@ namespace BLL.Utils
         
         public void CheckPatientExist(int patientId)
         {
-            // Check if patient exists
             var patient = _patientRepository.GetAsync(u => u.PatientId == patientId, true).GetAwaiter().GetResult();
             if (patient == null)
             {
@@ -71,7 +69,6 @@ namespace BLL.Utils
         
         public void CheckUserExist(int userId)
         {
-            // Check if user exists
             var user = _userRepository.GetAsync(u => u.UserId == userId, true).GetAwaiter().GetResult();
             if (user == null)
             {
@@ -140,6 +137,15 @@ namespace BLL.Utils
             if (treatment == null)
             {
                 throw new Exception("Treatment not found.");
+            }
+        }
+        
+        public void CheckEmailExist(string email)
+        {
+            var existingUser = _userRepository.GetAsync(u => u.Email.Equals(email), true).GetAwaiter().GetResult();
+            if (existingUser != null)
+            {
+                throw new Exception($"Email {email} already exists.");
             }
         }
     }

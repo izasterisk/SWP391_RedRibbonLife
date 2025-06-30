@@ -1,94 +1,112 @@
 using AutoMapper;
 using BLL.DTO.Admin;
-using BLL.DTO.User;
 using BLL.Interfaces;
+using BLL.Utils;
 using DAL.IRepository;
 using DAL.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BLL.Services;
 
 public class AdminService : IAdminService
 {
-    private readonly IUserRepository<User> _userRepository;
     private readonly IMapper _mapper;
+    private readonly SWP391_RedRibbonLifeContext _dbContext;
+    private readonly IUserRepository<User> _userRepository;
     private readonly IUserUtils _userUtils;
-    public AdminService(IUserRepository<User> userRepository, IMapper mapper, IUserUtils userUtils)
+    
+    public AdminService(IMapper mapper, SWP391_RedRibbonLifeContext dbContext, IUserRepository<User> userRepository, IUserUtils userUtils)
     {
-        _userRepository = userRepository;
         _mapper = mapper;
+        _dbContext = dbContext;
+        _userRepository = userRepository;
         _userUtils = userUtils;
     }
+    
     public async Task<dynamic> CreateAdminAsync(AdminDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-        if (string.IsNullOrWhiteSpace(dto.Username))
-            throw new ArgumentNullException(nameof(dto.Username), "Username is required.");
-        if (string.IsNullOrWhiteSpace(dto.Password))
-            throw new ArgumentNullException(nameof(dto.Password), "Password is required.");
-        if (string.IsNullOrWhiteSpace(dto.Email))
-            throw new ArgumentNullException(nameof(dto.Email), "Email is required.");
-        if (string.IsNullOrWhiteSpace(dto.FullName))
-            throw new ArgumentNullException(nameof(dto.FullName), "Full name is required.");
-        // Check if username already exists
-        var existingUser = await _userRepository.GetAsync(u => u.Username.Equals(dto.Username));
-        if (existingUser != null)
+        
+        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        try
         {
-            throw new Exception($"Username {dto.Username} already exists.");
+            var existingUser = await _userRepository.GetAsync(u => u.Username.Equals(dto.Username));
+            if (existingUser != null)
+            {
+                throw new Exception($"Username {dto.Username} already exists.");
+            }
+            // Check if email already exists
+            _userUtils.CheckEmailExist(dto.Email);
+            
+            User user = _mapper.Map<User>(dto);
+            user.IsActive = true;
+            user.UserRole = "Admin";
+            user.IsVerified = true;
+            user.Password = _userUtils.CreatePasswordHash(dto.Password);
+            var createdAdmin = await _userRepository.CreateAsync(user);
+            await transaction.CommitAsync();
+            
+            return new
+            {
+                UserInfo = _mapper.Map<AdminReadOnlyDTO>(createdAdmin)
+            };
         }
-        // Check if email already exists
-        var existingUserByEmail = await _userRepository.GetAsync(u => u.Email.Equals(dto.Email));
-        if (existingUserByEmail != null)
+        catch (Exception)
         {
-            throw new Exception($"Email {dto.Email} already exists.");
+            await transaction.RollbackAsync();
+            throw;
         }
-        // Create User entity
-        User user = _mapper.Map<User>(dto);
-        user.IsActive = true; // Set default value for IsActive
-        user.UserRole = "Admin"; // Set default value for UserRole
-        user.IsVerified = true; // Default
-        user.Password = _userUtils.CreatePasswordHash(dto.Password);
-        // Save
-        var createdAdmin = await _userRepository.CreateAsync(user);
-        return new
-        {
-            UserInfo = _mapper.Map<UserReadonlyDTO>(createdAdmin)
-        };
     }
+    
     public async Task<dynamic> UpdateAdminAsync(AdminUpdateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-        // Get existing admin
-        var admin = await _userRepository.GetAsync(u => u.UserId == dto.UserId, true);
-        if (admin == null)
+        _userUtils.CheckUserExist(dto.UserId);
+        
+        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        try
         {
-            throw new Exception("Admin not found.");
-        }
-        if(admin.UserRole != "Admin")
-        {
-            throw new Exception("This account is not admin.");
-        }
-        if(!string.IsNullOrWhiteSpace(dto.Email))
-        {
-            var existingUserByEmail = await _userRepository.GetAsync(u => u.Email.Equals(dto.Email) && u.UserId != dto.UserId);
-            if (existingUserByEmail != null)
+            var admin = await _userRepository.GetAsync(u => u.UserId == dto.UserId, true);
+            if (admin == null)
             {
-                throw new Exception($"Email {dto.Email} already exists.");
+                throw new Exception("Admin not found.");
             }
+            if(admin.UserRole != "Admin")
+            {
+                throw new Exception("This account is not admin.");
+            }
+            if(!string.IsNullOrWhiteSpace(dto.Email))
+            {
+                if (dto.Email == admin.Email)
+                {
+                    throw new Exception("You are entering the exact email in your account");
+                }
+                _userUtils.CheckEmailExist(dto.Email);
+            }
+            // Update admin
+            _mapper.Map(dto, admin);
+            var updatedAdmin = await _userRepository.UpdateAsync(admin);
+            await transaction.CommitAsync();
+            
+            var adminDto = _mapper.Map<AdminReadOnlyDTO>(updatedAdmin);
+            return new
+            {
+                UserInfo = adminDto
+            };
         }
-        // Update admin
-        _mapper.Map(dto, admin);
-        await _userRepository.UpdateAsync(admin);
-        var adminDto = _mapper.Map<UserReadonlyDTO>(admin);
-        return new
+        catch (Exception)
         {
-            UserInfo = adminDto
-        };
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
+    
     public async Task<List<AdminReadOnlyDTO>> GetAllAdminsAsync()
     {
         var admins = await _userRepository.GetAllByFilterAsync(u => u.IsActive && u.UserRole == "Admin", true);
         return _mapper.Map<List<AdminReadOnlyDTO>>(admins);
     }
+    
     public async Task<AdminReadOnlyDTO> GetAdminByAdminIDAsync(int id)
     {
         var admin = await _userRepository.GetAsync(u => u.IsActive && u.UserId == id, true);
@@ -98,6 +116,7 @@ public class AdminService : IAdminService
         }
         return _mapper.Map<AdminReadOnlyDTO>(admin);
     }
+    
     public async Task<bool> DeleteAdminAsync(int id)
     {
         var admin = await _userRepository.GetAsync(u => u.UserId == id, true);
