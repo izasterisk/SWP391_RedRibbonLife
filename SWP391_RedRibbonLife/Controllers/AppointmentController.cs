@@ -263,6 +263,50 @@ namespace SWP391_RedRibbonLife.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("GetAllScheduled")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Doctor, Admin, Manager")]
+        public async Task<ActionResult<APIResponse>> GetAllScheduledAppointmentsAsync([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            var apiResponse = new APIResponse();
+            try
+            {
+                if (page < 1)
+                {
+                    apiResponse.Errors.Add("Page number must be greater than 0.");
+                    apiResponse.StatusCode = HttpStatusCode.BadRequest;
+                    apiResponse.Status = false;
+                    return BadRequest(apiResponse);
+                }
+                
+                if (pageSize < 1 || pageSize > 100)
+                {
+                    apiResponse.Errors.Add("Page size must be between 1 and 100.");
+                    apiResponse.StatusCode = HttpStatusCode.BadRequest;
+                    apiResponse.Status = false;
+                    return BadRequest(apiResponse);
+                }
+
+                var pagedAppointments = await _appointmentService.GetAllScheduledAppointmentsAsync(page, pageSize);
+                apiResponse.Data = pagedAppointments;
+                apiResponse.Status = true;
+                apiResponse.StatusCode = HttpStatusCode.OK;
+                return Ok(apiResponse);
+            }
+            catch (Exception ex)
+            {
+                apiResponse.Errors.Add(ex.Message);
+                apiResponse.StatusCode = HttpStatusCode.InternalServerError;
+                apiResponse.Status = false;
+                return StatusCode(500, apiResponse);
+            }
+        }
+
         // [HttpDelete]
         // [Route("Delete/{id}")]
         // [ProducesResponseType(StatusCodes.Status200OK)]

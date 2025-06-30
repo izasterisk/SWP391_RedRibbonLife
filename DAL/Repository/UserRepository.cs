@@ -96,5 +96,14 @@ namespace DAL.Repository
             await _dbContext.SaveChangesAsync();
             return dbRecord;
         }
+
+        public async Task<int> CountAsync(Expression<Func<T, bool>> filter = null)
+        {
+            if (filter != null)
+            {
+                return await _dbSet.Where(filter).CountAsync();
+            }
+            return await _dbSet.CountAsync();
+        }
     }
 }

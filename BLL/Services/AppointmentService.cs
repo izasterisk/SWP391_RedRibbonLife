@@ -1,4 +1,5 @@
 using AutoMapper;
+using BLL.DTO;
 using BLL.DTO.Appointment;
 using BLL.Interfaces;
 using DAL.IRepository;
@@ -184,6 +185,37 @@ public class AppointmentService : IAppointmentService
             throw new Exception($"Appointment with ID {id} not found");
         }
         return _mapper.Map<AppointmentReadOnlyDTO>(appointment);
+    }
+    
+    public async Task<PagedResponse<AppointmentReadOnlyDTO>> GetAllScheduledAppointmentsAsync(int page = 1, int pageSize = 10)
+    {
+        if (page < 1) page = 1;
+        if (pageSize < 1) pageSize = 10;
+        if (pageSize > 100) pageSize = 100;
+        var totalRecords = await _appointmentRepository.CountAsync(a => a.Status == "Scheduled");
+        var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
+        var appointments = await _appointmentRepository.GetAllWithRelationsAsync(
+            includeFunc: query => query
+                .Include(a => a.Patient)
+                    .ThenInclude(p => p.User)
+                .Include(a => a.Doctor)
+                    .ThenInclude(d => d.User)
+                .Where(a => a.Status == "Scheduled")
+                .OrderBy(a => Math.Abs((a.AppointmentDate.ToDateTime(a.AppointmentTime) - DateTime.Now).TotalMinutes))
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+        );
+        var appointmentDTOs = _mapper.Map<List<AppointmentReadOnlyDTO>>(appointments);
+        return new PagedResponse<AppointmentReadOnlyDTO>
+        {
+            Data = appointmentDTOs,
+            CurrentPage = page,
+            PageSize = pageSize,
+            TotalPages = totalPages,
+            TotalRecords = totalRecords,
+            HasNextPage = page < totalPages,
+            HasPreviousPage = page > 1
+        };
     }
     
     // public async Task<bool> DeleteAppointmentByIdAsync(int id)
