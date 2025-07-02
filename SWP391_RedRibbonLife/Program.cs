@@ -171,6 +171,9 @@ builder.Services.AddSingleton<SendGridEmailUtil>();
 
 builder.Services.AddSwaggerGen();
 
+// Configure URLs for deployment
+builder.WebHost.UseUrls($"http://0.0.0.0:{Environment.GetEnvironmentVariable("PORT") ?? "8080"}");
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

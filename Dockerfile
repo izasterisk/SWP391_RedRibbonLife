@@ -22,12 +22,11 @@ WORKDIR /app
 # Copy published app
 COPY --from=build-env /app/out .
 
-# Expose port (Render typically uses PORT environment variable)
+# Expose port
 EXPOSE 8080
 
-# Set environment variable for ASP.NET Core to listen on all interfaces
-# Use PORT environment variable if available, otherwise default to 8080
-ENV ASPNETCORE_URLS=http://+:${PORT:-8080}
+# Set environment variable for ASP.NET Core
+ENV ASPNETCORE_URLS=http://0.0.0.0:8080
 
 # Run the application
 ENTRYPOINT ["dotnet", "SWP391_RedRibbonLife.dll"]
