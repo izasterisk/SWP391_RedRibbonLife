@@ -21,10 +21,10 @@ public class AppointmentUpdateDTO
     [WorkingHours]
     public TimeOnly? AppointmentTime { get; set; }
 
-    [AllowedValues("Appointment", "Medication", ErrorMessage = "Appointment type must be either 'Appointment' or 'Medication'")]
+    //[AllowedValues("Appointment", "Medication", ErrorMessage = "Appointment type must be either 'Appointment' or 'Medication'")]
     public string? AppointmentType { get; set; }
 
-    [AllowedValues("Scheduled", "Confirmed", "Completed", "Cancelled", ErrorMessage = "Status must be one of: Scheduled, Confirmed, Completed, Cancelled")]
+    //[AllowedValues("Scheduled", "Confirmed", "Completed", "Cancelled", ErrorMessage = "Status must be one of: Scheduled, Confirmed, Completed, Cancelled")]
     public string? Status { get; set; }
 
     // public bool? IsAnonymous { get; set; }
