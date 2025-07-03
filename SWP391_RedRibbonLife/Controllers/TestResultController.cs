@@ -27,7 +27,7 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Doctor, Admin, Manager")]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin, Manager, Staff, Doctor")]
         public async Task<ActionResult<APIResponse>> CreateTestResultAsync(TestResultCreateDTO dto)
         {
             var apiResponse = new APIResponse();
@@ -65,7 +65,7 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Doctor, Admin, Manager")]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin, Manager, Staff, Doctor")]
         public async Task<ActionResult<APIResponse>> UpdateTestResultAsync(TestResultUpdateDTO dto)
         {
             var apiResponse = new APIResponse();
@@ -109,7 +109,7 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Doctor, Admin, Manager, Patient")]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin, Manager, Staff, Doctor, Patient")]
         public async Task<ActionResult<APIResponse>> GetAllTestResultsAsync()
         {
             var apiResponse = new APIResponse();
@@ -138,7 +138,7 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Doctor, Admin, Manager, Patient")]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin, Manager, Staff, Doctor, Patient")]
         public async Task<ActionResult<APIResponse>> GetTestResultByIdAsync(int id)
         {
             var apiResponse = new APIResponse();
@@ -182,7 +182,7 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Doctor, Admin, Manager")]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin, Manager, Staff, Doctor")]
         public async Task<ActionResult<APIResponse>> DeleteTestResultAsync(int id)
         {
             var apiResponse = new APIResponse();

@@ -27,7 +27,7 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin,Doctor")]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin, Manager, Staff, Doctor")]
         public async Task<ActionResult<APIResponse>> CreateARVRegimensAsync(ARVRegimensCreateDTO dto)
         {
             var apiResponse = new APIResponse();
@@ -66,7 +66,7 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin,Doctor")]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin, Manager, Staff, Doctor")]
         public async Task<ActionResult<APIResponse>> UpdateARVRegimensAsync(ARVRegimensUpdateDTO dto)
         {
             var apiResponse = new APIResponse();
@@ -110,7 +110,7 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin,Doctor,Patient")]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin, Manager, Staff, Doctor")]
         public async Task<ActionResult<APIResponse>> GetAllARVRegimensAsync()
         {
             var apiResponse = new APIResponse();
@@ -139,7 +139,7 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin,Doctor,Patient")]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin, Manager, Staff, Doctor")]
         public async Task<ActionResult<APIResponse>> GetARVRegimensByIdAsync(int id)
         {
             var apiResponse = new APIResponse();
@@ -183,7 +183,7 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin, Manager, Staff, Doctor")]
         public async Task<ActionResult<APIResponse>> DeleteARVRegimensAsync(int id)
         {
             var apiResponse = new APIResponse();

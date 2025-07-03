@@ -87,12 +87,10 @@ public class NotificationService : INotificationService
                             treatment.Regimen.UsageInstructions ?? "Theo chỉ dẫn của bác sĩ",
                             treatment.Regimen.Frequency
                         );
-                        // Đánh dấu thành công
                         await _notificationUtils.MarkNotificationAsSentAsync(notification.NotificationId);
                     }
                     catch (Exception ex)
                     {
-                        // Đánh dấu thất bại
                         await _notificationUtils.MarkNotificationAsFailedAsync(notification.NotificationId, ex.Message);
                     }
                 }
@@ -100,7 +98,6 @@ public class NotificationService : INotificationService
         }
         catch (Exception ex)
         {
-            // Log error
             Console.WriteLine($"Error in SendMedicationRemindersAsync: {ex.Message}");
             throw;
         }

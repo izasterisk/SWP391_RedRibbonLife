@@ -30,6 +30,7 @@ namespace SWP391_RedRibbonLife.Controllers
         }
 
         [HttpPost("login")]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser")]
         public async Task<ActionResult> Login(LoginDTO model)
         {
             if (!ModelState.IsValid)

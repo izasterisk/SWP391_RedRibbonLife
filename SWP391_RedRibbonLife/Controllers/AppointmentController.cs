@@ -26,7 +26,7 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Patient, Admin, Manager")]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Patient, Admin, Manager, Staff, Doctor")]
         public async Task<ActionResult<APIResponse>> CreateAppointmentAsync(AppointmentCreateDTO dto)
         {
             var apiResponse = new APIResponse();
@@ -65,7 +65,7 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Patient, Doctor, Admin, Manager")]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Patient, Admin, Manager, Staff, Doctor")]
         public async Task<ActionResult<APIResponse>> UpdateAppointmentAsync(AppointmentUpdateDTO dto)
         {
             var apiResponse = new APIResponse();
@@ -110,7 +110,7 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Patient, Doctor, Admin, Manager")]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Patient, Admin, Manager, Staff, Doctor")]
         public async Task<ActionResult<APIResponse>> GetAppointmentsByPatientIdAsync(int id)
         {
             var apiResponse = new APIResponse();
@@ -146,7 +146,7 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Doctor, Admin, Manager")]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Patient, Admin, Manager, Staff, Doctor")]
         public async Task<ActionResult<APIResponse>> GetAppointmentsByDoctorIdAsync(int id)
         {
             var apiResponse = new APIResponse();
@@ -183,7 +183,7 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Patient, Doctor, Admin, Manager")]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Patient, Admin, Manager, Staff, Doctor")]
         public async Task<ActionResult<APIResponse>> GetAppointmentByIdAsync(int id)
         {
             var apiResponse = new APIResponse();
@@ -226,7 +226,7 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Patient, Doctor, Admin, Manager")]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Patient, Admin, Manager, Staff, Doctor")]
         public async Task<ActionResult<APIResponse>> GetAvailableDoctorsAsync([FromQuery] DateOnly appointmentDate, [FromQuery] TimeOnly appointmentTime)
         {
             var apiResponse = new APIResponse();
@@ -270,7 +270,7 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Doctor, Admin, Manager")]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Patient, Admin, Manager, Staff, Doctor")]
         public async Task<ActionResult<APIResponse>> GetAllScheduledAppointmentsAsync([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             var apiResponse = new APIResponse();
