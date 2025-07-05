@@ -12,6 +12,7 @@ namespace DAL.IRepository
         Task<List<T>> GetAllAsync();
         Task<List<T>> GetAllByFilterAsync(Expression<Func<T, bool>> filter, bool useNoTracking = false);
         Task<List<T>> GetAllWithRelationsAsync(Func<IQueryable<T>, IQueryable<T>> includeFunc = null);
+        Task<List<T>> GetAllWithRelationsByFilterAsync(Expression<Func<T, bool>> filter, bool useNoTracking = false, Func<IQueryable<T>, IQueryable<T>> includeFunc = null);
         Task<T?> GetWithRelationsAsync(Expression<Func<T, bool>> filter, bool useNoTracking = false, Func<IQueryable<T>, IQueryable<T>> includeFunc = null);
         Task<T> GetAsync(Expression<Func<T, bool>> filter, bool useNoTracking = false);
         //Task<T> GetByNameAsync(Expression<Func<T, bool>> filter);

@@ -10,8 +10,8 @@ namespace DAL.Models;
 [Index("FullName", "IsActive", Name = "IX_Users_FullName_IsActive")]
 [Index("UserRole", "IsActive", Name = "IX_Users_UserRole_IsActive")]
 [Index("Username", "IsActive", "IsVerified", Name = "IX_Users_Username_IsActive_IsVerified")]
-[Index("Email", Name = "UQ__Users__AB6E61648158861D", IsUnique = true)]
-[Index("Username", Name = "UQ__Users__F3DBC57283062B7A", IsUnique = true)]
+[Index("Email", Name = "UQ__Users__AB6E61640EAA6F86", IsUnique = true)]
+[Index("Username", Name = "UQ__Users__F3DBC572810DCE6C", IsUnique = true)]
 public partial class User
 {
     [Key]

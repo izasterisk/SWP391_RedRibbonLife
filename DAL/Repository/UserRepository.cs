@@ -97,6 +97,20 @@ namespace DAL.Repository
             return dbRecord;
         }
 
+        public async Task<List<T>> GetAllWithRelationsByFilterAsync(Expression<Func<T, bool>> filter, bool useNoTracking = false, Func<IQueryable<T>, IQueryable<T>> includeFunc = null)
+        {
+            IQueryable<T> query = _dbSet;
+            if (useNoTracking)
+            {
+                query = query.AsNoTracking();
+            }
+            if (includeFunc != null)
+            {
+                query = includeFunc(query);
+            }
+            return await query.Where(filter).ToListAsync();
+        }
+
         public async Task<int> CountAsync(Expression<Func<T, bool>> filter = null)
         {
             if (filter != null)

@@ -196,22 +196,14 @@ namespace SWP391_RedRibbonLife.Controllers
                     apiResponse.Status = false;
                     return BadRequest(apiResponse);
                 }
-                var treatment = await _treatmentService.GetTreatmentByPatientIdAsync(id);
-                apiResponse.Data = treatment;
+                var treatments = await _treatmentService.GetTreatmentByPatientIdAsync(id);
+                apiResponse.Data = treatments;
                 apiResponse.Status = true;
                 apiResponse.StatusCode = HttpStatusCode.OK;
                 return Ok(apiResponse);
             }
             catch (Exception ex)
             {
-                if (ex.Message.Contains("not found"))
-                {
-                    apiResponse.Errors.Add(ex.Message);
-                    apiResponse.StatusCode = HttpStatusCode.NotFound;
-                    apiResponse.Status = false;
-                    return NotFound(apiResponse);
-                }
-
                 apiResponse.Errors.Add(ex.Message);
                 apiResponse.StatusCode = HttpStatusCode.InternalServerError;
                 apiResponse.Status = false;

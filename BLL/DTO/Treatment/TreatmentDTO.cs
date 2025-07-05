@@ -9,12 +9,12 @@ public class TreatmentDTO
     [Range(1, int.MaxValue, ErrorMessage = "Treatment ID must be a positive number")]
     public int TreatmentId { get; set; }
 
-    [Range(1, int.MaxValue, ErrorMessage = "Test Result ID must be a positive number")]
-    public int? TestResultId { get; set; }
+    // [Range(1, int.MaxValue, ErrorMessage = "Test Result ID must be a positive number")]
+    // public int TestResultId { get; set; }
 
-    [Required(ErrorMessage = "Regimen ID is required")]
-    [Range(1, int.MaxValue, ErrorMessage = "Regimen ID must be a positive number")]
-    public int RegimenId { get; set; }
+    // [Required(ErrorMessage = "Regimen ID is required")]
+    // [Range(1, int.MaxValue, ErrorMessage = "Regimen ID must be a positive number")]
+    // public int RegimenId { get; set; }
 
     [Required(ErrorMessage = "Start date is required")]
     // [FutureDate]
@@ -44,6 +44,9 @@ public class TreatmentDTO
     public string? SpecialNotes { get; set; }
     
     //ARVRegimen
+    [Required(ErrorMessage = "Regimen ID is required")]
+    [Range(1, int.MaxValue, ErrorMessage = "Regimen ID must be a positive number")]
+    public int RegimenId { get; set; }
     public string? RegimenName { get; set; }
     public int? Component1Id { get; set; }
     public int? Component2Id { get; set; }
@@ -62,4 +65,21 @@ public class TreatmentDTO
     public string? AppointmentType { get; set; }
     public string? AppointmentStatus { get; set; }
     public bool? IsAnonymous { get; set; }
+    
+    //Test Result
+    [Range(1, int.MaxValue, ErrorMessage = "Test Result ID must be a positive number")]
+    public int TestResultId { get; set; }
+    
+    [Required(ErrorMessage = "Test type ID is required")]
+    [Range(1, int.MaxValue, ErrorMessage = "Test type ID must be a positive number")]
+    public int TestTypeId { get; set; }
+    
+    [Required(ErrorMessage = "Test type name is required")]
+    [StringLength(200, ErrorMessage = "Test type name cannot exceed 200 characters")]
+    public string TestTypeName { get; set; } = null!;
+
+    [StringLength(255, ErrorMessage = "Result value cannot exceed 255 characters")]
+    public string? ResultValue { get; set; }
+
+    public string? testResultNotes { get; set; }
 }

@@ -17,7 +17,7 @@ public partial class Treatment
     public int TreatmentId { get; set; }
 
     [Column("test_result_id")]
-    public int? TestResultId { get; set; }
+    public int TestResultId { get; set; }
 
     [Column("regimen_id")]
     public int RegimenId { get; set; }
@@ -44,5 +44,5 @@ public partial class Treatment
 
     [ForeignKey("TestResultId")]
     [InverseProperty("Treatments")]
-    public virtual TestResult? TestResult { get; set; }
+    public virtual TestResult TestResult { get; set; } = null!;
 }
