@@ -81,5 +81,5 @@ public class TreatmentDTO
     [StringLength(255, ErrorMessage = "Result value cannot exceed 255 characters")]
     public string? ResultValue { get; set; }
 
-    public string? testResultNotes { get; set; }
+    public string? TestResultNotes { get; set; }
 }

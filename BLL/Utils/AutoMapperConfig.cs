@@ -168,7 +168,7 @@ namespace BLL.Utils
                 .ForMember(dest => dest.AppointmentType, opt => opt.MapFrom(src => src.TestResult != null && src.TestResult.Appointment != null ? src.TestResult.Appointment.AppointmentType : null))
                 .ForMember(dest => dest.AppointmentStatus, opt => opt.MapFrom(src => src.TestResult != null && src.TestResult.Appointment != null ? src.TestResult.Appointment.Status : null))
                 .ForMember(dest => dest.IsAnonymous, opt => opt.MapFrom(src => src.TestResult != null && src.TestResult.Appointment != null ? src.TestResult.Appointment.IsAnonymous : null))
-                .ForMember(dest => dest.testResultNotes, opt => opt.MapFrom(src => src.TestResult != null ? src.TestResult.Notes : null));
+                .ForMember(dest => dest.TestResultNotes, opt => opt.MapFrom(src => src.TestResult != null ? src.TestResult.Notes : null));
             CreateMap<TreatmentCreateDTO, Treatment>().ReverseMap();
             CreateMap<TreatmentUpdateDTO, Treatment>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
