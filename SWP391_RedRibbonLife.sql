@@ -145,7 +145,7 @@ CREATE TABLE DoctorSchedules (
 -- 12. Bảng Treatment (Lưu lịch sử phác đồ điều trị và đơn thuốc của bệnh nhân)
 CREATE TABLE Treatment (
     treatment_id INT PRIMARY KEY IDENTITY(1,1),
-    test_result_id INT,
+    test_result_id INT NOT NULL,
     regimen_id INT NOT NULL,
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,

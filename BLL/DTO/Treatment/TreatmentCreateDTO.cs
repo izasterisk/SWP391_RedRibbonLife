@@ -8,8 +8,9 @@ public class TreatmentCreateDTO
     // [Range(1, int.MaxValue, ErrorMessage = "Treatment ID must be a positive number")]
     // public int TreatmentId { get; set; }
 
+    [Required(ErrorMessage = "Regimen ID is required")]
     [Range(1, int.MaxValue, ErrorMessage = "Test Result ID must be a positive number")]
-    public int? TestResultId { get; set; }
+    public int TestResultId { get; set; }
 
     [Required(ErrorMessage = "Regimen ID is required")]
     [Range(1, int.MaxValue, ErrorMessage = "Regimen ID must be a positive number")]

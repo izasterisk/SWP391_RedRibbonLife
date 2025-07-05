@@ -54,4 +54,12 @@ public class TreatmentDTO
     public string? SideEffects { get; set; }
     public string? UsageInstructions { get; set; }
     public int? Frequency { get; set; }
+    
+    //Appointment
+    public int? AppointmentId { get; set; }
+    public DateOnly? AppointmentDate { get; set; }
+    public TimeOnly? AppointmentTime { get; set; }
+    public string? AppointmentType { get; set; }
+    public string? AppointmentStatus { get; set; }
+    public bool? IsAnonymous { get; set; }
 }

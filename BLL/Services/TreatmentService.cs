@@ -28,7 +28,7 @@ public class TreatmentService : ITreatmentService
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
         _arvRegimenUtils.CheckARVRegimenExist(dto.RegimenId);
-        dto.TestResultId.ValidateIfNotNull(_userUtils.CheckTestResultExist);
+        _userUtils.CheckTestResultExist(dto.TestResultId);
         using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
@@ -47,6 +47,8 @@ public class TreatmentService : ITreatmentService
                     .Include(t => t.TestResult)
                         .ThenInclude(tr => tr.Doctor)
                         .ThenInclude(d => d.User)
+                    .Include(t => t.TestResult)
+                        .ThenInclude(tr => tr.Appointment)
             );
             return _mapper.Map<TreatmentDTO>(detailedTreatment);
         }
@@ -94,6 +96,8 @@ public class TreatmentService : ITreatmentService
                     .Include(t => t.TestResult)
                         .ThenInclude(tr => tr.Doctor)
                         .ThenInclude(d => d.User)
+                    .Include(t => t.TestResult)
+                        .ThenInclude(tr => tr.Appointment)
             );
             return _mapper.Map<TreatmentDTO>(detailedTreatment);
         }
@@ -115,6 +119,8 @@ public class TreatmentService : ITreatmentService
                 .Include(t => t.TestResult)
                     .ThenInclude(tr => tr.Doctor)
                     .ThenInclude(d => d.User)
+                .Include(t => t.TestResult)
+                    .ThenInclude(tr => tr.Appointment)
         );
         return _mapper.Map<List<TreatmentDTO>>(treatments);
     }
@@ -132,6 +138,31 @@ public class TreatmentService : ITreatmentService
                 .Include(t => t.TestResult)
                     .ThenInclude(tr => tr.Doctor)
                     .ThenInclude(d => d.User)
+                .Include(t => t.TestResult)
+                    .ThenInclude(tr => tr.Appointment)
+        );
+        if (treatment == null)
+        {
+            throw new Exception("Treatment not found.");
+        }
+        return _mapper.Map<TreatmentDTO>(treatment);
+    }
+    
+    public async Task<TreatmentDTO> GetTreatmentByPatientIdAsync(int id)
+    {
+        var treatment = await _treatmentRepository.GetWithRelationsAsync(
+            filter: t => t.TestResult.PatientId == id,
+            useNoTracking: true,
+            includeFunc: query => query
+                .Include(t => t.Regimen)
+                .Include(t => t.TestResult)
+                    .ThenInclude(tr => tr.Patient)
+                    .ThenInclude(p => p.User)
+                .Include(t => t.TestResult)
+                    .ThenInclude(tr => tr.Doctor)
+                    .ThenInclude(d => d.User)
+                .Include(t => t.TestResult)
+                    .ThenInclude(a => a.Appointment)
         );
         if (treatment == null)
         {

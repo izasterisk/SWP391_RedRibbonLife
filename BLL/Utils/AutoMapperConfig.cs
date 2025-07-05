@@ -161,7 +161,13 @@ namespace BLL.Utils
                 .ForMember(dest => dest.SuitableFor, opt => opt.MapFrom(src => src.Regimen != null ? src.Regimen.SuitableFor : null))
                 .ForMember(dest => dest.SideEffects, opt => opt.MapFrom(src => src.Regimen != null ? src.Regimen.SideEffects : null))
                 .ForMember(dest => dest.UsageInstructions, opt => opt.MapFrom(src => src.Regimen != null ? src.Regimen.UsageInstructions : null))
-                .ForMember(dest => dest.Frequency, opt => opt.MapFrom(src => src.Regimen != null ? src.Regimen.Frequency : (int?)null));
+                .ForMember(dest => dest.Frequency, opt => opt.MapFrom(src => src.Regimen != null ? src.Regimen.Frequency : (int?)null))
+                .ForMember(dest => dest.AppointmentId, opt => opt.MapFrom(src => src.TestResult != null && src.TestResult.Appointment != null ? src.TestResult.Appointment.AppointmentId : (int?)null))
+                .ForMember(dest => dest.AppointmentDate, opt => opt.MapFrom(src => src.TestResult != null && src.TestResult.Appointment != null ? src.TestResult.Appointment.AppointmentDate : (DateOnly?)null))
+                .ForMember(dest => dest.AppointmentTime, opt => opt.MapFrom(src => src.TestResult != null && src.TestResult.Appointment != null ? src.TestResult.Appointment.AppointmentTime : (TimeOnly?)null))
+                .ForMember(dest => dest.AppointmentType, opt => opt.MapFrom(src => src.TestResult != null && src.TestResult.Appointment != null ? src.TestResult.Appointment.AppointmentType : null))
+                .ForMember(dest => dest.AppointmentStatus, opt => opt.MapFrom(src => src.TestResult != null && src.TestResult.Appointment != null ? src.TestResult.Appointment.Status : null))
+                .ForMember(dest => dest.IsAnonymous, opt => opt.MapFrom(src => src.TestResult != null && src.TestResult.Appointment != null ? src.TestResult.Appointment.IsAnonymous : null));
             CreateMap<TreatmentCreateDTO, Treatment>().ReverseMap();
             CreateMap<TreatmentUpdateDTO, Treatment>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));

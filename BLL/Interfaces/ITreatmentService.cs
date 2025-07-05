@@ -8,5 +8,6 @@ public interface ITreatmentService
     Task<TreatmentDTO> UpdateTreatmentAsync(TreatmentUpdateDTO dto);
     Task<List<TreatmentDTO>> GetAllTreatmentAsync();
     Task<TreatmentDTO> GetTreatmentByIdAsync(int id);
+    Task<TreatmentDTO> GetTreatmentByPatientIdAsync(int id);
     Task<bool> DeleteTreatmentByIdAsync(int id);
 }
