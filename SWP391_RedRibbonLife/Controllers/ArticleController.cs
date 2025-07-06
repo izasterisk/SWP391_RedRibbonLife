@@ -23,11 +23,12 @@ namespace SWP391_RedRibbonLife.Controllers
         
         [HttpGet]
         [Route("GetAll")]
+        [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin, Manager, Staff, Doctor, Patient")]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser")]
         public async Task<ActionResult<APIResponse>> GetAllArticlesAsync()
         {
             var apiResponse = new APIResponse();
@@ -50,13 +51,14 @@ namespace SWP391_RedRibbonLife.Controllers
 
         [HttpGet]
         [Route("GetByID/{id}")]
+        [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin, Manager, Staff, Doctor, Patient")]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser")]
         public async Task<ActionResult<APIResponse>> GetArticleByIdAsync(int id)
         {
             var apiResponse = new APIResponse();
