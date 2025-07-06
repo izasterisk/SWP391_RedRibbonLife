@@ -39,7 +39,7 @@ namespace SWP391_RedRibbonLife.Controllers
             }
             try
             {
-                var result = await _emailService.SendEmailAsync(request.Email);
+                var result = await _emailService.SendVerificationEmailAsync(request.Email);
                 
                 if (result)
                 {

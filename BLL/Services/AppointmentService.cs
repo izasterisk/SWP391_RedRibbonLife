@@ -2,6 +2,7 @@ using AutoMapper;
 using BLL.DTO;
 using BLL.DTO.Appointment;
 using BLL.Interfaces;
+using BLL.Utils;
 using DAL.IRepository;
 using DAL.Models;
 using Microsoft.EntityFrameworkCore;
@@ -18,8 +19,9 @@ public class AppointmentService : IAppointmentService
     private readonly IUserRepository<DoctorSchedule> _doctorScheduleRepository;
     private readonly IUserUtils _userUtils;
     private readonly IDoctorScheduleUtils _doctorScheduleUtils;
+    private readonly SendGridEmailUtil _sendGridUtil;
     
-    public AppointmentService(IMapper mapper, SWP391_RedRibbonLifeContext dbContext, IUserRepository<Appointment> appointmentRepository, IUserRepository<Patient> patientRepository, IUserRepository<Doctor> doctorRepository, IUserRepository<DoctorSchedule> doctorScheduleRepository, IUserUtils userUtils, IDoctorScheduleUtils doctorScheduleUtils)
+    public AppointmentService(IMapper mapper, SWP391_RedRibbonLifeContext dbContext, IUserRepository<Appointment> appointmentRepository, IUserRepository<Patient> patientRepository, IUserRepository<Doctor> doctorRepository, IUserRepository<DoctorSchedule> doctorScheduleRepository, IUserUtils userUtils, IDoctorScheduleUtils doctorScheduleUtils, SendGridEmailUtil sendGridUtil)
     {
         _mapper = mapper;
         _dbContext = dbContext;
@@ -29,6 +31,7 @@ public class AppointmentService : IAppointmentService
         _doctorScheduleRepository = doctorScheduleRepository;
         _userUtils = userUtils;
         _doctorScheduleUtils = doctorScheduleUtils;
+        _sendGridUtil = sendGridUtil;
     }
     
     public async Task<AppointmentReadOnlyDTO> CreateAppointmentAsync(AppointmentCreateDTO dto)
@@ -103,6 +106,7 @@ public class AppointmentService : IAppointmentService
             }
             _mapper.Map(dto, appointment);
             var updatedAppointment = await _appointmentRepository.UpdateAsync(appointment);
+            await _sendGridUtil.SendAppointmentApprovalEmailAsync(appointment.Patient.User.Email, appointment.Patient.User.FullName, finalDate, finalTime);
             await transaction.CommitAsync();
             return _mapper.Map<AppointmentReadOnlyDTO>(updatedAppointment);
         }

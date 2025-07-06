@@ -117,7 +117,6 @@ Trân trọng,
 
         var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
         var response = await client.SendEmailAsync(msg);
-
         if (response.StatusCode != System.Net.HttpStatusCode.Accepted)
         {
             throw new Exception($"Failed to send forgot password email: {response.StatusCode}");
@@ -215,6 +214,68 @@ Trân trọng,
         if (response.StatusCode != System.Net.HttpStatusCode.Accepted)
         {
             throw new Exception($"Failed to send medication reminder email: {response.StatusCode}");
+        }
+    }
+
+    public async Task SendAppointmentApprovalEmailAsync(string toEmail, string patientName, DateOnly appointmentDate, TimeOnly appointmentTime)
+    {
+        var client = new SendGridClient(_apiKey);
+        var from = new EmailAddress(_fromEmail, "Red Ribbon Life");
+        var subject = "Yêu cầu đặt lịch khám đã được duyệt - Red Ribbon Life";
+        var to = new EmailAddress(toEmail);
+
+        // Format date and time in Vietnamese format
+        var formattedDate = appointmentDate.ToString("dd/MM/yyyy");
+        var formattedTime = appointmentTime.ToString("HH:mm");
+
+        var plainTextContent = $@"
+Xin chào {patientName},
+
+Yêu cầu đặt lịch khám của bạn đã được duyệt!
+
+Thông tin lịch khám:
+- Ngày: {formattedDate}
+- Giờ: {formattedTime}
+
+Vui lòng đến đúng giờ và mang theo các giấy tờ cần thiết như chứng minh nhân dân, thẻ bảo hiểm y tế (nếu có).
+
+Nếu có bất kỳ thay đổi nào, vui lòng liên hệ với chúng tôi sớm nhất có thể.
+
+Trân trọng,
+Đội ngũ Red Ribbon Life";
+
+        var htmlContent = $@"
+<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
+    <h2 style='color: #dc3545;'>Red Ribbon Life - Xác nhận lịch khám</h2>
+    <p>Xin chào <strong>{patientName}</strong>,</p>
+    <div style='background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 5px; padding: 15px; margin: 20px 0;'>
+        <h3 style='color: #155724; margin: 0 0 10px 0;'>Yêu cầu đặt lịch khám của bạn đã được duyệt!</h3>
+    </div>
+    <p><strong>Thông tin lịch khám:</strong></p>
+    <div style='background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #dc3545;'>
+        <p style='margin: 5px 0;'><strong>Ngày:</strong> {formattedDate}</p>
+        <p style='margin: 5px 0;'><strong>Giờ:</strong> {formattedTime}</p>
+    </div>
+    <p><strong>Lưu ý quan trọng:</strong></p>
+    <ul style='color: #6c757d;'>
+        <li>Vui lòng đến đúng giờ</li>
+        <li>Mang theo chứng minh nhân dân</li>
+        <li>Mang theo thẻ bảo hiểm y tế (nếu có)</li>
+        <li>Nếu có thay đổi, vui lòng liên hệ sớm nhất</li>
+    </ul>
+    <hr style='border: none; border-top: 1px solid #dee2e6; margin: 20px 0;'>
+    <p style='color: #6c757d; font-size: 12px;'>
+        Trân trọng,<br>
+        <strong>Đội ngũ Red Ribbon Life</strong>
+    </p>
+</div>";
+
+        var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
+        var response = await client.SendEmailAsync(msg);
+
+        if (response.StatusCode != System.Net.HttpStatusCode.Accepted)
+        {
+            throw new Exception($"Failed to send appointment approval email: {response.StatusCode}");
         }
     }
 }

@@ -23,7 +23,7 @@ namespace BLL.Services
             _userUtils = userUtils;
         }
 
-        public async Task<bool> SendEmailAsync(string email)
+        public async Task<bool> SendVerificationEmailAsync(string email)
         {
             try
             {
