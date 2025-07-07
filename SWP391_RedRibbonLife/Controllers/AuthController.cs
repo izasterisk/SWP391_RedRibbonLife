@@ -15,7 +15,6 @@ namespace SWP391_RedRibbonLife.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [AllowAnonymous]
     public class AuthController : ControllerBase
     {
         private readonly IConfiguration _configuration;
@@ -29,58 +28,87 @@ namespace SWP391_RedRibbonLife.Controllers
             _userService = userService;
         }
 
-        [HttpPost("login")]
-        [Authorize(AuthenticationSchemes = "LoginforLocaluser")]
-        public async Task<ActionResult> Login(LoginDTO model)
+        [HttpPost]
+        [Route("login")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [AllowAnonymous]
+        public async Task<ActionResult<APIResponse>> LoginAsync(LoginDTO model)
         {
+            var apiResponse = new APIResponse();
             if (!ModelState.IsValid)
             {
-                return BadRequest("Please enter username and password");
+                apiResponse.Status = false;
+                apiResponse.StatusCode = HttpStatusCode.BadRequest;
+                apiResponse.Errors.AddRange(ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage));
+                return BadRequest(apiResponse);
             }
-            // Validate user từ database
-            var user = await _loginService.ValidateUserAsync(model.Username, model.Password);
-            if (user == null)
+            try
             {
-                return BadRequest("Invalid username or password");
-            }
-            LoginResponseDTO response = new()
-            {
-                Username = user.Username,
-                FullName = user.FullName
-            };
-            string audience = _configuration.GetValue<string>("LocalAudience");
-            string issuer = _configuration.GetValue<string>("LocalIssuer");
-            byte[] key = Encoding.ASCII.GetBytes(_configuration.GetValue<string>("JWTSecretforLocaluser"));
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var tokenDescriptor = new SecurityTokenDescriptor()
-            {
-                Issuer = issuer,
-                Audience = audience,
-                Subject = new ClaimsIdentity(new Claim[]
+                var user = await _loginService.ValidateUserAsync(model.Username, model.Password);
+                if (user == null)
                 {
-                    //UserId
-                    new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                    //Username
-                    new Claim(ClaimTypes.Name, user.Username),
-                    //FullName
-                    new Claim(ClaimTypes.GivenName, user.FullName ?? ""),
-                    //Roles
-                    new Claim(ClaimTypes.Role, user.UserRole)
-                }),
-                Expires = DateTime.UtcNow.AddHours(1),
-                SigningCredentials = new(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512)
-            };
-            //Generate Token
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            response.token = tokenHandler.WriteToken(token);
-            return Ok(response);
+                    apiResponse.Status = false;
+                    apiResponse.StatusCode = HttpStatusCode.BadRequest;
+                    apiResponse.Errors.Add("Invalid username or password");
+                    return BadRequest(apiResponse);
+                }
+                LoginResponseDTO response = new()
+                {
+                    Username = user.Username,
+                    FullName = user.FullName
+                };
+                string audience = _configuration.GetValue<string>("LocalAudience");
+                string issuer = _configuration.GetValue<string>("LocalIssuer");
+                byte[] key = Encoding.ASCII.GetBytes(_configuration.GetValue<string>("JWTSecretforLocaluser"));
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var tokenDescriptor = new SecurityTokenDescriptor()
+                {
+                    Issuer = issuer,
+                    Audience = audience,
+                    Subject = new ClaimsIdentity(new Claim[]
+                    {
+                        //UserId
+                        new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                        //Username
+                        new Claim(ClaimTypes.Name, user.Username),
+                        //FullName
+                        new Claim(ClaimTypes.GivenName, user.FullName ?? ""),
+                        //Roles
+                        new Claim(ClaimTypes.Role, user.UserRole)
+                    }),
+                    Expires = DateTime.UtcNow.AddHours(1),
+                    SigningCredentials = new(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512)
+                };
+                //Generate Token
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+                response.token = tokenHandler.WriteToken(token);
+                apiResponse.Data = response;
+                apiResponse.Status = true;
+                apiResponse.StatusCode = HttpStatusCode.OK;
+                return Ok(apiResponse);
+            }
+            catch (Exception ex)
+            {
+                apiResponse.Errors.Add(ex.Message);
+                apiResponse.StatusCode = HttpStatusCode.InternalServerError;
+                apiResponse.Status = false;
+                return StatusCode(500, apiResponse);
+            }
         }
 
-        [HttpGet("me")]
+        [HttpGet]
+        [Route("me")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Authorize(AuthenticationSchemes = "LoginforLocaluser")]
-        public ActionResult GetCurrentUser()
+        public ActionResult<APIResponse> GetCurrentUserAsync()
         {
+            var apiResponse = new APIResponse();
             try
             {
                 // Lấy thông tin user từ token claims
@@ -88,11 +116,16 @@ namespace SWP391_RedRibbonLife.Controllers
                 var username = User.FindFirst(ClaimTypes.Name)?.Value;
                 var fullName = User.FindFirst(ClaimTypes.GivenName)?.Value;
                 var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+                
                 if (string.IsNullOrEmpty(username))
                 {
-                    return Unauthorized("Invalid token");
+                    apiResponse.Status = false;
+                    apiResponse.StatusCode = HttpStatusCode.Unauthorized;
+                    apiResponse.Errors.Add("Invalid token");
+                    return Unauthorized(apiResponse);
                 }
-                return Ok(new
+
+                var userData = new
                 {
                     userId = userId,
                     username = username,
@@ -100,17 +133,22 @@ namespace SWP391_RedRibbonLife.Controllers
                     userRole = userRole,
                     tokenValid = true,
                     timestamp = DateTime.UtcNow
-                });
+                };
+
+                apiResponse.Data = userData;
+                apiResponse.Status = true;
+                apiResponse.StatusCode = HttpStatusCode.OK;
+                return Ok(apiResponse);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    message = "An error occurred while getting user info",
-                    error = ex.Message
-                });
+                apiResponse.Errors.Add(ex.Message);
+                apiResponse.StatusCode = HttpStatusCode.InternalServerError;
+                apiResponse.Status = false;
+                return StatusCode(500, apiResponse);
             }
         }
+
         [HttpPut]
         [Route("UpdatePassword")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -120,7 +158,7 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [Authorize(AuthenticationSchemes = "LoginforLocaluser")]
-        public async Task<ActionResult<APIResponse>> ChangePasswordAsync(ChangePasswordDTO dto)
+        public async Task<ActionResult<APIResponse>> UpdatePasswordAsync(ChangePasswordDTO dto)
         {
             var apiResponse = new APIResponse();
             if (!ModelState.IsValid)
@@ -152,7 +190,7 @@ namespace SWP391_RedRibbonLife.Controllers
                 apiResponse.Errors.Add(ex.Message);
                 apiResponse.StatusCode = HttpStatusCode.InternalServerError;
                 apiResponse.Status = false;
-                return apiResponse;
+                return StatusCode(500, apiResponse);
             }
         }
     }

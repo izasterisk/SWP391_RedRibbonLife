@@ -22,7 +22,7 @@ namespace BLL.Services
         private readonly IUserRepository<Doctor> _doctorRepository;
         private readonly IUserService _userService;
 
-        public LoginService(IUserRepository<User> userRepository, IMapper mapper, IUserService userService, IUserRepository<Patient> patientRepository, IUserRepository<Doctor> doctorRepository)
+        public LoginService(IMapper mapper, IUserRepository<User> userRepository, IUserService userService, IUserRepository<Patient> patientRepository, IUserRepository<Doctor> doctorRepository)
         {
             _mapper = mapper;
             _userRepository = userRepository;
@@ -47,22 +47,20 @@ namespace BLL.Services
             }
             return null;
         }
-        public async Task<dynamic> ChangePasswordAsync(ChangePasswordDTO dto)
+
+        public async Task<object> ChangePasswordAsync(ChangePasswordDTO dto)
         {
             ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-            // Tìm user
             var user = await _userRepository.GetAsync(u => u.Email.Equals(dto.Email) && u.IsActive);
             if (user == null)
             {
                 throw new Exception("User not found.");
             }
-            // Kiểm tra password
             var hashedOldPassword = _userService.CreatePasswordHash(dto.Password);
             if (!user.Password.Equals(hashedOldPassword))
             {
                 throw new Exception("Old password is incorrect.");
             }
-            // Update password
             user.Password = _userService.CreatePasswordHash(dto.newPassword);
             var user1 = await _userRepository.UpdateAsync(user);
             switch (user.UserRole)
@@ -81,7 +79,7 @@ namespace BLL.Services
                             DateOfBirth = user1.DateOfBirth,
                             Gender = user1.Gender,
                             Address = user1.Address,
-                            // Doctor properties
+                            // Patient properties
                             PatientId = patient.PatientId,
                             BloodType = patient.BloodType,
                             IsPregnant = patient.IsPregnant,

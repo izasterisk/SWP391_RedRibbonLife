@@ -8,6 +8,7 @@ using DAL.Models;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using AutoMapper;
 using BLL.DTO.Admin;
+using BLL.DTO.Staff;
 using BLL.DTO.Appointment;
 using BLL.DTO.Doctor;
 using BLL.DTO.User;
@@ -89,6 +90,11 @@ namespace BLL.Utils
             CreateMap<AdminDTO, User>().ReverseMap();
             CreateMap<AdminReadOnlyDTO, User>().ReverseMap();
             CreateMap<AdminUpdateDTO, User>()//.ReverseMap()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+            
+            CreateMap<StaffDTO, User>().ReverseMap();
+            CreateMap<StaffReadOnlyDTO, User>().ReverseMap();
+            CreateMap<StaffUpdateDTO, User>()//.ReverseMap()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
             
             CreateMap<DoctorSchedule, DoctorScheduleDTO>()

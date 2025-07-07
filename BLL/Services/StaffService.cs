@@ -1,5 +1,5 @@
 using AutoMapper;
-using BLL.DTO.Admin;
+using BLL.DTO.Staff;
 using BLL.Interfaces;
 using BLL.Utils;
 using DAL.IRepository;
@@ -8,14 +8,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BLL.Services;
 
-public class AdminService : IAdminService
+public class StaffService : IStaffService
 {
     private readonly IMapper _mapper;
     private readonly SWP391_RedRibbonLifeContext _dbContext;
     private readonly IUserRepository<User> _userRepository;
     private readonly IUserUtils _userUtils;
     
-    public AdminService(IMapper mapper, SWP391_RedRibbonLifeContext dbContext, IUserRepository<User> userRepository, IUserUtils userUtils)
+    public StaffService(IMapper mapper, SWP391_RedRibbonLifeContext dbContext, IUserRepository<User> userRepository, IUserUtils userUtils)
     {
         _mapper = mapper;
         _dbContext = dbContext;
@@ -23,7 +23,7 @@ public class AdminService : IAdminService
         _userUtils = userUtils;
     }
     
-    public async Task<AdminReadOnlyDTO> CreateAdminAsync(AdminDTO dto)
+    public async Task<StaffReadOnlyDTO> CreateStaffAsync(StaffDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
         using var transaction = await _dbContext.Database.BeginTransactionAsync();
@@ -38,12 +38,12 @@ public class AdminService : IAdminService
             _userUtils.CheckEmailExist(dto.Email);
             User user = _mapper.Map<User>(dto);
             user.IsActive = true;
-            user.UserRole = "Admin";
+            user.UserRole = "Staff";
             user.IsVerified = true;
             user.Password = _userUtils.CreatePasswordHash(dto.Password);
-            var createdAdmin = await _userRepository.CreateAsync(user);
+            var createdStaff = await _userRepository.CreateAsync(user);
             await transaction.CommitAsync();
-            return _mapper.Map<AdminReadOnlyDTO>(createdAdmin);
+            return _mapper.Map<StaffReadOnlyDTO>(createdStaff);
         }
         catch (Exception)
         {
@@ -51,35 +51,35 @@ public class AdminService : IAdminService
             throw;
         }
     }
-    public async Task<AdminReadOnlyDTO> UpdateAdminAsync(AdminUpdateDTO dto)
+    public async Task<StaffReadOnlyDTO> UpdateStaffAsync(StaffUpdateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
         _userUtils.CheckUserExist(dto.UserId);
         using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
-            var admin = await _userRepository.GetAsync(u => u.UserId == dto.UserId, true);
-            if (admin == null)
+            var staff = await _userRepository.GetAsync(u => u.UserId == dto.UserId, true);
+            if (staff == null)
             {
-                throw new Exception("Admin not found.");
+                throw new Exception("Staff not found.");
             }
-            if(admin.UserRole != "Admin")
+            if(staff.UserRole != "Staff")
             {
-                throw new Exception("This account is not admin.");
+                throw new Exception("This account is not staff.");
             }
             if(!string.IsNullOrWhiteSpace(dto.Email))
             {
-                if (dto.Email == admin.Email)
+                if (dto.Email == staff.Email)
                 {
                     throw new Exception("You are entering the exact email in your account");
                 }
                 _userUtils.CheckEmailExist(dto.Email);
             }
-            // Update admin
-            _mapper.Map(dto, admin);
-            var updatedAdmin = await _userRepository.UpdateAsync(admin);
+            // Update staff
+            _mapper.Map(dto, staff);
+            var updatedStaff = await _userRepository.UpdateAsync(staff);
             await transaction.CommitAsync();
-            return _mapper.Map<AdminReadOnlyDTO>(updatedAdmin);
+            return _mapper.Map<StaffReadOnlyDTO>(updatedStaff);
         }
         catch (Exception)
         {
@@ -88,34 +88,34 @@ public class AdminService : IAdminService
         }
     }
     
-    public async Task<List<AdminReadOnlyDTO>> GetAllAdminsAsync()
+    public async Task<List<StaffReadOnlyDTO>> GetAllStaffsAsync()
     {
-        var admins = await _userRepository.GetAllByFilterAsync(u => u.IsActive && u.UserRole == "Admin", true);
-        return _mapper.Map<List<AdminReadOnlyDTO>>(admins);
+        var staffs = await _userRepository.GetAllByFilterAsync(u => u.IsActive && u.UserRole == "Staff", true);
+        return _mapper.Map<List<StaffReadOnlyDTO>>(staffs);
     }
     
-    public async Task<AdminReadOnlyDTO> GetAdminByIdAsync(int id)
+    public async Task<StaffReadOnlyDTO> GetStaffByIdAsync(int id)
     {
-        var admin = await _userRepository.GetAsync(u => u.IsActive && u.UserId == id, true);
-        if (admin == null)
+        var staff = await _userRepository.GetAsync(u => u.IsActive && u.UserId == id, true);
+        if (staff == null)
         {
-            throw new Exception("Admin not found.");
+            throw new Exception("Staff not found.");
         }
-        return _mapper.Map<AdminReadOnlyDTO>(admin);
+        return _mapper.Map<StaffReadOnlyDTO>(staff);
     }
     
-    public async Task<bool> DeleteAdminByIdAsync(int id)
+    public async Task<bool> DeleteStaffByIdAsync(int id)
     {
-        var admin = await _userRepository.GetAsync(u => u.UserId == id, true);
-        if (admin == null)
+        var staff = await _userRepository.GetAsync(u => u.UserId == id, true);
+        if (staff == null)
         {
-            throw new Exception("Admin not found.");
+            throw new Exception("Staff not found.");
         }
-        if(admin.UserRole != "Admin")
+        if(staff.UserRole != "Staff")
         {
-            throw new Exception("This account is not admin.");
+            throw new Exception("This account is not staff.");
         }
-        await _userRepository.DeleteAsync(admin);
+        await _userRepository.DeleteAsync(staff);
         return true;
     }
 }
