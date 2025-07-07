@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="DTO\Manager\" />
     <Folder Include="DTO\Staff\" />
   </ItemGroup>
 
