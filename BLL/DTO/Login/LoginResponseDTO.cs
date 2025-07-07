@@ -9,6 +9,7 @@ namespace BLL.DTO.Login
     public class LoginResponseDTO
     {
         public string Username { get; set; }
+        public string? FullName { get; set; }
         public string token { get; set; }
     }
 }

@@ -45,7 +45,8 @@ namespace SWP391_RedRibbonLife.Controllers
             }
             LoginResponseDTO response = new()
             {
-                Username = user.Username
+                Username = user.Username,
+                FullName = user.FullName
             };
             string audience = _configuration.GetValue<string>("LocalAudience");
             string issuer = _configuration.GetValue<string>("LocalIssuer");
@@ -62,6 +63,8 @@ namespace SWP391_RedRibbonLife.Controllers
                     new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                     //Username
                     new Claim(ClaimTypes.Name, user.Username),
+                    //FullName
+                    new Claim(ClaimTypes.GivenName, user.FullName ?? ""),
                     //Roles
                     new Claim(ClaimTypes.Role, user.UserRole)
                 }),
@@ -71,7 +74,6 @@ namespace SWP391_RedRibbonLife.Controllers
             //Generate Token
             var token = tokenHandler.CreateToken(tokenDescriptor);
             response.token = tokenHandler.WriteToken(token);
-
             return Ok(response);
         }
 
@@ -84,6 +86,7 @@ namespace SWP391_RedRibbonLife.Controllers
                 // Lấy thông tin user từ token claims
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 var username = User.FindFirst(ClaimTypes.Name)?.Value;
+                var fullName = User.FindFirst(ClaimTypes.GivenName)?.Value;
                 var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
                 if (string.IsNullOrEmpty(username))
                 {
@@ -93,6 +96,7 @@ namespace SWP391_RedRibbonLife.Controllers
                 {
                     userId = userId,
                     username = username,
+                    fullName = fullName,
                     userRole = userRole,
                     tokenValid = true,
                     timestamp = DateTime.UtcNow
