@@ -88,7 +88,9 @@ namespace BLL.Services
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     // UserId
-                    new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString())
+                    new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                    // User Role
+                    new Claim(ClaimTypes.Role, user.UserRole)
                 }),
                 Expires = DateTime.UtcNow.AddHours(1),
                 SigningCredentials = new(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512)
