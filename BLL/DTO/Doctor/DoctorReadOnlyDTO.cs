@@ -10,7 +10,7 @@ namespace BLL.DTO.Doctor
     public class DoctorReadOnlyDTO
     {
         //User
-        // public int UserId { get; set; }
+        public int UserId { get; set; }
 
         [Required(ErrorMessage = "Username is required")]
         [StringLength(50, ErrorMessage = "Username cannot exceed 50 characters")]

@@ -10,6 +10,7 @@ using BLL.Interfaces;
 using DAL.IRepository;
 using DAL.Models;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using Microsoft.EntityFrameworkCore;
 
 namespace BLL.Utils
 {
@@ -60,10 +61,19 @@ namespace BLL.Utils
         
         public void CheckPatientExist(int patientId)
         {
-            var patient = _patientRepository.GetAsync(u => u.PatientId == patientId, true).GetAwaiter().GetResult();
+            var patient = _patientRepository.GetWithRelationsAsync(u => u.PatientId == patientId, true,
+                includeFunc: q => q.Include(t => t.User)).GetAwaiter().GetResult();
             if (patient == null)
             {
                 throw new Exception("Patient not found.");
+            }
+            if (patient.User.IsActive == false)
+            {
+                throw new Exception("This account has been deactivated.");
+            }
+            if (patient.User.IsVerified == false)
+            {
+                throw new Exception("This account has not been verified.");
             }
         }
         

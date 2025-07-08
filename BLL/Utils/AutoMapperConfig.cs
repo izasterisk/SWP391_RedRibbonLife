@@ -32,7 +32,6 @@ namespace BLL.Utils
         public AutoMapperConfig()
         {
             CreateMap<LoginDTO, User>().ReverseMap();
-            CreateMap<LoginResponseDTO, User>().ReverseMap();
             
             CreateMap<UserDTO, User>().ReverseMap();
             CreateMap<UserReadonlyDTO, User>().ReverseMap();

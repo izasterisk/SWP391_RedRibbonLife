@@ -94,7 +94,7 @@ public class AdminService : IAdminService
         return _mapper.Map<List<AdminReadOnlyDTO>>(admins);
     }
     
-    public async Task<AdminReadOnlyDTO> GetAdminByIdAsync(int id)
+    public async Task<AdminReadOnlyDTO> GetAdminByUserIdAsync(int id)
     {
         var admin = await _userRepository.GetAsync(u => u.IsActive && u.UserId == id, true);
         if (admin == null)

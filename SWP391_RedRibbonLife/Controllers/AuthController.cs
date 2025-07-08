@@ -1,12 +1,9 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+﻿using System.Security.Claims;
 using BLL.DTO;
 using BLL.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using System.Net;
 using BLL.DTO.Login;
 using BLL.DTO.User;
@@ -48,51 +45,21 @@ namespace SWP391_RedRibbonLife.Controllers
             }
             try
             {
-                var user = await _loginService.ValidateUserAsync(model.Username, model.Password);
-                if (user == null)
-                {
-                    apiResponse.Status = false;
-                    apiResponse.StatusCode = HttpStatusCode.BadRequest;
-                    apiResponse.Errors.Add("Invalid username or password");
-                    return BadRequest(apiResponse);
-                }
-                LoginResponseDTO response = new()
-                {
-                    Username = user.Username,
-                    FullName = user.FullName
-                };
-                string audience = _configuration.GetValue<string>("LocalAudience");
-                string issuer = _configuration.GetValue<string>("LocalIssuer");
-                byte[] key = Encoding.ASCII.GetBytes(_configuration.GetValue<string>("JWTSecretforLocaluser"));
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var tokenDescriptor = new SecurityTokenDescriptor()
-                {
-                    Issuer = issuer,
-                    Audience = audience,
-                    Subject = new ClaimsIdentity(new Claim[]
-                    {
-                        //UserId
-                        new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                        //Username
-                        new Claim(ClaimTypes.Name, user.Username),
-                        //FullName
-                        new Claim(ClaimTypes.GivenName, user.FullName ?? ""),
-                        //Roles
-                        new Claim(ClaimTypes.Role, user.UserRole)
-                    }),
-                    Expires = DateTime.UtcNow.AddHours(1),
-                    SigningCredentials = new(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512)
-                };
-                //Generate Token
-                var token = tokenHandler.CreateToken(tokenDescriptor);
-                response.token = tokenHandler.WriteToken(token);
-                apiResponse.Data = response;
+                var result = await _loginService.LoginServiceAsync(model);
+                apiResponse.Data = result;
                 apiResponse.Status = true;
                 apiResponse.StatusCode = HttpStatusCode.OK;
                 return Ok(apiResponse);
             }
             catch (Exception ex)
             {
+                if (ex.Message.Contains("Invalid username or password"))
+                {
+                    apiResponse.Status = false;
+                    apiResponse.StatusCode = HttpStatusCode.BadRequest;
+                    apiResponse.Errors.Add(ex.Message);
+                    return BadRequest(apiResponse);
+                }
                 apiResponse.Errors.Add(ex.Message);
                 apiResponse.StatusCode = HttpStatusCode.InternalServerError;
                 apiResponse.Status = false;
@@ -106,42 +73,35 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Authorize(AuthenticationSchemes = "LoginforLocaluser")]
-        public ActionResult<APIResponse> GetCurrentUserAsync()
+        public async Task<ActionResult<APIResponse>> GetCurrentUserAsync()
         {
             var apiResponse = new APIResponse();
             try
             {
-                // Lấy thông tin user từ token claims
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var username = User.FindFirst(ClaimTypes.Name)?.Value;
-                var fullName = User.FindFirst(ClaimTypes.GivenName)?.Value;
-                var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
-                
-                if (string.IsNullOrEmpty(username))
+                // Lấy userId từ token claims
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
                 {
                     apiResponse.Status = false;
                     apiResponse.StatusCode = HttpStatusCode.Unauthorized;
                     apiResponse.Errors.Add("Invalid token");
                     return Unauthorized(apiResponse);
                 }
-
-                var userData = new
-                {
-                    userId = userId,
-                    username = username,
-                    fullName = fullName,
-                    userRole = userRole,
-                    tokenValid = true,
-                    timestamp = DateTime.UtcNow
-                };
-
-                apiResponse.Data = userData;
+                var result = await _loginService.GetMeAsync(userId);
+                apiResponse.Data = result;
                 apiResponse.Status = true;
                 apiResponse.StatusCode = HttpStatusCode.OK;
                 return Ok(apiResponse);
             }
             catch (Exception ex)
             {
+                if (ex.Message.Contains("User not found") || ex.Message.Contains("deactivated"))
+                {
+                    apiResponse.Errors.Add(ex.Message);
+                    apiResponse.StatusCode = HttpStatusCode.Unauthorized;
+                    apiResponse.Status = false;
+                    return Unauthorized(apiResponse);
+                }
                 apiResponse.Errors.Add(ex.Message);
                 apiResponse.StatusCode = HttpStatusCode.InternalServerError;
                 apiResponse.Status = false;

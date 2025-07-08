@@ -7,5 +7,7 @@ namespace BLL.Interfaces
     {
         Task<UserReadonlyDTO?> ValidateUserAsync(string username, string password);
         Task<object> ChangePasswordAsync(ChangePasswordDTO dto);
+        Task<object> LoginServiceAsync(LoginDTO dto);
+        Task<object> GetMeAsync(int userId);
     }
 } 

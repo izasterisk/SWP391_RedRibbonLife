@@ -158,7 +158,7 @@ namespace SWP391_RedRibbonLife.Controllers
                     apiResponse.Status = false;
                     return BadRequest(apiResponse);
                 }
-                var admin = await _adminService.GetAdminByIdAsync(id);
+                var admin = await _adminService.GetAdminByUserIdAsync(id);
                 apiResponse.Data = admin;
                 apiResponse.Status = true;
                 apiResponse.StatusCode = HttpStatusCode.OK;
