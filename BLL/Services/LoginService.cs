@@ -21,14 +21,27 @@ namespace BLL.Services
         private readonly IUserRepository<Patient> _patientRepository;
         private readonly IUserRepository<Doctor> _doctorRepository;
         private readonly IUserService _userService;
+        private readonly IPatientService _patientService;
+        private readonly IDoctorService _doctorService;
+        private readonly IStaffService _staffService;
+        private readonly IManagerService _managerService;
+        private readonly IAdminService _adminService;
 
-        public LoginService(IMapper mapper, IUserRepository<User> userRepository, IUserService userService, IUserRepository<Patient> patientRepository, IUserRepository<Doctor> doctorRepository)
+        public LoginService(IMapper mapper, IUserRepository<User> userRepository, IUserService userService, 
+            IUserRepository<Patient> patientRepository, IUserRepository<Doctor> doctorRepository,
+            IPatientService patientService, IDoctorService doctorService,
+            IStaffService staffService, IManagerService managerService, IAdminService adminService)
         {
             _mapper = mapper;
             _userRepository = userRepository;
             _userService = userService;
             _patientRepository = patientRepository;
             _doctorRepository = doctorRepository;
+            _patientService = patientService;
+            _doctorService = doctorService;
+            _staffService = staffService;
+            _managerService = managerService;
+            _adminService = adminService;
         }
 
         public async Task<UserReadonlyDTO?> ValidateUserAsync(string username, string password)
@@ -54,7 +67,7 @@ namespace BLL.Services
             var user = await _userRepository.GetAsync(u => u.Email.Equals(dto.Email) && u.IsActive);
             if (user == null)
             {
-                throw new Exception("User not found.");
+                throw new Exception("User not found or this account has been deactivated.");
             }
             var hashedOldPassword = _userService.CreatePasswordHash(dto.Password);
             if (!user.Password.Equals(hashedOldPassword))
@@ -69,45 +82,22 @@ namespace BLL.Services
                     var patient = await _patientRepository.GetAsync(p => p.UserId == user.UserId);
                     if (patient != null)
                     {
-                        return new PatientReadOnlyDTO
-                        {
-                            // User properties
-                            Username = user1.Username,
-                            Email = user1.Email,
-                            PhoneNumber = user1.PhoneNumber,
-                            FullName = user1.FullName,
-                            DateOfBirth = user1.DateOfBirth,
-                            Gender = user1.Gender,
-                            Address = user1.Address,
-                            // Patient properties
-                            PatientId = patient.PatientId,
-                            BloodType = patient.BloodType,
-                            IsPregnant = patient.IsPregnant,
-                            SpecialNotes = patient.SpecialNotes
-                        };
+                        return await _patientService.GetPatientByPatientIDAsync(patient.PatientId);
                     }
                     break;
                 case "Doctor":
                     var doctor = await _doctorRepository.GetAsync(d => d.UserId == user.UserId);
                     if (doctor != null)
                     {
-                        return new DoctorReadOnlyDTO
-                        {
-                            // User properties
-                            Username = user1.Username,
-                            Email = user1.Email,
-                            PhoneNumber = user1.PhoneNumber,
-                            FullName = user1.FullName,
-                            DateOfBirth = user1.DateOfBirth,
-                            Gender = user1.Gender,
-                            Address = user1.Address,
-                            // Doctor properties
-                            DoctorId = doctor.DoctorId,
-                            DoctorImage = doctor.DoctorImage,
-                            Bio = doctor.Bio
-                        };
+                        return await _doctorService.GetDoctorByDoctorIDAsync(doctor.DoctorId);
                     }
                     break;
+                case "Staff":
+                    return await _staffService.GetStaffByIdAsync(user.UserId);
+                case "Manager":
+                    return await _managerService.GetManagerByIdAsync(user.UserId);
+                case "Admin":
+                    return await _adminService.GetAdminByIdAsync(user.UserId);
             }
             return null;
         }
