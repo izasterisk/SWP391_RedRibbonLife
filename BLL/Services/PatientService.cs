@@ -40,7 +40,6 @@ public class PatientService : IPatientService
         {
             throw new Exception($"Email {dto.Email} already exists.");
         }
-        
         using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
@@ -66,6 +65,10 @@ public class PatientService : IPatientService
                 useNoTracking: true,
                 includeFunc: query => query.Include(p => p.User)
             );
+            if (detailedPatient == null)
+            {
+                throw new Exception("Patient after created not found.");
+            }
             return _mapper.Map<PatientReadOnlyDTO>(detailedPatient);
         }
         catch (Exception)
@@ -86,25 +89,25 @@ public class PatientService : IPatientService
             {
                 throw new Exception("Patient not found.");
             }
-            
             var user = await _userRepository.GetAsync(u => u.UserId == patient.UserId, true);
             if (user == null)
             {
                 throw new Exception($"User associated with patient ID {dto.PatientId} not found.");
             }
-            
             _mapper.Map(dto, user);
             _mapper.Map(dto, patient);
-            
-            var updatedUser = await _userRepository.UpdateAsync(user);
+            await _userRepository.UpdateAsync(user);
             var updatedPatient = await _patientRepository.UpdateAsync(patient);
             await transaction.CommitAsync();
-            
             var detailedPatient = await _patientRepository.GetWithRelationsAsync(
                 filter: p => p.PatientId == updatedPatient.PatientId,
                 useNoTracking: true,
                 includeFunc: query => query.Include(p => p.User)
             );
+            if (detailedPatient == null)
+            {
+                throw new Exception("Patient after updated not found.");
+            }
             return _mapper.Map<PatientReadOnlyDTO>(detailedPatient);
         }
         catch (Exception)
