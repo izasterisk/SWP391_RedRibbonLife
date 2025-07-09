@@ -30,7 +30,7 @@ public class TestResultDTO
 
     public string? Notes { get; set; }
     
-//Test Type
+    //Test Type
     // [Required(ErrorMessage = "ID is required")]
     // public int TestTypeId { get; set; }
 
