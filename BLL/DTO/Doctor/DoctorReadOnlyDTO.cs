@@ -42,10 +42,10 @@ namespace BLL.DTO.Doctor
 
         public string? Address { get; set; }
 
-        // [Required(ErrorMessage = "User role is required")]
-        // [StringLength(50, ErrorMessage = "User role cannot exceed 50 characters")]
-        // [RegularExpression("^(Patient|Staff|Doctor|Manager|Admin)$", ErrorMessage = "User role must be one of: Patient, Staff, Doctor, Manager, Admin")]
-        // public string UserRole { get; set; } = null!;
+        [Required(ErrorMessage = "User role is required")]
+        [StringLength(50, ErrorMessage = "User role cannot exceed 50 characters")]
+        [RegularExpression("^(Patient|Staff|Doctor|Manager|Admin)$", ErrorMessage = "User role must be one of: Patient, Staff, Doctor, Manager, Admin")]
+        public string UserRole { get; set; } = null!;
 
         // public bool IsActive { get; set; }
         

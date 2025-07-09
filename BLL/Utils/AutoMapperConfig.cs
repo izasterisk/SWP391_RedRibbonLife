@@ -46,6 +46,7 @@ namespace BLL.Utils
                 .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => src.User != null ? src.User.DateOfBirth : null))
                 .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.User != null ? src.User.Gender : null))
                 .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.User != null ? src.User.Address : null))
+                .ForMember(dest => dest.UserRole, opt => opt.MapFrom(src => src.User != null ? src.User.UserRole : null))
                 .ForMember(dest => dest.DoctorId, opt => opt.MapFrom(src => src.DoctorId))
                 .ForMember(dest => dest.DoctorImage, opt => opt.MapFrom(src => src.DoctorImage))
                 .ForMember(dest => dest.Bio, opt => opt.MapFrom(src => src.Bio));
@@ -67,6 +68,7 @@ namespace BLL.Utils
                 .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.User != null ? src.User.Address : null))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.User != null ? src.User.IsActive : false))
                 .ForMember(dest => dest.IsVerified, opt => opt.MapFrom(src => src.User != null ? src.User.IsVerified : false))
+                .ForMember(dest => dest.UserRole, opt => opt.MapFrom(src => src.User != null ? src.User.UserRole : null))
                 .ForMember(dest => dest.PatientId, opt => opt.MapFrom(src => src.PatientId))
                 .ForMember(dest => dest.BloodType, opt => opt.MapFrom(src => src.BloodType))
                 .ForMember(dest => dest.IsPregnant, opt => opt.MapFrom(src => src.IsPregnant))
