@@ -117,11 +117,13 @@ namespace BLL.Utils
                 .ForMember(dest => dest.AppointmentDate, opt => opt.Condition(src => src.AppointmentDate.HasValue))
                 .ForMember(dest => dest.AppointmentTime, opt => opt.Condition(src => src.AppointmentTime.HasValue))
                 .ForMember(dest => dest.AppointmentType, opt => opt.Condition(src => !string.IsNullOrEmpty(src.AppointmentType)))
+                .ForMember(dest => dest.TestTypeId, opt => opt.Condition(src => src.TestTypeId.HasValue))
                 .ForMember(dest => dest.Status, opt => opt.Condition(src => !string.IsNullOrEmpty(src.Status)))
                 .ForMember(dest => dest.IsAnonymous, opt => opt.Ignore());
             CreateMap<AppointmentReadOnlyDTO, Appointment>().ReverseMap()
                 .ForMember(dest => dest.PatientName, opt => opt.MapFrom(src => src.Patient.User.FullName))
-                .ForMember(dest => dest.DoctorName, opt => opt.MapFrom(src => src.Doctor.User.FullName));
+                .ForMember(dest => dest.DoctorName, opt => opt.MapFrom(src => src.Doctor.User.FullName))
+                .ForMember(dest => dest.TestTypeName, opt => opt.MapFrom(src => src.TestType != null ? src.TestType.TestTypeName : null));
             
             CreateMap<ARVRegimensCreateDTO, Arvregimen>().ReverseMap();
             CreateMap<ARVRegimensReadOnlyDTO, Arvregimen>().ReverseMap();

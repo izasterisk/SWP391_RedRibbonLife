@@ -1,8 +1,10 @@
+using System.Threading.Tasks;
+
 namespace BLL.Interfaces;
 
 public interface IARVRegimenUtils
 {
-    void CheckARVComponentExist(int id);
-    void CheckIfAnyTreatmentLinked(int id);
-    void CheckARVRegimenExist(int id);
+    Task CheckARVComponentExistAsync(int id);
+    Task CheckIfAnyTreatmentLinkedAsync(int id);
+    Task CheckARVRegimenExistAsync(int id);
 }

@@ -50,19 +50,19 @@ namespace BLL.Utils
             return hash;
         }
         
-        public void CheckDoctorExist(int doctorId)
+        public async Task CheckDoctorExistAsync(int doctorId)
         {
-            var doctor = _doctorRepository.GetAsync(u => u.DoctorId == doctorId, true).GetAwaiter().GetResult();
+            var doctor = await _doctorRepository.GetAsync(u => u.DoctorId == doctorId, true);
             if (doctor == null)
             {
                 throw new Exception("Doctor not found.");
             }
         }
         
-        public void CheckPatientExist(int patientId)
+        public async Task CheckPatientExistAsync(int patientId)
         {
-            var patient = _patientRepository.GetWithRelationsAsync(u => u.PatientId == patientId, true,
-                includeFunc: q => q.Include(t => t.User)).GetAwaiter().GetResult();
+            var patient = await _patientRepository.GetWithRelationsAsync(u => u.PatientId == patientId, true,
+                includeFunc: q => q.Include(t => t.User));
             if (patient == null)
             {
                 throw new Exception("Patient not found.");
@@ -77,42 +77,36 @@ namespace BLL.Utils
             }
         }
         
-        public void CheckUserExist(int userId)
+        public async Task CheckUserExistAsync(int userId)
         {
-            var user = _userRepository.GetAsync(u => u.UserId == userId, true).GetAwaiter().GetResult();
+            var user = await _userRepository.GetAsync(u => u.UserId == userId, true);
             if (user == null)
             {
                 throw new Exception("User not found.");
             }
         }
         
-        public void CheckAppointmentExist(int appointmentId)
+        public async Task CheckAppointmentExistAsync(int appointmentId)
         {
             // Check if appointment exists
-            var appointment = _appointmentRepository.GetAsync(a => a.AppointmentId == appointmentId, true).GetAwaiter().GetResult();
+            var appointment = await _appointmentRepository.GetAsync(a => a.AppointmentId == appointmentId, true);
             if (appointment == null)
             {
                 throw new Exception("Appointment not found.");
             }
         }
-        public void CheckDuplicateAppointment(int appointmentId)
+        public async Task CheckDuplicateAppointmentAsync(int appointmentId)
         {
-            var appointment = _appointmentRepository.GetAsync(a => a.AppointmentId == appointmentId, true).GetAwaiter().GetResult();
-            if (appointment == null)
-            {
-                throw new Exception("Appointment not found.");
-            }
-            var duplicateAppointment = _testResultRepository.GetAsync(a => a.AppointmentId == appointmentId, true).GetAwaiter().GetResult();
+            var duplicateAppointment = await _testResultRepository.GetAsync(a => a.AppointmentId == appointmentId, true);
             if (duplicateAppointment != null)
             {
                 throw new Exception("1 appointment can only have 1 test result.");
             }
         }
 
-        public void CheckTestTypeExist(int testTypeId)
+        public async Task CheckTestTypeExistAsync(int testTypeId)
         {
-            // Check if test type exists
-            var testType = _testTypeRepository.GetAsync(t => t.TestTypeId == testTypeId, true).GetAwaiter().GetResult();
+            var testType = await _testTypeRepository.GetAsync(t => t.TestTypeId == testTypeId, true);
             if (testType == null)
             {
                 throw new Exception("Test type not found.");
@@ -127,32 +121,32 @@ namespace BLL.Utils
             }
         }
         
-        public void CheckTestResultExist(int id)
+        public async Task CheckTestResultExistAsync(int id)
         {
-            var testResult = _testResultRepository.GetAsync(t => t.TestResultId == id, true).GetAwaiter().GetResult();
+            var testResult = await _testResultRepository.GetAsync(t => t.TestResultId == id, true);
             if (testResult == null)
             {
                 throw new Exception("Test result not found.");
             }
-            var treatments = _treatmentRepository.GetAsync(t => t.TestResultId == id, true).GetAwaiter().GetResult();
+            var treatments = await _treatmentRepository.GetAsync(t => t.TestResultId == id, true);
             if (treatments != null)
             {
                 throw new Exception("1 test result can only link to 1 treatment.");
             }
         }
         
-        public void CheckTreatmentExist(int id)
+        public async Task CheckTreatmentExistAsync(int id)
         {
-            var treatment = _treatmentRepository.GetAsync(t => t.TreatmentId == id, true).GetAwaiter().GetResult();
+            var treatment = await _treatmentRepository.GetAsync(t => t.TreatmentId == id, true);
             if (treatment == null)
             {
                 throw new Exception("Treatment not found.");
             }
         }
         
-        public void CheckEmailExist(string email)
+        public async Task CheckEmailExistAsync(string email)
         {
-            var existingUser = _userRepository.GetAsync(u => u.Email.Equals(email), true).GetAwaiter().GetResult();
+            var existingUser = await _userRepository.GetAsync(u => u.Email.Equals(email), true);
             if (existingUser != null)
             {
                 throw new Exception($"Email {email} already exists.");

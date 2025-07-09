@@ -35,7 +35,7 @@ public class StaffService : IStaffService
                 throw new Exception($"Username {dto.Username} already exists.");
             }
             // Check if email already exists
-            _userUtils.CheckEmailExist(dto.Email);
+            await _userUtils.CheckEmailExistAsync(dto.Email);
             User user = _mapper.Map<User>(dto);
             user.IsActive = true;
             user.UserRole = "Staff";
@@ -54,7 +54,7 @@ public class StaffService : IStaffService
     public async Task<StaffReadOnlyDTO> UpdateStaffAsync(StaffUpdateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-        _userUtils.CheckUserExist(dto.UserId);
+        await _userUtils.CheckUserExistAsync(dto.UserId);
         using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
@@ -73,7 +73,7 @@ public class StaffService : IStaffService
                 {
                     throw new Exception("You are entering the exact email in your account");
                 }
-                _userUtils.CheckEmailExist(dto.Email);
+                await _userUtils.CheckEmailExistAsync(dto.Email);
             }
             // Update staff
             _mapper.Map(dto, staff);

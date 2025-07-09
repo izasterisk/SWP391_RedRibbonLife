@@ -35,7 +35,7 @@ public class ManagerService : IManagerService
                 throw new Exception($"Username {dto.Username} already exists.");
             }
             // Check if email already exists
-            _userUtils.CheckEmailExist(dto.Email);
+            await _userUtils.CheckEmailExistAsync(dto.Email);
             User user = _mapper.Map<User>(dto);
             user.IsActive = true;
             user.UserRole = "Manager";
@@ -54,7 +54,7 @@ public class ManagerService : IManagerService
     public async Task<ManagerReadOnlyDTO> UpdateManagerAsync(ManagerUpdateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-        _userUtils.CheckUserExist(dto.UserId);
+        await _userUtils.CheckUserExistAsync(dto.UserId);
         using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
@@ -73,7 +73,7 @@ public class ManagerService : IManagerService
                 {
                     throw new Exception("You are entering the exact email in your account");
                 }
-                _userUtils.CheckEmailExist(dto.Email);
+                await _userUtils.CheckEmailExistAsync(dto.Email);
             }
             // Update manager
             _mapper.Map(dto, manager);

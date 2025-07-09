@@ -125,7 +125,7 @@ CREATE TABLE TestType (
 -- 10. Bảng TestResults (Lưu trữ kết quả xét nghiệm của bệnh nhân - quan hệ 1-1 với Appointments)
 CREATE TABLE TestResults (
     test_result_id INT PRIMARY KEY IDENTITY(1,1),
-    appointment_id INT,
+    appointment_id INT NOT NULL,
     patient_id INT NOT NULL,
     doctor_id INT NOT NULL,
     test_type_id INT NOT NULL,

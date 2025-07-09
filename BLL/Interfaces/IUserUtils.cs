@@ -9,15 +9,15 @@ namespace BLL.Interfaces
     public interface IUserUtils
     {
         string CreatePasswordHash(string password);
-        void CheckDoctorExist(int doctorId);
-        void CheckPatientExist(int patientId);
+        Task CheckDoctorExistAsync(int doctorId);
+        Task CheckPatientExistAsync(int patientId);
         void ValidateEndTimeStartTime(TimeOnly startTime, TimeOnly endTime);
-        void CheckUserExist(int userId);
-        void CheckAppointmentExist(int appointmentId);
-        void CheckTestTypeExist(int testTypeId);
-        void CheckDuplicateAppointment(int appointmentId);
-        void CheckTestResultExist(int id);
-        void CheckTreatmentExist(int id);
-        void CheckEmailExist(string email);
+        Task CheckUserExistAsync(int userId);
+        Task CheckAppointmentExistAsync(int appointmentId);
+        Task CheckTestTypeExistAsync(int testTypeId);
+        Task CheckDuplicateAppointmentAsync(int appointmentId);
+        Task CheckTestResultExistAsync(int id);
+        Task CheckTreatmentExistAsync(int id);
+        Task CheckEmailExistAsync(string email);
     }
 }

@@ -26,10 +26,10 @@ public class ARVRegimensService : IARVRegimensService
     public async Task<ARVRegimensReadOnlyDTO> CreateARVRegimensAsync(ARVRegimensCreateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-        _arvRegimenUtils.CheckARVComponentExist(dto.Component1Id);
-        dto.Component2Id.ValidateIfNotNull(_arvRegimenUtils.CheckARVComponentExist);
-        dto.Component3Id.ValidateIfNotNull(_arvRegimenUtils.CheckARVComponentExist);
-        dto.Component4Id.ValidateIfNotNull(_arvRegimenUtils.CheckARVComponentExist);
+        await _arvRegimenUtils.CheckARVComponentExistAsync(dto.Component1Id);
+        await dto.Component2Id.ValidateIfNotNullAsync(_arvRegimenUtils.CheckARVComponentExistAsync);
+        await dto.Component3Id.ValidateIfNotNullAsync(_arvRegimenUtils.CheckARVComponentExistAsync);
+        await dto.Component4Id.ValidateIfNotNullAsync(_arvRegimenUtils.CheckARVComponentExistAsync);
         if (dto.IsCustomized != true)
         {
             if (string.IsNullOrWhiteSpace(dto.RegimenName))
@@ -62,10 +62,10 @@ public class ARVRegimensService : IARVRegimensService
     public async Task<ARVRegimensReadOnlyDTO> UpdateARVRegimensAsync(ARVRegimensUpdateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-        dto.Component1Id.ValidateIfNotNull(_arvRegimenUtils.CheckARVComponentExist);
-        dto.Component2Id.ValidateIfNotNull(_arvRegimenUtils.CheckARVComponentExist);
-        dto.Component3Id.ValidateIfNotNull(_arvRegimenUtils.CheckARVComponentExist);
-        dto.Component4Id.ValidateIfNotNull(_arvRegimenUtils.CheckARVComponentExist);
+        await dto.Component1Id.ValidateIfNotNullAsync(_arvRegimenUtils.CheckARVComponentExistAsync);
+        await dto.Component2Id.ValidateIfNotNullAsync(_arvRegimenUtils.CheckARVComponentExistAsync);
+        await dto.Component3Id.ValidateIfNotNullAsync(_arvRegimenUtils.CheckARVComponentExistAsync);
+        await dto.Component4Id.ValidateIfNotNullAsync(_arvRegimenUtils.CheckARVComponentExistAsync);
         using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
@@ -109,7 +109,7 @@ public class ARVRegimensService : IARVRegimensService
         {
             throw new Exception("ARV Regimen not found.");
         }
-        _arvRegimenUtils.CheckIfAnyTreatmentLinked(id);
+        await _arvRegimenUtils.CheckIfAnyTreatmentLinkedAsync(id);
         await _arvRegimensRepository.DeleteAsync(regimen);
         return true;
     }

@@ -37,16 +37,24 @@ public class AppointmentService : IAppointmentService
     public async Task<AppointmentReadOnlyDTO> CreateAppointmentAsync(AppointmentCreateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-        _userUtils.CheckDoctorExist(dto.DoctorId);
-        _userUtils.CheckPatientExist(dto.PatientId);
-        _doctorScheduleUtils.CheckDoctorIfAvailable(dto.DoctorId, dto.AppointmentDate, dto.AppointmentTime);
+        await _userUtils.CheckDoctorExistAsync(dto.DoctorId);
+        await _userUtils.CheckPatientExistAsync(dto.PatientId);
+        await _doctorScheduleUtils.CheckDoctorIfAvailableAsync(dto.DoctorId, dto.AppointmentDate, dto.AppointmentTime);
+        if (dto.AppointmentType == "Medication" && dto.TestTypeId == null)
+        {
+            throw new Exception("Test type is required for medication appointment.");
+        }
+        if (dto.AppointmentType == "Appointment" && dto.TestTypeId != null)
+        {
+            throw new Exception("Appointment type is Appointment cannot have test type.");
+        }
+        await dto.TestTypeId.ValidateIfNotNullAsync(_userUtils.CheckTestTypeExistAsync);
         using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
             Appointment appointment = _mapper.Map<Appointment>(dto);
             appointment.Status = "Scheduled";
             var createdAppointment = await _appointmentRepository.CreateAsync(appointment);
-            await transaction.CommitAsync();
             var detailedAppointment = await _appointmentRepository.GetWithRelationsAsync(
                 filter: a => a.AppointmentId == createdAppointment.AppointmentId,
                 useNoTracking: true,
@@ -55,7 +63,9 @@ public class AppointmentService : IAppointmentService
                         .ThenInclude(p => p.User)
                     .Include(a => a.Doctor)
                         .ThenInclude(d => d.User)
+                    .Include(a => a.TestType)
             );
+            await transaction.CommitAsync();
             return _mapper.Map<AppointmentReadOnlyDTO>(detailedAppointment);
         }
         catch (Exception)
@@ -77,38 +87,64 @@ public class AppointmentService : IAppointmentService
         {
             throw new ArgumentException("Status must be one of: Scheduled, Confirmed, Completed, Cancelled");
         }
+        await dto.TestTypeId.ValidateIfNotNullAsync(_userUtils.CheckTestTypeExistAsync);
+        var appointment = await _appointmentRepository.GetWithRelationsAsync(
+            filter: a => a.AppointmentId == dto.AppointmentId,
+            useNoTracking: false,
+            includeFunc: query => query
+                .Include(a => a.Patient)
+                .ThenInclude(p => p.User)
+                .Include(a => a.Doctor)
+                .ThenInclude(d => d.User)
+                .Include(a => a.TestType)
+        );
+        if (appointment == null)
+        {
+            throw new Exception("Appointment not found.");
+        }
+        if (dto.AppointmentType == "Medication" && dto.TestTypeId == null && appointment.TestTypeId == null)
+        {
+            throw new Exception("Test type is required for medication appointment.");
+        }
+        if (dto.AppointmentType == "Appointment")
+        {
+            if (appointment.TestTypeId != null)
+                dto.TestTypeId = null;
+            if (dto.TestTypeId != null)
+                throw new Exception("Appointment type is Appointment cannot have test type.");
+        }
+        var finalDate = dto.AppointmentDate ?? appointment.AppointmentDate;
+        var finalTime = dto.AppointmentTime ?? appointment.AppointmentTime;
+        if (dto.DoctorId != null)
+        {
+            await _userUtils.CheckDoctorExistAsync(dto.DoctorId.Value);
+            await _doctorScheduleUtils.CheckDoctorIfAvailableAsync(dto.DoctorId.Value, finalDate, finalTime);
+        }
+        else if (dto.AppointmentDate != null || dto.AppointmentTime != null)
+        {
+            await _doctorScheduleUtils.CheckDoctorIfAvailableAsync(appointment.DoctorId, finalDate, finalTime);
+        }
         using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
-            var appointment = await _appointmentRepository.GetWithRelationsAsync(
-                filter: a => a.AppointmentId == dto.AppointmentId,
-                useNoTracking: false,
-                includeFunc: query => query
-                    .Include(a => a.Patient)
-                        .ThenInclude(p => p.User)
-                    .Include(a => a.Doctor)
-                        .ThenInclude(d => d.User)
-            );
-            if (appointment == null)
-            {
-                throw new Exception("Appointment not found.");
-            }
-            var finalDate = dto.AppointmentDate ?? appointment.AppointmentDate;
-            var finalTime = dto.AppointmentTime ?? appointment.AppointmentTime;
-            if (dto.DoctorId != null)
-            {
-                _userUtils.CheckDoctorExist(dto.DoctorId.Value);
-                _doctorScheduleUtils.CheckDoctorIfAvailable(dto.DoctorId.Value, finalDate, finalTime);
-            }
-            else if (dto.AppointmentDate != null || dto.AppointmentTime != null)
-            {
-                _doctorScheduleUtils.CheckDoctorIfAvailable(appointment.DoctorId, finalDate, finalTime);
-            }
             _mapper.Map(dto, appointment);
             var updatedAppointment = await _appointmentRepository.UpdateAsync(appointment);
-            await _sendGridUtil.SendAppointmentApprovalEmailAsync(appointment.Patient.User.Email, appointment.Patient.User.FullName, finalDate, finalTime);
+            if(dto.Status == "Confirmed")
+            {
+                await _sendGridUtil.SendAppointmentApprovalEmailAsync(appointment.Patient.User.Email, appointment.Patient.User.FullName, finalDate, finalTime);
+            }
+            var detailedAppointment = await _appointmentRepository.GetWithRelationsAsync(
+                filter: a => a.AppointmentId == updatedAppointment.AppointmentId,
+                useNoTracking: true,
+                includeFunc: query => query
+                    .Include(a => a.Patient)
+                    .ThenInclude(p => p.User)
+                    .Include(a => a.Doctor)
+                    .ThenInclude(d => d.User)
+                    .Include(a => a.TestType)
+            );
             await transaction.CommitAsync();
-            return _mapper.Map<AppointmentReadOnlyDTO>(updatedAppointment);
+            return _mapper.Map<AppointmentReadOnlyDTO>(detailedAppointment);
         }
         catch (Exception)
         {
@@ -125,6 +161,7 @@ public class AppointmentService : IAppointmentService
                     .ThenInclude(p => p.User)
                 .Include(a => a.Doctor)
                     .ThenInclude(d => d.User)
+                .Include(a => a.TestType)
                 .Where(a => a.PatientId == id)
         );
         return _mapper.Map<List<AppointmentReadOnlyDTO>>(appointments);
@@ -138,6 +175,7 @@ public class AppointmentService : IAppointmentService
                     .ThenInclude(p => p.User)
                 .Include(a => a.Doctor)
                     .ThenInclude(d => d.User)
+                .Include(a => a.TestType)
                 .Where(a => a.DoctorId == id)
         );
         return _mapper.Map<List<AppointmentReadOnlyDTO>>(appointments);
@@ -153,7 +191,7 @@ public class AppointmentService : IAppointmentService
         {
             try
             {
-                _doctorScheduleUtils.CheckDoctorIfAvailable(doctor.DoctorId, appointmentDate, appointmentTime);
+                await _doctorScheduleUtils.CheckDoctorIfAvailableAsync(doctor.DoctorId, appointmentDate, appointmentTime);
                 availableDoctors.Add(new
                 {
                     DoctorId = doctor.DoctorId,
@@ -183,6 +221,7 @@ public class AppointmentService : IAppointmentService
                     .ThenInclude(p => p.User)
                 .Include(a => a.Doctor)
                     .ThenInclude(d => d.User)
+                .Include(a => a.TestType)
         );
         if (appointment == null)
         {
@@ -204,6 +243,7 @@ public class AppointmentService : IAppointmentService
                     .ThenInclude(p => p.User)
                 .Include(a => a.Doctor)
                     .ThenInclude(d => d.User)
+                .Include(a => a.TestType)
                 .Where(a => a.Status == "Scheduled")
                 .OrderBy(a => Math.Abs((a.AppointmentDate.ToDateTime(a.AppointmentTime) - DateTime.Now).TotalMinutes))
                 .Skip((page - 1) * pageSize)

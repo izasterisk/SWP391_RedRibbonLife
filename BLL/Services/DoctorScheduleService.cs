@@ -30,9 +30,9 @@ public class DoctorScheduleService : IDoctorScheduleService
     public async Task<DoctorScheduleDTO> CreateDoctorScheduleAsync(DoctorScheduleCreateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-        _userUtils.CheckDoctorExist(dto.DoctorId);
+        await _userUtils.CheckDoctorExistAsync(dto.DoctorId);
         _userUtils.ValidateEndTimeStartTime(dto.StartTime, dto.EndTime);
-        _doctorScheduleUtils.CheckDoctorScheduleExist(dto.DoctorId, dto.WorkDay);
+        await _doctorScheduleUtils.CheckDoctorScheduleExistAsync(dto.DoctorId, dto.WorkDay);
         using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {

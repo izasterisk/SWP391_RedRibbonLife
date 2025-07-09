@@ -1,28 +1,32 @@
 using System;
+using System.Threading.Tasks;
 
 namespace BLL.Utils
 {
     public static class ValidationExtensions
     {
-        public static void ValidateIfNotNull(this int? id, Action<int> validator)
+        public static async Task ValidateIfNotNullAsync(this int? id, Func<int, Task> validator)
         {
             if (id.HasValue)
-                validator(id.Value);
+                await validator(id.Value);
         }
-        public static void ValidateIfNotNullOrEmpty(this string? value, Action<string> validator)
+        
+        public static async Task ValidateIfNotNullOrEmptyAsync(this string? value, Func<string, Task> validator)
         {
             if (!string.IsNullOrEmpty(value))
-                validator(value);
+                await validator(value);
         }
-        public static void ValidateIfNotNull(this Guid? id, Action<Guid> validator)
+        
+        public static async Task ValidateIfNotNullAsync(this Guid? id, Func<Guid, Task> validator)
         {
             if (id.HasValue)
-                validator(id.Value);
+                await validator(id.Value);
         }
-        public static void ValidateIfNotNull(this DateTime? date, Action<DateTime> validator)
+        
+        public static async Task ValidateIfNotNullAsync(this DateTime? date, Func<DateTime, Task> validator)
         {
             if (date.HasValue)
-                validator(date.Value);
+                await validator(date.Value);
         }
     }
 } 

@@ -1,7 +1,9 @@
+using System.Threading.Tasks;
+
 namespace BLL.Interfaces;
 
 public interface IDoctorScheduleUtils
 {
-    void CheckDoctorScheduleExist(int id, string day);
-    void CheckDoctorIfAvailable(int id, DateOnly date, TimeOnly time);
+    Task CheckDoctorScheduleExistAsync(int id, string day);
+    Task CheckDoctorIfAvailableAsync(int id, DateOnly date, TimeOnly time);
 }

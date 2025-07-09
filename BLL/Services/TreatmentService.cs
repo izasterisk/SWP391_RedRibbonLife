@@ -27,8 +27,8 @@ public class TreatmentService : ITreatmentService
     public async Task<TreatmentDTO> CreateTreatmentAsync(TreatmentCreateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-        _arvRegimenUtils.CheckARVRegimenExist(dto.RegimenId);
-        _userUtils.CheckTestResultExist(dto.TestResultId);
+        await _arvRegimenUtils.CheckARVRegimenExistAsync(dto.RegimenId);
+        await _userUtils.CheckTestResultExistAsync(dto.TestResultId);
         var existedTreatment = await _treatmentRepository.GetAsync(t => t.TestResultId == dto.TestResultId, true);
         if (existedTreatment != null)
         {
@@ -81,8 +81,8 @@ public class TreatmentService : ITreatmentService
             {
                 throw new InvalidOperationException("Cannot update completed or cancelled treatment");
             }
-            dto.TestResultId.ValidateIfNotNull(_userUtils.CheckTestResultExist);
-            dto.RegimenId.ValidateIfNotNull(_arvRegimenUtils.CheckARVRegimenExist);
+            await dto.TestResultId.ValidateIfNotNullAsync(_userUtils.CheckTestResultExistAsync);
+            await dto.RegimenId.ValidateIfNotNullAsync(_arvRegimenUtils.CheckARVRegimenExistAsync);
             var startDate = dto.StartDate ?? treatment.StartDate;
             var endDate = dto.EndDate ?? treatment.EndDate;
             if (startDate >= endDate)

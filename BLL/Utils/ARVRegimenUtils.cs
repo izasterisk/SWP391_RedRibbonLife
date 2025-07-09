@@ -2,6 +2,7 @@ using AutoMapper;
 using BLL.Interfaces;
 using DAL.IRepository;
 using DAL.Models;
+using System.Threading.Tasks;
 
 namespace BLL.Utils;
 
@@ -19,18 +20,18 @@ public class ARVRegimenUtils : IARVRegimenUtils
         _treatmentRepository = treatmentRepository;
     }
     
-    public void CheckARVComponentExist(int id)
+    public async Task CheckARVComponentExistAsync(int id)
     {
-        var arvComponent = _arvComponentRepository.GetAsync(u => u.ComponentId == id, true).GetAwaiter().GetResult();
+        var arvComponent = await _arvComponentRepository.GetAsync(u => u.ComponentId == id, true);
         if (arvComponent == null)
         {
             throw new Exception($"ARVComponent with ID {id} not found");
         }
     }
     
-    public void CheckARVRegimenExist(int id)
+    public async Task CheckARVRegimenExistAsync(int id)
     {
-        var arvRegimen = _arvRegimensRepository.GetAsync(u => u.RegimenId == id, true).GetAwaiter().GetResult();
+        var arvRegimen = await _arvRegimensRepository.GetAsync(u => u.RegimenId == id, true);
         if (arvRegimen == null)
         {
             throw new Exception($"ARVRegimen with ID {id} not found");
@@ -41,9 +42,9 @@ public class ARVRegimenUtils : IARVRegimenUtils
         }
     }
 
-    public void CheckIfAnyTreatmentLinked(int id)
+    public async Task CheckIfAnyTreatmentLinkedAsync(int id)
     {
-        var treatment = _treatmentRepository.GetAsync(u => u.RegimenId == id, true).GetAwaiter().GetResult();
+        var treatment = await _treatmentRepository.GetAsync(u => u.RegimenId == id, true);
         if (treatment != null)
         {
             throw new Exception("This regimen is linked to a treatment, cannot delete. Delete that treatment first and this regimen will be deleted automatically.");

@@ -60,7 +60,7 @@ public class ArticleService : IArticleService
             {
                 throw new Exception("Title already exists.");
             }
-            dto.UserId.ValidateIfNotNull(_userUtils.CheckUserExist);
+            await dto.UserId.ValidateIfNotNullAsync(_userUtils.CheckUserExistAsync);
             if(dto.CategoryId != null)
             {
                 var existingCategory = await _categoryRepository.GetAsync(u => u.CategoryId == dto.CategoryId, true);
@@ -108,7 +108,7 @@ public class ArticleService : IArticleService
                     throw new Exception("Title already exists.");
                 }
             }
-            dto.UserId.ValidateIfNotNull(_userUtils.CheckUserExist);
+            await dto.UserId.ValidateIfNotNullAsync(_userUtils.CheckUserExistAsync);
             if(dto.CategoryId.HasValue)
             {
                 var existingCategory = await _categoryRepository.GetAsync(u => u.CategoryId == dto.CategoryId, true);

@@ -23,6 +23,9 @@ public class AppointmentUpdateDTO
 
     //[AllowedValues("Appointment", "Medication", ErrorMessage = "Appointment type must be either 'Appointment' or 'Medication'")]
     public string? AppointmentType { get; set; }
+    
+    // [Range(1, int.MaxValue, ErrorMessage = "Test Type ID must be a positive number")]
+    public int? TestTypeId { get; set; }
 
     //[AllowedValues("Scheduled", "Confirmed", "Completed", "Cancelled", ErrorMessage = "Status must be one of: Scheduled, Confirmed, Completed, Cancelled")]
     public string? Status { get; set; }

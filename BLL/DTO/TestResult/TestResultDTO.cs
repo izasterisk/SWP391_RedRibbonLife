@@ -9,8 +9,9 @@ public class TestResultDTO
     [Required(ErrorMessage = "Test result ID is required")]
     public int TestResultId { get; set; }
 
+    [Required(ErrorMessage = "Appointment ID is required")]
     [Range(1, int.MaxValue, ErrorMessage = "Appointment ID must be a positive number")]
-    public int? AppointmentId { get; set; }
+    public int AppointmentId { get; set; }
 
     [Required(ErrorMessage = "Patient ID is required")]
     [Range(1, int.MaxValue, ErrorMessage = "Patient ID must be a positive number")]

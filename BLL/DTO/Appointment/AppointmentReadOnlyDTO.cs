@@ -31,6 +31,13 @@ public class AppointmentReadOnlyDTO
     [AllowedValues("Appointment", "Medication", ErrorMessage = "Appointment type must be either 'Appointment' or 'Medication'")]
     public string? AppointmentType { get; set; }
 
+    [Range(1, int.MaxValue, ErrorMessage = "Test Type ID must be a positive number")]
+    public int? TestTypeId { get; set; }
+    
+    [Required(ErrorMessage = "Test type name is required")]
+    [StringLength(200, ErrorMessage = "Test type name cannot exceed 200 characters")]
+    public string TestTypeName { get; set; } = null!;
+    
     [AllowedValues("Scheduled", "Confirmed", "Completed", "Cancelled", ErrorMessage = "Status must be one of: Scheduled, Confirmed, Completed, Cancelled")]
     public string? Status { get; set; }
 
