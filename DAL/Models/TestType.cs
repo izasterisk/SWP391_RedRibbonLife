@@ -25,5 +25,8 @@ public partial class TestType
     public string? NormalRange { get; set; }
 
     [InverseProperty("TestType")]
+    public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
+
+    [InverseProperty("TestType")]
     public virtual ICollection<TestResult> TestResults { get; set; } = new List<TestResult>();
 }

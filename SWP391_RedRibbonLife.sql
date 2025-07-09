@@ -78,6 +78,7 @@ CREATE TABLE Appointments (
     appointment_time TIME NOT NULL,
     appointment_type NVARCHAR(50) DEFAULT 'Appointment',
     status NVARCHAR(50) DEFAULT 'Scheduled',
+    test_type_id INT NULL,
     isAnonymous BIT DEFAULT 0,
     CONSTRAINT chk_appointment_type CHECK (appointment_type IN ('Appointment', 'Medication')),
     CONSTRAINT chk_appointment_status CHECK (status IN ('Scheduled', 'Confirmed', 'Completed', 'Cancelled'))
@@ -203,6 +204,10 @@ FOREIGN KEY (patient_id) REFERENCES Patients(patient_id);
 ALTER TABLE Appointments
 ADD CONSTRAINT fk_appointments_doctors
 FOREIGN KEY (doctor_id) REFERENCES Doctors(doctor_id);
+
+ALTER TABLE Appointments
+ADD CONSTRAINT fk_appointments_test_type
+FOREIGN KEY (test_type_id) REFERENCES TestType(test_type_id);
 
 ALTER TABLE TestResults
 ADD CONSTRAINT fk_test_results_appointments
@@ -500,6 +505,14 @@ VALUES
     N'AZT+3TC: Uống 2 viên/ngày. DRV/RTV: Theo chỉ định của bác sĩ.',
     2, 1, 1);
 
+-- Chèn dữ liệu vào bảng TestType (PHẢI INSERT TRƯỚC KHI DÙNG TRONG APPOINTMENTS)
+INSERT INTO TestType (test_type_name, unit, normal_range)
+VALUES
+(N'Xét nghiệm kháng thể HIV (Antibody Test)', 'S/C', N'< 0.90 S/C Units (Non-reactive - âm tính)'),
+(N'Xét nghiệm kháng nguyên p24 (Antigen Test)', 'IU/mL', N'< 0.43 IU/mL (giói hạn phát hiện ~0.27 - 0.58 IU/mL)'),
+(N'Xét nghiệm tải lượng virus HIV (Viral Load Test)', 'copies/mL', N'Khong co gia tri "binh thuong" cho nguoi khong nhiem; ngưỡng phát hiện: < 20 copies/mL (undetectable)'),
+(N'Đếm tế bào CD4+ (CD4 Count)', 'cells/mm³', N'700 - 1100 cells/mm³ (người bình thường không nhiễm HIV)');
+
 -- Chèn dữ liệu vào bảng DoctorSchedules
 INSERT INTO DoctorSchedules (doctor_id, work_day, start_time, end_time)
 VALUES
@@ -508,20 +521,12 @@ VALUES
 (2, 'Tuesday', '09:00:00', '12:00:00'),
 (2, 'Thursday', '14:00:00', '18:00:00');
 
--- Chèn dữ liệu vào bảng Appointments
-INSERT INTO Appointments (patient_id, doctor_id, appointment_date, appointment_time, appointment_type, status, isAnonymous)
+-- Chèn dữ liệu vào bảng Appointments (SAU KHI ĐÃ CÓ TESTTYPE)
+INSERT INTO Appointments (patient_id, doctor_id, appointment_date, appointment_time, appointment_type, status, test_type_id, isAnonymous)
 VALUES
-(1, 1, '2025-06-30', '09:00:00', 'Appointment', 'Scheduled', 0),
-(2, 2, '2025-07-01', '10:00:00', 'Appointment', 'Scheduled', 1),
-(1, 2, '2025-07-05', '14:00:00', 'Medication', 'Scheduled', 0);
-
--- Chèn dữ liệu vào bảng TestType
-INSERT INTO TestType (test_type_name, unit, normal_range)
-VALUES
-(N'Xét nghiệm kháng thể HIV (Antibody Test)', 'S/C', N'< 0.90 S/C Units (Non-reactive - âm tính)'),
-(N'Xét nghiệm kháng nguyên p24 (Antigen Test)', 'IU/mL', N'< 0.43 IU/mL (giói hạn phát hiện ~0.27 - 0.58 IU/mL)'),
-(N'Xét nghiệm tải lượng virus HIV (Viral Load Test)', 'copies/mL', N'Khong co gia tri "binh thuong" cho nguoi khong nhiem; ngưỡng phát hiện: < 20 copies/mL (undetectable)'),
-(N'Đếm tế bào CD4+ (CD4 Count)', 'cells/mm³', N'700 - 1100 cells/mm³ (người bình thường không nhiễm HIV)');
+(1, 1, '2025-06-30', '09:00:00', 'Appointment', 'Scheduled', NULL, 0),
+(2, 2, '2025-07-01', '10:00:00', 'Appointment', 'Scheduled', NULL, 1),
+(1, 2, '2025-07-05', '14:00:00', 'Medication', 'Scheduled', 3, 0);
 
 -- Chèn dữ liệu vào bảng TestResults (quan hệ 1-1 với Appointments)
 INSERT INTO TestResults (appointment_id, patient_id, doctor_id, test_type_id, result_value, notes)
@@ -537,20 +542,20 @@ VALUES
 (1, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ TDF + 3TC + DTG Chuẩn'), '2025-06-01', '2025-12-31', 'Active', N'Đang điều trị với phác đồ TDF + 3TC + DTG'),
 (2, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ AZT + 3TC + NVP Chuẩn'), '2025-06-05', '2025-12-31', 'Active', N'Đang điều trị với phác đồ AZT + 3TC + NVP');
 
--- Chèn dữ liệu vào bảng Notifications
-INSERT INTO Notifications (user_id, appointment_id, treatment_id, notification_type, scheduled_time, status)
-VALUES
--- Thông báo lịch hẹn
-(1, 1, NULL, 'Appointment', '2025-06-29 15:00:00', 'Pending'),
-(2, 2, NULL, 'Appointment', '2025-06-30 10:00:00', 'Pending'),
-(1, 3, NULL, 'Appointment', '2025-07-04 14:00:00', 'Pending'),
--- Thông báo uống thuốc (sử dụng treatment_id thực tế)
-(1, NULL, 1, 'Medication', '2025-06-26 08:00:00', 'Pending'),
-(1, NULL, 1, 'Medication', '2025-06-27 08:00:00', 'Pending'),
-(2, NULL, 2, 'Medication', '2025-06-26 07:00:00', 'Pending'),
-(2, NULL, 2, 'Medication', '2025-06-26 19:00:00', 'Pending'),
-(2, NULL, 2, 'Medication', '2025-06-27 07:00:00', 'Pending'),
-(2, NULL, 2, 'Medication', '2025-06-27 19:00:00', 'Pending'),
--- Thông báo chung
-(1, NULL, NULL, 'General', '2025-06-25 09:00:00', 'Sent'),
-(2, NULL, NULL, 'General', '2025-06-25 09:30:00', 'Sent');
+---- Chèn dữ liệu vào bảng Notifications
+--INSERT INTO Notifications (user_id, appointment_id, treatment_id, notification_type, scheduled_time, status)
+--VALUES
+---- Thông báo lịch hẹn
+--(1, 1, NULL, 'Appointment', '2025-06-29 15:00:00', 'Pending'),
+--(2, 2, NULL, 'Appointment', '2025-06-30 10:00:00', 'Pending'),
+--(1, 3, NULL, 'Appointment', '2025-07-04 14:00:00', 'Pending'),
+---- Thông báo uống thuốc (sử dụng treatment_id thực tế)
+--(1, NULL, 1, 'Medication', '2025-06-26 08:00:00', 'Pending'),
+--(1, NULL, 1, 'Medication', '2025-06-27 08:00:00', 'Pending'),
+--(2, NULL, 2, 'Medication', '2025-06-26 07:00:00', 'Pending'),
+--(2, NULL, 2, 'Medication', '2025-06-26 19:00:00', 'Pending'),
+--(2, NULL, 2, 'Medication', '2025-06-27 07:00:00', 'Pending'),
+--(2, NULL, 2, 'Medication', '2025-06-27 19:00:00', 'Pending'),
+---- Thông báo chung
+--(1, NULL, NULL, 'General', '2025-06-25 09:00:00', 'Sent'),
+--(2, NULL, NULL, 'General', '2025-06-25 09:30:00', 'Sent');

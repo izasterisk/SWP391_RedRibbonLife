@@ -35,6 +35,9 @@ public partial class Appointment
     [StringLength(50)]
     public string? Status { get; set; }
 
+    [Column("test_type_id")]
+    public int? TestTypeId { get; set; }
+
     [Column("isAnonymous")]
     public bool? IsAnonymous { get; set; }
 
@@ -51,4 +54,8 @@ public partial class Appointment
 
     [InverseProperty("Appointment")]
     public virtual ICollection<TestResult> TestResults { get; set; } = new List<TestResult>();
+
+    [ForeignKey("TestTypeId")]
+    [InverseProperty("Appointments")]
+    public virtual TestType? TestType { get; set; }
 }
