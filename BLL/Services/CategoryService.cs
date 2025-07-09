@@ -22,7 +22,7 @@ public class CategoryService : ICategoryService
     public async Task<CategoryDTO> CreateCategoryAsync(CategoryDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
             var category = _mapper.Map<Category>(dto);
@@ -40,7 +40,7 @@ public class CategoryService : ICategoryService
     public async Task<CategoryDTO> UpdateCategoryAsync(CategoryDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
             var category = await _categoryRepository.GetAsync(u => u.CategoryId == dto.CategoryId, true);

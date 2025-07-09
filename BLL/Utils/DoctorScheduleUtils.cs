@@ -56,7 +56,7 @@ public class DoctorScheduleUtils : IDoctorScheduleUtils
             throw new Exception("Doctor is not available at this time.");
         }
         var appointment = await _appointmentRepository.GetAsync(
-            u => u.DoctorId == id && u.AppointmentDate == date && u.AppointmentTime == time, true);
+            u => u.DoctorId == id && u.AppointmentDate == date && u.AppointmentTime == time && (u.Status == "Confirmed" || u.Status == "Scheduled"), true);
         if (appointment != null)
         {
             throw new Exception("This doctor is already booked at this time.");

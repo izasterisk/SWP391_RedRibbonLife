@@ -27,18 +27,18 @@ namespace BLL.Services
         public async Task<DoctorReadOnlyDTO> CreateDoctorAsync(DoctorCreateDTO dto)
         {
             ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-            var existingUser = await _userRepository.GetAsync(u => u.Username.Equals(dto.Username));
-            if (existingUser != null)
+            var usernameExists = await _userRepository.AnyAsync(u => u.Username.Equals(dto.Username));
+            if (usernameExists)
             {
                 throw new Exception($"Username {dto.Username} already exists.");
             }
-            var existingUserByEmail = await _userRepository.GetAsync(u => u.Email.Equals(dto.Email));
-            if (existingUserByEmail != null)
+            var emailExists = await _userRepository.AnyAsync(u => u.Email.Equals(dto.Email));
+            if (emailExists)
             {
                 throw new Exception($"Email {dto.Email} already exists.");
             }
             
-            using var transaction = await _dbContext.Database.BeginTransactionAsync();
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync();
             try
             {
                 User user = _mapper.Map<User>(dto);
@@ -72,7 +72,7 @@ namespace BLL.Services
         public async Task<DoctorReadOnlyDTO> UpdateDoctorAsync(DoctorUpdateDTO dto)
         {
             ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-            using var transaction = await _dbContext.Database.BeginTransactionAsync();
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync();
             try
             {
                 var doctor = await _doctorRepository.GetAsync(d => d.DoctorId == dto.DoctorId, true);

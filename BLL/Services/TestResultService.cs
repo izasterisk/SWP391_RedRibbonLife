@@ -43,6 +43,10 @@ public class TestResultService : ITestResultService
         {
             throw new Exception("Appointment not found.");
         }
+        if (appointment.Status != "Confirmed")
+        {
+            throw new Exception("Appointment must be confirmed before creating test result.");
+        }
         if (dto.TestTypeId != null)
         {
             await _userUtils.CheckTestTypeExistAsync(dto.TestTypeId.Value);
@@ -58,7 +62,7 @@ public class TestResultService : ITestResultService
                 throw new Exception($"Appointment with ID {dto.AppointmentId} does not have a test type.");
             }
         }
-        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
             TestResult testResult = _mapper.Map<TestResult>(dto);
@@ -67,6 +71,8 @@ public class TestResultService : ITestResultService
                 testResult.TestTypeId = appointment.TestTypeId.Value;
             }
             var createdTestResult = await _testResultRepository.CreateAsync(testResult);
+            appointment.Status = "Completed";
+            await _appointmentRepository.UpdateAsync(appointment);
             await transaction.CommitAsync();
             var fullTestResult = await _testResultRepository.GetWithRelationsAsync(
                 t => t.TestResultId == createdTestResult.TestResultId, 
@@ -109,7 +115,7 @@ public class TestResultService : ITestResultService
         {
             throw new Exception("Test result not found.");
         }
-        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
             _mapper.Map(dto, testResult);

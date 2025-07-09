@@ -28,19 +28,13 @@ public class PatientService : IPatientService
     public async Task<PatientReadOnlyDTO> CreatePatientAsync(PatientCreateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-        // Check if username already exists
-        var existingUser = await _userRepository.GetAsync(u => u.Username.Equals(dto.Username));
-        if (existingUser != null)
+        var usernameExists = await _userRepository.AnyAsync(u => u.Username.Equals(dto.Username));
+        if (usernameExists)
         {
             throw new Exception($"Username {dto.Username} already exists.");
         }
-        // Check if email already exists
-        var existingUserByEmail = await _userRepository.GetAsync(u => u.Email.Equals(dto.Email));
-        if (existingUserByEmail != null)
-        {
-            throw new Exception($"Email {dto.Email} already exists.");
-        }
-        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        await _userUtils.CheckEmailExistAsync(dto.Email);
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
             // Create User entity
@@ -49,17 +43,13 @@ public class PatientService : IPatientService
             user.UserRole = "Patient";
             user.IsVerified = false;
             user.Password = _userUtils.CreatePasswordHash(dto.Password);
-            
             // Save User first to get UserId
             var createdUser = await _userRepository.CreateAsync(user);
-            
             // Create Patient entity
             Patient patient = _mapper.Map<Patient>(dto);
             patient.UserId = createdUser.UserId;
-            
             var createdPatient = await _patientRepository.CreateAsync(patient);
             await transaction.CommitAsync();
-            
             var detailedPatient = await _patientRepository.GetWithRelationsAsync(
                 filter: p => p.PatientId == createdPatient.PatientId,
                 useNoTracking: true,
@@ -81,19 +71,19 @@ public class PatientService : IPatientService
     public async Task<PatientReadOnlyDTO> UpdatePatientAsync(PatientUpdateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        var patient = await _patientRepository.GetAsync(p => p.PatientId == dto.PatientId, true);
+        if (patient == null)
+        {
+            throw new Exception("Patient not found.");
+        }
+        var user = await _userRepository.GetAsync(u => u.UserId == patient.UserId, true);
+        if (user == null)
+        {
+            throw new Exception($"User associated with patient ID {dto.PatientId} not found.");
+        }
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
-            var patient = await _patientRepository.GetAsync(p => p.PatientId == dto.PatientId, true);
-            if (patient == null)
-            {
-                throw new Exception("Patient not found.");
-            }
-            var user = await _userRepository.GetAsync(u => u.UserId == patient.UserId, true);
-            if (user == null)
-            {
-                throw new Exception($"User associated with patient ID {dto.PatientId} not found.");
-            }
             _mapper.Map(dto, user);
             _mapper.Map(dto, patient);
             await _userRepository.UpdateAsync(user);

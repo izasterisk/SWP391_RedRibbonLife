@@ -29,12 +29,12 @@ public class TreatmentService : ITreatmentService
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
         await _arvRegimenUtils.CheckARVRegimenExistAsync(dto.RegimenId);
         await _userUtils.CheckTestResultExistAsync(dto.TestResultId);
-        var existedTreatment = await _treatmentRepository.GetAsync(t => t.TestResultId == dto.TestResultId, true);
-        if (existedTreatment != null)
+        var treatmentExists = await _treatmentRepository.AnyAsync(t => t.TestResultId == dto.TestResultId);
+        if (treatmentExists)
         {
             throw new Exception("This test result has already been treated.");
         }
-        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
             Treatment treatment = _mapper.Map<Treatment>(dto);
@@ -69,7 +69,7 @@ public class TreatmentService : ITreatmentService
     public async Task<TreatmentDTO> UpdateTreatmentAsync(TreatmentUpdateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
             var treatment = await _treatmentRepository.GetAsync(t => t.TreatmentId == dto.TreatmentId, true);

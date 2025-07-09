@@ -26,11 +26,11 @@ public class StaffService : IStaffService
     public async Task<StaffReadOnlyDTO> CreateStaffAsync(StaffDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
-            var existingUser = await _userRepository.GetAsync(u => u.Username.Equals(dto.Username));
-            if (existingUser != null)
+            var usernameExists = await _userRepository.AnyAsync(u => u.Username.Equals(dto.Username));
+            if (usernameExists)
             {
                 throw new Exception($"Username {dto.Username} already exists.");
             }
@@ -55,7 +55,7 @@ public class StaffService : IStaffService
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
         await _userUtils.CheckUserExistAsync(dto.UserId);
-        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
             var staff = await _userRepository.GetAsync(u => u.UserId == dto.UserId, true);

@@ -23,7 +23,7 @@ public class ARVComponentService : IARVComponentService
     public async Task<ARVComponentDTO> CreateARVComponentAsync(ARVComponentCreateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
             var arvComponent = _mapper.Map<Arvcomponent>(dto);
@@ -41,7 +41,7 @@ public class ARVComponentService : IARVComponentService
     public async Task<ARVComponentDTO> UpdateARVComponentAsync(ARVComponentUpdateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
             var arvComponent = await _arvComponentRepository.GetAsync(u => u.ComponentId == dto.ComponentId, true);

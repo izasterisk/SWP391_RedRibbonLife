@@ -52,19 +52,19 @@ public class ArticleService : IArticleService
     public async Task<ArticleReadOnlyDTO> CreateArticleAsync(ArticleDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
-            var existingTitle = await _articleRepository.GetAsync(u => u.Title.Equals(dto.Title), true);
-            if (existingTitle != null)
+            var existingTitleExists = await _articleRepository.AnyAsync(u => u.Title.Equals(dto.Title));
+            if (existingTitleExists)
             {
                 throw new Exception("Title already exists.");
             }
             await dto.UserId.ValidateIfNotNullAsync(_userUtils.CheckUserExistAsync);
             if(dto.CategoryId != null)
             {
-                var existingCategory = await _categoryRepository.GetAsync(u => u.CategoryId == dto.CategoryId, true);
-                if (existingCategory == null)
+                var categoryExists = await _categoryRepository.AnyAsync(u => u.CategoryId == dto.CategoryId);
+                if (!categoryExists)
                 {
                     throw new Exception("Category not found.");
                 }
@@ -91,7 +91,7 @@ public class ArticleService : IArticleService
     public async Task<ArticleReadOnlyDTO> UpdateArticleAsync(ArticleUpdateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
             var article = await _articleRepository.GetAsync(u => u.ArticleId == dto.ArticleId, true);
@@ -102,8 +102,8 @@ public class ArticleService : IArticleService
             
             if (!string.IsNullOrWhiteSpace(dto.Title))
             {
-                var articleTitle = await _articleRepository.GetAsync(u => u.Title.Equals(dto.Title) && u.ArticleId != dto.ArticleId, true);
-                if (articleTitle != null)
+                var titleExists = await _articleRepository.AnyAsync(u => u.Title.Equals(dto.Title) && u.ArticleId != dto.ArticleId);
+                if (titleExists)
                 {
                     throw new Exception("Title already exists.");
                 }
@@ -111,8 +111,8 @@ public class ArticleService : IArticleService
             await dto.UserId.ValidateIfNotNullAsync(_userUtils.CheckUserExistAsync);
             if(dto.CategoryId.HasValue)
             {
-                var existingCategory = await _categoryRepository.GetAsync(u => u.CategoryId == dto.CategoryId, true);
-                if (existingCategory == null)
+                var categoryExists = await _categoryRepository.AnyAsync(u => u.CategoryId == dto.CategoryId);
+                if (!categoryExists)
                 {
                     throw new Exception("Category not found.");
                 }
@@ -136,7 +136,7 @@ public class ArticleService : IArticleService
     
     public async Task<bool> DeleteArticleByIdAsync(int id)
     {
-        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
             var article = await _articleRepository.GetAsync(u => u.ArticleId == id, true);

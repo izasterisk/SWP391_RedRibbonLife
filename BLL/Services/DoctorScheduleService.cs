@@ -33,7 +33,7 @@ public class DoctorScheduleService : IDoctorScheduleService
         await _userUtils.CheckDoctorExistAsync(dto.DoctorId);
         _userUtils.ValidateEndTimeStartTime(dto.StartTime, dto.EndTime);
         await _doctorScheduleUtils.CheckDoctorScheduleExistAsync(dto.DoctorId, dto.WorkDay);
-        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
             DoctorSchedule doctorSchedule = _mapper.Map<DoctorSchedule>(dto);
@@ -58,7 +58,7 @@ public class DoctorScheduleService : IDoctorScheduleService
     public async Task<DoctorScheduleDTO> UpdateDoctorScheduleAsync(DoctorScheduleUpdateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
             var doctorSchedule = await _doctorScheduleRepository.GetAsync(d => d.ScheduleId == dto.ScheduleId, true);

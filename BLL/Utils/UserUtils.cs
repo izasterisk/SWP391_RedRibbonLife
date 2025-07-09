@@ -52,8 +52,8 @@ namespace BLL.Utils
         
         public async Task CheckDoctorExistAsync(int doctorId)
         {
-            var doctor = await _doctorRepository.GetAsync(u => u.DoctorId == doctorId, true);
-            if (doctor == null)
+            var doctorExists = await _doctorRepository.AnyAsync(u => u.DoctorId == doctorId);
+            if (!doctorExists)
             {
                 throw new Exception("Doctor not found.");
             }
@@ -79,8 +79,8 @@ namespace BLL.Utils
         
         public async Task CheckUserExistAsync(int userId)
         {
-            var user = await _userRepository.GetAsync(u => u.UserId == userId, true);
-            if (user == null)
+            var userExists = await _userRepository.AnyAsync(u => u.UserId == userId);
+            if (!userExists)
             {
                 throw new Exception("User not found.");
             }
@@ -89,16 +89,16 @@ namespace BLL.Utils
         public async Task CheckAppointmentExistAsync(int appointmentId)
         {
             // Check if appointment exists
-            var appointment = await _appointmentRepository.GetAsync(a => a.AppointmentId == appointmentId, true);
-            if (appointment == null)
+            var appointmentExists = await _appointmentRepository.AnyAsync(a => a.AppointmentId == appointmentId);
+            if (!appointmentExists)
             {
                 throw new Exception("Appointment not found.");
             }
         }
         public async Task CheckDuplicateAppointmentAsync(int appointmentId)
         {
-            var duplicateAppointment = await _testResultRepository.GetAsync(a => a.AppointmentId == appointmentId, true);
-            if (duplicateAppointment != null)
+            var duplicateAppointmentExists = await _testResultRepository.AnyAsync(a => a.AppointmentId == appointmentId);
+            if (duplicateAppointmentExists)
             {
                 throw new Exception("1 appointment can only have 1 test result.");
             }
@@ -106,8 +106,8 @@ namespace BLL.Utils
 
         public async Task CheckTestTypeExistAsync(int testTypeId)
         {
-            var testType = await _testTypeRepository.GetAsync(t => t.TestTypeId == testTypeId, true);
-            if (testType == null)
+            var testTypeExists = await _testTypeRepository.AnyAsync(t => t.TestTypeId == testTypeId);
+            if (!testTypeExists)
             {
                 throw new Exception("Test type not found.");
             }
@@ -123,13 +123,13 @@ namespace BLL.Utils
         
         public async Task CheckTestResultExistAsync(int id)
         {
-            var testResult = await _testResultRepository.GetAsync(t => t.TestResultId == id, true);
-            if (testResult == null)
+            var testResultExists = await _testResultRepository.AnyAsync(t => t.TestResultId == id);
+            if (!testResultExists)
             {
                 throw new Exception("Test result not found.");
             }
-            var treatments = await _treatmentRepository.GetAsync(t => t.TestResultId == id, true);
-            if (treatments != null)
+            var treatmentExists = await _treatmentRepository.AnyAsync(t => t.TestResultId == id);
+            if (treatmentExists)
             {
                 throw new Exception("1 test result can only link to 1 treatment.");
             }
@@ -137,8 +137,8 @@ namespace BLL.Utils
         
         public async Task CheckTreatmentExistAsync(int id)
         {
-            var treatment = await _treatmentRepository.GetAsync(t => t.TreatmentId == id, true);
-            if (treatment == null)
+            var treatmentExists = await _treatmentRepository.AnyAsync(t => t.TreatmentId == id);
+            if (!treatmentExists)
             {
                 throw new Exception("Treatment not found.");
             }
@@ -146,8 +146,8 @@ namespace BLL.Utils
         
         public async Task CheckEmailExistAsync(string email)
         {
-            var existingUser = await _userRepository.GetAsync(u => u.Email.Equals(email), true);
-            if (existingUser != null)
+            var emailExists = await _userRepository.AnyAsync(u => u.Email.Equals(email));
+            if (emailExists)
             {
                 throw new Exception($"Email {email} already exists.");
             }

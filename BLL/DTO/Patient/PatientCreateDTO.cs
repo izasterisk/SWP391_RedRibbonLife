@@ -18,7 +18,7 @@ public class PatientCreateDTO
     [Required(ErrorMessage = "Email is required")]
     [EmailAddress(ErrorMessage = "Email format is invalid")]
     [StringLength(100, ErrorMessage = "Email cannot exceed 100 characters")]
-    public string? Email { get; set; }
+    public string Email { get; set; }
 
     [Phone(ErrorMessage = "Invalid phone number format")]
     [StringLength(20, MinimumLength = 7, ErrorMessage = "Phone number must be between 7-20 characters")]

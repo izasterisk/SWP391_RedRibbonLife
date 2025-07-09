@@ -22,7 +22,7 @@ public class TestTypeService : ITestTypeService
     public async Task<TestTypeDTO> CreateTestTypeAsync(TestTypeCreateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
             var testType = _mapper.Map<TestType>(dto);
@@ -40,7 +40,7 @@ public class TestTypeService : ITestTypeService
     public async Task<TestTypeDTO> UpdateTestTypeAsync(TestTypeUpdateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
             var testType = await _testTypeRepository.GetAsync(u => u.TestTypeId == dto.TestTypeId, true);

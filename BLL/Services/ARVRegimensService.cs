@@ -43,7 +43,7 @@ public class ARVRegimensService : IARVRegimensService
             if (string.IsNullOrWhiteSpace(dto.UsageInstructions))
                 throw new ArgumentException("UsageInstructions is required when IsCustomized is not true.");
         }
-        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
             var arvRegimen = _mapper.Map<Arvregimen>(dto);
@@ -66,7 +66,7 @@ public class ARVRegimensService : IARVRegimensService
         await dto.Component2Id.ValidateIfNotNullAsync(_arvRegimenUtils.CheckARVComponentExistAsync);
         await dto.Component3Id.ValidateIfNotNullAsync(_arvRegimenUtils.CheckARVComponentExistAsync);
         await dto.Component4Id.ValidateIfNotNullAsync(_arvRegimenUtils.CheckARVComponentExistAsync);
-        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
             var regimen = await _arvRegimensRepository.GetAsync(r => r.RegimenId == dto.RegimenId, true);

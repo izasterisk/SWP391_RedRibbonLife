@@ -49,7 +49,7 @@ public class AppointmentService : IAppointmentService
             throw new Exception("Appointment type is Appointment cannot have test type.");
         }
         await dto.TestTypeId.ValidateIfNotNullAsync(_userUtils.CheckTestTypeExistAsync);
-        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
             Appointment appointment = _mapper.Map<Appointment>(dto);
@@ -124,7 +124,7 @@ public class AppointmentService : IAppointmentService
         {
             await _doctorScheduleUtils.CheckDoctorIfAvailableAsync(appointment.DoctorId, finalDate, finalTime);
         }
-        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
             _mapper.Map(dto, appointment);

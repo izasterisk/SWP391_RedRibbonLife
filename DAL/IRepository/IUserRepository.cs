@@ -20,5 +20,6 @@ namespace DAL.IRepository
         Task<T> UpdateAsync(T dbRecord);
         Task<bool> DeleteAsync(T dbRecord);
         Task<int> CountAsync(Expression<Func<T, bool>> filter = null);
+        Task<bool> AnyAsync(Expression<Func<T, bool>> filter);
     }
 }
