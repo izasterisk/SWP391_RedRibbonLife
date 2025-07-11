@@ -138,9 +138,9 @@ public class AppointmentService : IAppointmentService
                 useNoTracking: true,
                 includeFunc: query => query
                     .Include(a => a.Patient)
-                    .ThenInclude(p => p.User)
+                        .ThenInclude(p => p.User)
                     .Include(a => a.Doctor)
-                    .ThenInclude(d => d.User)
+                        .ThenInclude(d => d.User)
                     .Include(a => a.TestType)
             );
             await transaction.CommitAsync();

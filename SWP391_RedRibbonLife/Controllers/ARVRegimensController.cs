@@ -175,6 +175,34 @@ namespace SWP391_RedRibbonLife.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("GetByIsCustomized/{isCustomized}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin, Manager, Staff, Doctor, Patient")]
+        public async Task<ActionResult<APIResponse>> GetARVRegimensByIsCustomizedAsync(bool isCustomized)
+        {
+            var apiResponse = new APIResponse();
+            try
+            {
+                var regimens = await _arvRegimensService.GetARVRegimensByIsCustomizedAsync(isCustomized);
+                apiResponse.Data = regimens;
+                apiResponse.Status = true;
+                apiResponse.StatusCode = HttpStatusCode.OK;
+                return Ok(apiResponse);
+            }
+            catch (Exception ex)
+            {
+                apiResponse.Errors.Add(ex.Message);
+                apiResponse.StatusCode = HttpStatusCode.InternalServerError;
+                apiResponse.Status = false;
+                return StatusCode(500, apiResponse);
+            }
+        }
+
         [HttpDelete]
         [Route("Delete/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]

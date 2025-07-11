@@ -102,6 +102,12 @@ public class ARVRegimensService : IARVRegimensService
         return _mapper.Map<ARVRegimensReadOnlyDTO>(regimen);
     }
 
+    public async Task<List<ARVRegimensReadOnlyDTO>> GetARVRegimensByIsCustomizedAsync(bool isCustomized)
+    {
+        var regimens = await _arvRegimensRepository.GetAllByFilterAsync(r => r.IsActive == true && r.IsCustomized == isCustomized, true);
+        return _mapper.Map<List<ARVRegimensReadOnlyDTO>>(regimens);
+    }
+    
     public async Task<bool> DeleteARVRegimensAsync(int id)
     {
         var regimen = await _arvRegimensRepository.GetAsync(r => r.RegimenId == id, true);

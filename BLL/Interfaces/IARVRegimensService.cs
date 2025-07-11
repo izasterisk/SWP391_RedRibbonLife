@@ -9,4 +9,5 @@ public interface IARVRegimensService
     Task<List<ARVRegimensReadOnlyDTO>> GetAllARVRegimensAsync();
     Task<ARVRegimensReadOnlyDTO> GetARVRegimensByIdAsync(int id);
     Task<bool> DeleteARVRegimensAsync(int id);
+    Task<List<ARVRegimensReadOnlyDTO>> GetARVRegimensByIsCustomizedAsync(bool isCustomized);
 }
