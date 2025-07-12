@@ -161,6 +161,31 @@ public class TreatmentService : ITreatmentService
         return _mapper.Map<TreatmentDTO>(treatment);
     }
     
+    public async Task<TreatmentDTO> GetTreatmentByTestResultIdAsync(int id)
+    {
+        var treatment = await _treatmentRepository.GetWithRelationsAsync(
+            filter: t => t.TestResultId == id,
+            useNoTracking: true,
+            includeFunc: query => query
+                // .Include(t => t.Regimen)
+                .Include(t => t.TestResult)
+                    .ThenInclude(tr => tr.Patient)
+                    .ThenInclude(p => p.User)
+                .Include(t => t.TestResult)
+                    .ThenInclude(tr => tr.Doctor)
+                    .ThenInclude(d => d.User)
+                .Include(t => t.TestResult)
+                    .ThenInclude(tr => tr.Appointment)
+                .Include(t => t.TestResult)
+                    .ThenInclude(tr => tr.TestType)
+        );
+        if (treatment == null)
+        {
+            throw new Exception("Treatment not found.");
+        }
+        return _mapper.Map<TreatmentDTO>(treatment);
+    }
+    
     public async Task<List<TreatmentDTO>> GetTreatmentByPatientIdAsync(int id)
     {
         var treatments = await _treatmentRepository.GetAllWithRelationsByFilterAsync(

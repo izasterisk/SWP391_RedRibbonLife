@@ -12,15 +12,15 @@ public class TreatmentCreateDTO
     [Range(1, int.MaxValue, ErrorMessage = "Test Result ID must be a positive number")]
     public int TestResultId { get; set; }
 
-    [Required(ErrorMessage = "Regimen ID is required")]
+    // [Required(ErrorMessage = "Regimen ID is required")]
     [Range(1, int.MaxValue, ErrorMessage = "Regimen ID must be a positive number")]
     public int RegimenId { get; set; }
 
-    [Required(ErrorMessage = "Start date is required")]
+    // [Required(ErrorMessage = "Start date is required")]
     [FutureDate]
     public DateOnly StartDate { get; set; }
 
-    [Required(ErrorMessage = "End date is required")]
+    // [Required(ErrorMessage = "End date is required")]
     [FutureDate]
     [DateRange(nameof(StartDate))]
     public DateOnly EndDate { get; set; }
