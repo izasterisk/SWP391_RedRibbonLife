@@ -62,9 +62,8 @@ public class NotificationUtils : INotificationUtils
                  .Include(t => t.TestResult)
                  .ThenInclude(tr => tr.Patient)
                  .ThenInclude(p => p.User)
-                 .Where(t => t.Status == "Active" &&
-                            t.StartDate <= today &&
-                            t.EndDate >= today &&
+                 .Where(t => t.Status == "Active" && t.Regimen != null && t.StartDate != null && t.EndDate != null &&
+                            t.StartDate <= today && t.EndDate >= today &&
                             (frequency == 1 ? t.Regimen.Frequency == 1 : t.Regimen.Frequency == frequency)));
     }
 

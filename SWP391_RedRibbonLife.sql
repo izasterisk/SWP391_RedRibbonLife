@@ -147,9 +147,9 @@ CREATE TABLE DoctorSchedules (
 CREATE TABLE Treatment (
     treatment_id INT PRIMARY KEY IDENTITY(1,1),
     test_result_id INT NOT NULL,
-    regimen_id INT NOT NULL,
-    start_date DATE NOT NULL,
-    end_date DATE NOT NULL,
+    regimen_id INT,
+    start_date DATE,
+    end_date DATE,
     status NVARCHAR(50) DEFAULT 'Active',
     notes NVARCHAR(MAX),
     CONSTRAINT chk_treatment_status CHECK (status IN ('Active', 'Stopped', 'Paused'))
