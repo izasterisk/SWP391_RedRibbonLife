@@ -278,4 +278,110 @@ Trân trọng,
             throw new Exception($"Failed to send appointment approval email: {response.StatusCode}");
         }
     }
+
+    public async Task SendTreatmentRegimenCreatedEmailAsync(string toEmail, string patientName, string doctorName, int frequency, DateOnly startDate, DateOnly endDate, string components, string notes)
+    {
+        var client = new SendGridClient(_apiKey);
+        var from = new EmailAddress(_fromEmail, "Red Ribbon Life");
+        var subject = "Phác đồ điều trị đã được tạo - Red Ribbon Life";
+        var to = new EmailAddress(toEmail);
+
+        // Format dates in Vietnamese format
+        var formattedStartDate = startDate.ToString("dd/MM/yyyy");
+        var formattedEndDate = endDate.ToString("dd/MM/yyyy");
+        var frequencyText = frequency == 1 ? "1 lần/ngày" : frequency == 2 ? "2 lần/ngày" : $"{frequency} lần/ngày";
+
+        var plainTextContent = $@"
+Xin chào {patientName},
+
+Phác đồ điều trị của bạn đã được tạo thành công!
+
+Thông tin phác đồ:
+- Bác sĩ phụ trách: {doctorName}
+- Tần suất uống thuốc: {frequencyText}
+- Ngày bắt đầu: {formattedStartDate}
+- Ngày kết thúc: {formattedEndDate}
+- Các loại thuốc: {components}
+
+Chỉ dẫn của bác sĩ: {notes}
+
+Phác đồ điều trị này sẽ được sử dụng để theo dõi và điều trị cho bạn. Vui lòng tuân thủ đúng chỉ dẫn của bác sĩ và lịch trình điều trị.
+
+Nếu bạn có bất kỳ thắc mắc nào về phác đồ điều trị, vui lòng liên hệ với bác sĩ phụ trách hoặc nhân viên y tế.
+
+Trân trọng,
+Đội ngũ Red Ribbon Life";
+
+        var htmlContent = $@"
+<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);'>
+    <div style='text-align: center; margin-bottom: 30px;'>
+        <div style='background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;'>
+            <h1 style='margin: 0; font-size: 24px; font-weight: bold;'>Red Ribbon Life</h1>
+            <p style='margin: 5px 0 0 0; font-size: 16px; opacity: 0.9;'>Cơ sở điều trị HIV</p>
+        </div>
+    </div>
+    
+    <div style='background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); border-radius: 15px; padding: 25px; margin: 20px 0; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
+        <div style='font-size: 48px; margin-bottom: 15px;'>🎉</div>
+        <h2 style='color: #155724; margin: 0 0 10px 0; font-size: 22px; font-weight: bold;'>Phác đồ điều trị đã được tạo thành công!</h2>
+        <p style='color: #155724; margin: 0; font-size: 16px;'>Chúc mừng bạn! Phác đồ điều trị của bạn đã được thiết lập.</p>
+    </div>
+    
+    <div style='background: white; border-radius: 15px; padding: 25px; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 5px solid #dc3545;'>
+        <h3 style='color: #dc3545; margin: 0 0 15px 0; font-size: 18px; font-weight: bold;'>📋 Thông tin phác đồ</h3>
+        <div style='background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 20px; border-radius: 10px; margin: 15px 0;'>
+            <p style='margin: 10px 0; font-size: 16px;'><strong style='color: #495057;'>👨‍⚕️ Bác sĩ phụ trách:</strong> <span style='color: #dc3545; font-weight: bold;'>{doctorName}</span></p>
+            <p style='margin: 10px 0; font-size: 16px;'><strong style='color: #495057;'>⏰ Tần suất uống thuốc:</strong> <span style='color: #28a745; font-weight: bold;'>{frequencyText}</span></p>
+            <p style='margin: 10px 0; font-size: 16px;'><strong style='color: #495057;'>📅 Ngày bắt đầu:</strong> <span style='color: #007bff; font-weight: bold;'>{formattedStartDate}</span></p>
+            <p style='margin: 10px 0; font-size: 16px;'><strong style='color: #495057;'>📅 Ngày kết thúc:</strong> <span style='color: #007bff; font-weight: bold;'>{formattedEndDate}</span></p>
+        </div>
+    </div>
+    
+    <div style='background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%); border-radius: 15px; padding: 25px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
+        <h3 style='color: #155724; margin: 0 0 15px 0; font-size: 18px; font-weight: bold;'>💊 Các loại thuốc trong phác đồ</h3>
+        <div style='background: white; padding: 20px; border-radius: 10px; margin: 15px 0; border-left: 4px solid #28a745;'>
+            <p style='margin: 0; font-size: 16px; line-height: 1.6; color: #155724;'>{components}</p>
+        </div>
+    </div>
+    
+    <div style='background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); border-radius: 15px; padding: 25px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
+        <h3 style='color: #856404; margin: 0 0 15px 0; font-size: 18px; font-weight: bold;'>📝 Chỉ dẫn của bác sĩ</h3>
+        <div style='background: white; padding: 20px; border-radius: 10px; margin: 15px 0; border-left: 4px solid #ffc107;'>
+            <p style='margin: 0; font-size: 16px; line-height: 1.6; color: #856404;'>{notes}</p>
+        </div>
+    </div>
+    
+    <div style='background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); border-radius: 15px; padding: 25px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
+        <h3 style='color: #856404; margin: 0 0 15px 0; font-size: 18px; font-weight: bold;'>⚠️ Lưu ý quan trọng</h3>
+        <ul style='color: #856404; margin: 0; padding-left: 20px; font-size: 15px; line-height: 1.6;'>
+            <li style='margin-bottom: 8px;'>✅ Tuân thủ đúng chỉ dẫn của bác sĩ</li>
+            <li style='margin-bottom: 8px;'>⏰ Uống thuốc đúng giờ và đúng liều lượng</li>
+            <li style='margin-bottom: 8px;'>🚫 Không tự ý thay đổi hoặc ngừng điều trị</li>
+            <li style='margin-bottom: 8px;'>📞 Liên hệ ngay nếu có tác dụng phụ</li>
+            <li style='margin-bottom: 8px;'>📅 Ghi nhớ lịch trình điều trị từ {formattedStartDate} đến {formattedEndDate}</li>
+        </ul>
+    </div>
+    
+    <div style='background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-radius: 15px; padding: 20px; margin: 20px 0; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
+        <p style='color: #1565c0; margin: 0; font-size: 16px; font-weight: bold;'>💬 Cần hỗ trợ?</p>
+        <p style='color: #1565c0; margin: 5px 0 0 0; font-size: 14px;'>Liên hệ với bác sĩ phụ trách hoặc nhân viên y tế</p>
+    </div>
+    
+    <hr style='border: none; border-top: 2px solid #dee2e6; margin: 30px 0;'>
+    
+    <div style='text-align: center; color: #6c757d; font-size: 12px;'>
+        <p style='margin: 0;'><strong>Trân trọng,</strong></p>
+        <p style='margin: 5px 0 0 0; font-weight: bold; color: #dc3545;'>Đội ngũ Red Ribbon Life</p>
+        <p style='margin: 10px 0 0 0; font-size: 11px; opacity: 0.8;'>Chăm sóc sức khỏe của bạn là ưu tiên hàng đầu của chúng tôi</p>
+    </div>
+</div>";
+
+        var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
+        var response = await client.SendEmailAsync(msg);
+
+        if (response.StatusCode != System.Net.HttpStatusCode.Accepted)
+        {
+            throw new Exception($"Failed to send treatment regimen created email: {response.StatusCode}");
+        }
+    }
 }

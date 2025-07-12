@@ -17,7 +17,7 @@ public partial class TestResult
     public int TestResultId { get; set; }
 
     [Column("appointment_id")]
-    public int? AppointmentId { get; set; }
+    public int AppointmentId { get; set; }
 
     [Column("patient_id")]
     public int PatientId { get; set; }
@@ -37,7 +37,7 @@ public partial class TestResult
 
     [ForeignKey("AppointmentId")]
     [InverseProperty("TestResults")]
-    public virtual Appointment? Appointment { get; set; }
+    public virtual Appointment Appointment { get; set; } = null!;
 
     [ForeignKey("DoctorId")]
     [InverseProperty("TestResults")]

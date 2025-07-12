@@ -49,9 +49,13 @@ public class TreatmentDTO
     public int RegimenId { get; set; }
     public string? RegimenName { get; set; }
     public int? Component1Id { get; set; }
+    public string? Component1Name { get; set; }
     public int? Component2Id { get; set; }
+    public string? Component2Name { get; set; }
     public int? Component3Id { get; set; }
+    public string? Component3Name { get; set; }
     public int? Component4Id { get; set; }
+    public string? Component4Name { get; set; }
     public string? Description { get; set; }
     public string? SuitableFor { get; set; }
     public string? SideEffects { get; set; }

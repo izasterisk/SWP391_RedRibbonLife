@@ -51,7 +51,7 @@ public partial class SWP391_RedRibbonLifeContext : DbContext
     {
         modelBuilder.Entity<Appointment>(entity =>
         {
-            entity.HasKey(e => e.AppointmentId).HasName("PK__Appointm__A50828FC53573A55");
+            entity.HasKey(e => e.AppointmentId).HasName("PK__Appointm__A50828FC6CB9BF88");
 
             entity.Property(e => e.AppointmentType).HasDefaultValue("Appointment");
             entity.Property(e => e.IsAnonymous).HasDefaultValue(false);
@@ -68,7 +68,7 @@ public partial class SWP391_RedRibbonLifeContext : DbContext
 
         modelBuilder.Entity<Article>(entity =>
         {
-            entity.HasKey(e => e.ArticleId).HasName("PK__Articles__CC36F66004DDE077");
+            entity.HasKey(e => e.ArticleId).HasName("PK__Articles__CC36F6609FD06230");
 
             entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
@@ -80,12 +80,12 @@ public partial class SWP391_RedRibbonLifeContext : DbContext
 
         modelBuilder.Entity<Arvcomponent>(entity =>
         {
-            entity.HasKey(e => e.ComponentId).HasName("PK__ARVCompo__AEB1DA59642B456F");
+            entity.HasKey(e => e.ComponentId).HasName("PK__ARVCompo__AEB1DA59D48C40EE");
         });
 
         modelBuilder.Entity<Arvregimen>(entity =>
         {
-            entity.HasKey(e => e.RegimenId).HasName("PK__ARVRegim__36DA3D9E39B3E1DB");
+            entity.HasKey(e => e.RegimenId).HasName("PK__ARVRegim__36DA3D9E121A5B62");
 
             entity.Property(e => e.Frequency).HasDefaultValue(1);
             entity.Property(e => e.IsCustomized).HasDefaultValue(true);
@@ -103,12 +103,12 @@ public partial class SWP391_RedRibbonLifeContext : DbContext
 
         modelBuilder.Entity<Category>(entity =>
         {
-            entity.HasKey(e => e.CategoryId).HasName("PK__Category__D54EE9B4D1108E82");
+            entity.HasKey(e => e.CategoryId).HasName("PK__Category__D54EE9B485695468");
         });
 
         modelBuilder.Entity<Doctor>(entity =>
         {
-            entity.HasKey(e => e.DoctorId).HasName("PK__Doctors__F39935640849D1F4");
+            entity.HasKey(e => e.DoctorId).HasName("PK__Doctors__F3993564D0377C44");
 
             entity.HasOne(d => d.User).WithMany(p => p.Doctors)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -117,14 +117,14 @@ public partial class SWP391_RedRibbonLifeContext : DbContext
 
         modelBuilder.Entity<DoctorCertificate>(entity =>
         {
-            entity.HasKey(e => e.CertificateId).HasName("PK__DoctorCe__E2256D31B3D4310D");
+            entity.HasKey(e => e.CertificateId).HasName("PK__DoctorCe__E2256D3114AEB5D1");
 
             entity.HasOne(d => d.Doctor).WithMany(p => p.DoctorCertificates).HasConstraintName("fk_certificates_doctors");
         });
 
         modelBuilder.Entity<DoctorSchedule>(entity =>
         {
-            entity.HasKey(e => e.ScheduleId).HasName("PK__DoctorSc__C46A8A6F4D0561F9");
+            entity.HasKey(e => e.ScheduleId).HasName("PK__DoctorSc__C46A8A6F0DE257A9");
 
             entity.HasOne(d => d.Doctor).WithMany(p => p.DoctorSchedules)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -133,7 +133,7 @@ public partial class SWP391_RedRibbonLifeContext : DbContext
 
         modelBuilder.Entity<Notification>(entity =>
         {
-            entity.HasKey(e => e.NotificationId).HasName("PK__Notifica__E059842F162A410B");
+            entity.HasKey(e => e.NotificationId).HasName("PK__Notifica__E059842F546CB959");
 
             entity.Property(e => e.RetryCount).HasDefaultValue(0);
             entity.Property(e => e.Status).HasDefaultValue("Pending");
@@ -149,7 +149,7 @@ public partial class SWP391_RedRibbonLifeContext : DbContext
 
         modelBuilder.Entity<Patient>(entity =>
         {
-            entity.HasKey(e => e.PatientId).HasName("PK__Patients__4D5CE4764635B633");
+            entity.HasKey(e => e.PatientId).HasName("PK__Patients__4D5CE47614C4F86C");
 
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.IsPregnant).HasDefaultValue(false);
@@ -161,9 +161,11 @@ public partial class SWP391_RedRibbonLifeContext : DbContext
 
         modelBuilder.Entity<TestResult>(entity =>
         {
-            entity.HasKey(e => e.TestResultId).HasName("PK__TestResu__152BCEDADB9864D2");
+            entity.HasKey(e => e.TestResultId).HasName("PK__TestResu__152BCEDA7B221B07");
 
-            entity.HasOne(d => d.Appointment).WithMany(p => p.TestResults).HasConstraintName("fk_test_results_appointments");
+            entity.HasOne(d => d.Appointment).WithMany(p => p.TestResults)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_test_results_appointments");
 
             entity.HasOne(d => d.Doctor).WithMany(p => p.TestResults)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -180,20 +182,18 @@ public partial class SWP391_RedRibbonLifeContext : DbContext
 
         modelBuilder.Entity<TestType>(entity =>
         {
-            entity.HasKey(e => e.TestTypeId).HasName("PK__TestType__56DCFA2139B1604B");
+            entity.HasKey(e => e.TestTypeId).HasName("PK__TestType__56DCFA215EBC94E8");
 
             entity.Property(e => e.Unit).HasDefaultValue("N/A");
         });
 
         modelBuilder.Entity<Treatment>(entity =>
         {
-            entity.HasKey(e => e.TreatmentId).HasName("PK__Treatmen__302D3CA04DB534C6");
+            entity.HasKey(e => e.TreatmentId).HasName("PK__Treatmen__302D3CA099DD29B7");
 
             entity.Property(e => e.Status).HasDefaultValue("Active");
 
-            entity.HasOne(d => d.Regimen).WithMany(p => p.Treatments)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("fk_treatment_regimen");
+            entity.HasOne(d => d.Regimen).WithMany(p => p.Treatments).HasConstraintName("fk_treatment_regimen");
 
             entity.HasOne(d => d.TestResult).WithMany(p => p.Treatments)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -202,7 +202,7 @@ public partial class SWP391_RedRibbonLifeContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("PK__Users__B9BE370F6F4C41FC");
+            entity.HasKey(e => e.UserId).HasName("PK__Users__B9BE370FB52F9F48");
 
             entity.Property(e => e.IsActive).HasDefaultValue(true);
         });

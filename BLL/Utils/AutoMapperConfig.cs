@@ -126,7 +126,11 @@ namespace BLL.Utils
                 .ForMember(dest => dest.TestTypeName, opt => opt.MapFrom(src => src.TestType != null ? src.TestType.TestTypeName : null));
             
             CreateMap<ARVRegimensCreateDTO, Arvregimen>().ReverseMap();
-            CreateMap<ARVRegimensReadOnlyDTO, Arvregimen>().ReverseMap();
+            CreateMap<Arvregimen, ARVRegimensReadOnlyDTO>()
+                .ForMember(dest => dest.Component1Name, opt => opt.MapFrom(src => src.Component1 != null ? src.Component1.ComponentName : null))
+                .ForMember(dest => dest.Component2Name, opt => opt.MapFrom(src => src.Component2 != null ? src.Component2.ComponentName : null))
+                .ForMember(dest => dest.Component3Name, opt => opt.MapFrom(src => src.Component3 != null ? src.Component3.ComponentName : null))
+                .ForMember(dest => dest.Component4Name, opt => opt.MapFrom(src => src.Component4 != null ? src.Component4.ComponentName : null));
             CreateMap<ARVRegimensUpdateDTO, Arvregimen>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
             
@@ -169,9 +173,13 @@ namespace BLL.Utils
                 .ForMember(dest => dest.DoctorImage, opt => opt.MapFrom(src => src.TestResult != null && src.TestResult.Doctor != null ? src.TestResult.Doctor.DoctorImage : null))
                 .ForMember(dest => dest.RegimenName, opt => opt.MapFrom(src => src.Regimen != null ? src.Regimen.RegimenName : null))
                 .ForMember(dest => dest.Component1Id, opt => opt.MapFrom(src => src.Regimen != null ? src.Regimen.Component1Id : (int?)null))
+                .ForMember(dest => dest.Component1Name, opt => opt.MapFrom(src => src.Regimen != null && src.Regimen.Component1 != null ? src.Regimen.Component1.ComponentName : null))
                 .ForMember(dest => dest.Component2Id, opt => opt.MapFrom(src => src.Regimen != null ? src.Regimen.Component2Id : null))
+                .ForMember(dest => dest.Component2Name, opt => opt.MapFrom(src => src.Regimen != null && src.Regimen.Component2 != null ? src.Regimen.Component2.ComponentName : null))
                 .ForMember(dest => dest.Component3Id, opt => opt.MapFrom(src => src.Regimen != null ? src.Regimen.Component3Id : null))
+                .ForMember(dest => dest.Component3Name, opt => opt.MapFrom(src => src.Regimen != null && src.Regimen.Component3 != null ? src.Regimen.Component3.ComponentName : null))
                 .ForMember(dest => dest.Component4Id, opt => opt.MapFrom(src => src.Regimen != null ? src.Regimen.Component4Id : null))
+                .ForMember(dest => dest.Component4Name, opt => opt.MapFrom(src => src.Regimen != null && src.Regimen.Component4 != null ? src.Regimen.Component4.ComponentName : null))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Regimen != null ? src.Regimen.Description : null))
                 .ForMember(dest => dest.SuitableFor, opt => opt.MapFrom(src => src.Regimen != null ? src.Regimen.SuitableFor : null))
                 .ForMember(dest => dest.SideEffects, opt => opt.MapFrom(src => src.Regimen != null ? src.Regimen.SideEffects : null))

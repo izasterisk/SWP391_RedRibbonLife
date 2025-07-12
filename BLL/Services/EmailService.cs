@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using DAL.IRepository;
 using DAL.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BLL.Services
 {
@@ -13,13 +14,15 @@ namespace BLL.Services
     {
         private readonly SendGridEmailUtil _sendGridUtil;
         private readonly IUserRepository<User> _userRepository;
+        private readonly IUserRepository<Treatment> _treatmentRepository;
         private static readonly ConcurrentDictionary<string, string> _verificationCodes = new();
         private readonly IUserUtils _userUtils;
 
-        public EmailService(SendGridEmailUtil sendGridUtil, IUserRepository<User> userRepository, IUserUtils userUtils)
+        public EmailService(SendGridEmailUtil sendGridUtil, IUserRepository<User> userRepository, IUserRepository<Treatment> treatmentRepository, IUserUtils userUtils)
         {
             _sendGridUtil = sendGridUtil;
             _userRepository = userRepository;
+            _treatmentRepository = treatmentRepository;
             _userUtils = userUtils;
         }
 
@@ -42,6 +45,85 @@ namespace BLL.Services
             catch (Exception ex)
             {
                 throw new Exception($"Failed to send verification email: {ex.Message}", ex);
+            }
+        }
+        
+        public async Task<bool> SendTreatmentCreatedByTreatmentIdEmailAsync(int id)
+        {
+            try
+            {
+                var treatment = await _treatmentRepository.GetWithRelationsAsync(
+                    filter: t => t.TreatmentId == id,
+                    useNoTracking: true,
+                    includeFunc: query => query
+                        .Include(t => t.Regimen)
+                            .ThenInclude(tr => tr.Component1)
+                        .Include(t => t.Regimen)
+                            .ThenInclude(tr => tr.Component2)
+                        .Include(t => t.Regimen)
+                            .ThenInclude(tr => tr.Component3)
+                        .Include(t => t.Regimen)
+                            .ThenInclude(tr => tr.Component4)
+                        .Include(t => t.TestResult)
+                            .ThenInclude(tr => tr.Patient)
+                            .ThenInclude(p => p.User)
+                        .Include(t => t.TestResult)
+                            .ThenInclude(tr => tr.Doctor)
+                            .ThenInclude(d => d.User)
+                        .Include(t => t.TestResult)
+                            .ThenInclude(tr => tr.Appointment)
+                        .Include(t => t.TestResult)
+                            .ThenInclude(tr => tr.TestType)
+                );
+                if (treatment == null)
+                {
+                    throw new Exception("Treatment not found.");
+                }
+                if (treatment.StartDate == null || treatment.EndDate == null)
+                {
+                    throw new Exception("Treatment start date or end date is null.");
+                }
+                if (treatment.Regimen == null)
+                {
+                    throw new Exception("Treatment regimen is null.");
+                }
+                if (treatment.TestResult == null)
+                {
+                    throw new Exception("Treatment test result is null.");
+                }
+                if (treatment.TestResult.Patient == null || treatment.TestResult.Patient.User == null)
+                {
+                    throw new Exception("Patient or patient user information is null.");
+                }
+                if (treatment.TestResult.Doctor == null || treatment.TestResult.Doctor.User == null)
+                {
+                    throw new Exception("Doctor or doctor user information is null.");
+                }
+                var components = new List<string>();
+                if (treatment.Regimen.Component1?.ComponentName != null)
+                    components.Add(treatment.Regimen.Component1.ComponentName);
+                if (treatment.Regimen.Component2?.ComponentName != null)
+                    components.Add(treatment.Regimen.Component2.ComponentName);
+                if (treatment.Regimen.Component3?.ComponentName != null)
+                    components.Add(treatment.Regimen.Component3.ComponentName);
+                if (treatment.Regimen.Component4?.ComponentName != null)
+                    components.Add(treatment.Regimen.Component4.ComponentName);
+                string componentNames = components.Count > 0 ? string.Join(" + ", components) : "Các loại thuốc";
+                await _sendGridUtil.SendTreatmentRegimenCreatedEmailAsync(
+                    treatment.TestResult.Patient.User.Email,
+                    treatment.TestResult.Patient.User.FullName ?? "Bệnh nhân",
+                    treatment.TestResult.Doctor.User.FullName ?? "Bác sĩ",
+                    treatment.Regimen.Frequency,
+                    treatment.StartDate.Value,
+                    treatment.EndDate.Value,
+                    componentNames,
+                    treatment.Notes ?? "Theo chỉ dẫn của bác sĩ"
+                );
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to send treatment created email: {ex.Message}", ex);
             }
         }
 

@@ -260,5 +260,68 @@ namespace SWP391_RedRibbonLife.Controllers
                 return StatusCode(500, apiResponse);
             }
         }
+
+        [HttpPost]
+        [Route("SendTreatmentCreatedEmail")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<APIResponse>> SendTreatmentCreatedEmailAsync([FromBody] TreatmentEmailRequestDTO request)
+        {
+            var apiResponse = new APIResponse();
+            if (!ModelState.IsValid)
+            {
+                apiResponse.Status = false;
+                apiResponse.StatusCode = HttpStatusCode.BadRequest;
+                apiResponse.Errors.AddRange(ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage));
+                return BadRequest(apiResponse);
+            }
+            try
+            {
+                var result = await _emailService.SendTreatmentCreatedByTreatmentIdEmailAsync(request.TreatmentId);
+                if (result)
+                {
+                    apiResponse.Data = new
+                    {
+                        message = "Treatment created notification email sent successfully",
+                        treatmentId = request.TreatmentId
+                    };
+                    apiResponse.Status = true;
+                    apiResponse.StatusCode = HttpStatusCode.OK;
+                    return Ok(apiResponse);
+                }
+                else
+                {
+                    apiResponse.Errors.Add("Unable to send treatment created notification email");
+                    apiResponse.StatusCode = HttpStatusCode.BadRequest;
+                    apiResponse.Status = false;
+                    return BadRequest(apiResponse);
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("not found"))
+                {
+                    apiResponse.Errors.Add("Treatment not found");
+                    apiResponse.StatusCode = HttpStatusCode.NotFound;
+                    apiResponse.Status = false;
+                    return NotFound(apiResponse);
+                }
+                if (ex.Message.Contains("null"))
+                {
+                    apiResponse.Errors.Add("Treatment data is incomplete");
+                    apiResponse.StatusCode = HttpStatusCode.BadRequest;
+                    apiResponse.Status = false;
+                    return BadRequest(apiResponse);
+                }
+                apiResponse.Errors.Add($"Error sending treatment created notification email: {ex.Message}");
+                apiResponse.StatusCode = HttpStatusCode.InternalServerError;
+                apiResponse.Status = false;
+                return StatusCode(500, apiResponse);
+            }
+        }
     }
-} 
+}

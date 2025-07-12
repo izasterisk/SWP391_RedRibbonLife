@@ -20,13 +20,13 @@ public partial class Treatment
     public int TestResultId { get; set; }
 
     [Column("regimen_id")]
-    public int RegimenId { get; set; }
+    public int? RegimenId { get; set; }
 
     [Column("start_date")]
-    public DateOnly StartDate { get; set; }
+    public DateOnly? StartDate { get; set; }
 
     [Column("end_date")]
-    public DateOnly EndDate { get; set; }
+    public DateOnly? EndDate { get; set; }
 
     [Column("status")]
     [StringLength(50)]
@@ -40,7 +40,7 @@ public partial class Treatment
 
     [ForeignKey("RegimenId")]
     [InverseProperty("Treatments")]
-    public virtual Arvregimen Regimen { get; set; } = null!;
+    public virtual Arvregimen? Regimen { get; set; }
 
     [ForeignKey("TestResultId")]
     [InverseProperty("Treatments")]

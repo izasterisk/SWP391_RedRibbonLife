@@ -46,6 +46,13 @@ public class TreatmentService : ITreatmentService
                 useNoTracking: true,
                 includeFunc: query => query
                     .Include(t => t.Regimen)
+                        .ThenInclude(tr => tr.Component1)
+                    .Include(t => t.Regimen)
+                        .ThenInclude(tr => tr.Component2)
+                    .Include(t => t.Regimen)
+                        .ThenInclude(tr => tr.Component3)
+                    .Include(t => t.Regimen)
+                        .ThenInclude(tr => tr.Component4)
                     .Include(t => t.TestResult)
                         .ThenInclude(tr => tr.Patient)
                         .ThenInclude(p => p.User)
@@ -97,6 +104,13 @@ public class TreatmentService : ITreatmentService
                 useNoTracking: true,
                 includeFunc: query => query
                     .Include(t => t.Regimen)
+                    .ThenInclude(tr => tr.Component1)
+                    .Include(t => t.Regimen)
+                    .ThenInclude(tr => tr.Component2)
+                    .Include(t => t.Regimen)
+                    .ThenInclude(tr => tr.Component3)
+                    .Include(t => t.Regimen)
+                    .ThenInclude(tr => tr.Component4)
                     .Include(t => t.TestResult)
                         .ThenInclude(tr => tr.Patient)
                         .ThenInclude(p => p.User)
@@ -122,6 +136,13 @@ public class TreatmentService : ITreatmentService
         var treatments = await _treatmentRepository.GetAllWithRelationsAsync(
             includeFunc: query => query
                 .Include(t => t.Regimen)
+                .ThenInclude(tr => tr.Component1)
+                .Include(t => t.Regimen)
+                .ThenInclude(tr => tr.Component2)
+                .Include(t => t.Regimen)
+                .ThenInclude(tr => tr.Component3)
+                .Include(t => t.Regimen)
+                .ThenInclude(tr => tr.Component4)
                 .Include(t => t.TestResult)
                     .ThenInclude(tr => tr.Patient)
                     .ThenInclude(p => p.User)
@@ -143,6 +164,13 @@ public class TreatmentService : ITreatmentService
             useNoTracking: true,
             includeFunc: query => query
                 .Include(t => t.Regimen)
+                .ThenInclude(tr => tr.Component1)
+                .Include(t => t.Regimen)
+                .ThenInclude(tr => tr.Component2)
+                .Include(t => t.Regimen)
+                .ThenInclude(tr => tr.Component3)
+                .Include(t => t.Regimen)
+                .ThenInclude(tr => tr.Component4)
                 .Include(t => t.TestResult)
                     .ThenInclude(tr => tr.Patient)
                     .ThenInclude(p => p.User)
@@ -193,6 +221,13 @@ public class TreatmentService : ITreatmentService
             useNoTracking: true,
             includeFunc: query => query
                 .Include(t => t.Regimen)
+                .ThenInclude(tr => tr.Component1)
+                .Include(t => t.Regimen)
+                .ThenInclude(tr => tr.Component2)
+                .Include(t => t.Regimen)
+                .ThenInclude(tr => tr.Component3)
+                .Include(t => t.Regimen)
+                .ThenInclude(tr => tr.Component4)
                 .Include(t => t.TestResult)
                     .ThenInclude(tr => tr.Patient)
                     .ThenInclude(p => p.User)

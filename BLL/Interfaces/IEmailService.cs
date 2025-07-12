@@ -9,5 +9,6 @@ namespace BLL.Interfaces
         string GenerateVerificationCode(string email);
         Task<bool> SendForgotPasswordEmailAsync(string email);
         Task<bool> ChangePatientPasswordAsync(string email, string verifyCode, string newPassword);
+        Task<bool> SendTreatmentCreatedByTreatmentIdEmailAsync(int id);
     }
 } 

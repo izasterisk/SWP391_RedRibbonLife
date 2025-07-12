@@ -12,16 +12,20 @@ public class ARVRegimensReadOnlyDTO
     [Required(ErrorMessage = "Component 1 is required")]
     [Range(1, int.MaxValue, ErrorMessage = "Component 1 ID must be a positive number")]
     public int Component1Id { get; set; }
+    public string? Component1Name { get; set; }
 
     [Range(1, int.MaxValue, ErrorMessage = "Component 2 ID must be a positive number")]
     public int? Component2Id { get; set; }
+    public string? Component2Name { get; set; }
 
     [Range(1, int.MaxValue, ErrorMessage = "Component 3 ID must be a positive number")]
     public int? Component3Id { get; set; }
+    public string? Component3Name { get; set; }
 
     [Range(1, int.MaxValue, ErrorMessage = "Component 4 ID must be a positive number")]
     public int? Component4Id { get; set; }
-
+    public string? Component4Name { get; set; }
+    
     [StringLength(2000, ErrorMessage = "Description cannot exceed 2000 characters")]
     public string? Description { get; set; }
 

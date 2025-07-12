@@ -4,6 +4,7 @@ using BLL.Interfaces;
 using BLL.Utils;
 using DAL.IRepository;
 using DAL.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BLL.Services;
 
@@ -27,6 +28,18 @@ public class ARVRegimensService : IARVRegimensService
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
         await _arvRegimenUtils.CheckARVComponentExistAsync(dto.Component1Id);
+        if (!dto.Component2Id.HasValue && dto.Component3Id.HasValue)
+        {
+            throw new ArgumentException("Component 2 is required when Component 3 is provided.");
+        }
+        if (!dto.Component3Id.HasValue && dto.Component4Id.HasValue)
+        {
+            throw new ArgumentException("Component 3 is required when Component 4 is provided.");
+        }
+        if (!dto.Component2Id.HasValue && dto.Component4Id.HasValue)
+        {
+            throw new ArgumentException("Component 2 is required when Component 4 is provided.");
+        }
         await dto.Component2Id.ValidateIfNotNullAsync(_arvRegimenUtils.CheckARVComponentExistAsync);
         await dto.Component3Id.ValidateIfNotNullAsync(_arvRegimenUtils.CheckARVComponentExistAsync);
         await dto.Component4Id.ValidateIfNotNullAsync(_arvRegimenUtils.CheckARVComponentExistAsync);
@@ -49,8 +62,17 @@ public class ARVRegimensService : IARVRegimensService
             var arvRegimen = _mapper.Map<Arvregimen>(dto);
             arvRegimen.IsActive = true;
             var createdRegimen = await _arvRegimensRepository.CreateAsync(arvRegimen);
+            var detailedRegimen = await _arvRegimensRepository.GetWithRelationsAsync(
+                filter: r => r.RegimenId == createdRegimen.RegimenId,
+                useNoTracking: true,
+                includeFunc: query => query
+                    .Include(tr => tr.Component1)
+                    .Include(tr => tr.Component2)
+                    .Include(tr => tr.Component3)
+                    .Include(tr => tr.Component4)
+            );
             await transaction.CommitAsync();
-            return _mapper.Map<ARVRegimensReadOnlyDTO>(createdRegimen);
+            return _mapper.Map<ARVRegimensReadOnlyDTO>(detailedRegimen);
         }
         catch (Exception)
         {
@@ -66,6 +88,18 @@ public class ARVRegimensService : IARVRegimensService
         await dto.Component2Id.ValidateIfNotNullAsync(_arvRegimenUtils.CheckARVComponentExistAsync);
         await dto.Component3Id.ValidateIfNotNullAsync(_arvRegimenUtils.CheckARVComponentExistAsync);
         await dto.Component4Id.ValidateIfNotNullAsync(_arvRegimenUtils.CheckARVComponentExistAsync);
+        if (!dto.Component2Id.HasValue && dto.Component3Id.HasValue)
+        {
+            throw new ArgumentException("Component 2 is required when Component 3 is provided.");
+        }
+        if (!dto.Component3Id.HasValue && dto.Component4Id.HasValue)
+        {
+            throw new ArgumentException("Component 3 is required when Component 4 is provided.");
+        }
+        if (!dto.Component2Id.HasValue && dto.Component4Id.HasValue)
+        {
+            throw new ArgumentException("Component 2 is required when Component 4 is provided.");
+        }
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
@@ -76,8 +110,17 @@ public class ARVRegimensService : IARVRegimensService
             }
             _mapper.Map(dto, regimen);
             var updatedRegimen = await _arvRegimensRepository.UpdateAsync(regimen);
+            var detailedRegimen = await _arvRegimensRepository.GetWithRelationsAsync(
+                filter: r => r.RegimenId == updatedRegimen.RegimenId,
+                useNoTracking: true,
+                includeFunc: query => query
+                    .Include(tr => tr.Component1)
+                    .Include(tr => tr.Component2)
+                    .Include(tr => tr.Component3)
+                    .Include(tr => tr.Component4)
+            );
             await transaction.CommitAsync();
-            return _mapper.Map<ARVRegimensReadOnlyDTO>(updatedRegimen);
+            return _mapper.Map<ARVRegimensReadOnlyDTO>(detailedRegimen);
         }
         catch (Exception)
         {
@@ -88,23 +131,47 @@ public class ARVRegimensService : IARVRegimensService
 
     public async Task<List<ARVRegimensReadOnlyDTO>> GetAllARVRegimensAsync()
     {
-        var regimens = await _arvRegimensRepository.GetAllByFilterAsync(r => r.IsActive == true, true);
+        var regimens = await _arvRegimensRepository.GetAllWithRelationsByFilterAsync(
+            filter: r => r.IsActive == true,
+            useNoTracking: true,
+            includeFunc: query => query
+                .Include(tr => tr.Component1)
+                .Include(tr => tr.Component2)
+                .Include(tr => tr.Component3)
+                .Include(tr => tr.Component4)
+        );
         return _mapper.Map<List<ARVRegimensReadOnlyDTO>>(regimens);
     }
 
     public async Task<ARVRegimensReadOnlyDTO> GetARVRegimensByIdAsync(int id)
     {
-        var regimen = await _arvRegimensRepository.GetAsync(r => r.IsActive == true && r.RegimenId == id, true);
-        if (regimen == null)
+        var detailedRegimen = await _arvRegimensRepository.GetWithRelationsAsync(
+            filter: r => r.RegimenId == id && r.IsActive == true,
+            useNoTracking: true,
+            includeFunc: query => query
+                .Include(tr => tr.Component1)
+                .Include(tr => tr.Component2)
+                .Include(tr => tr.Component3)
+                .Include(tr => tr.Component4)
+        );
+        if (detailedRegimen == null)
         {
             throw new Exception("ARV Regimen not found.");
         }
-        return _mapper.Map<ARVRegimensReadOnlyDTO>(regimen);
+        return _mapper.Map<ARVRegimensReadOnlyDTO>(detailedRegimen);
     }
 
     public async Task<List<ARVRegimensReadOnlyDTO>> GetARVRegimensByIsCustomizedAsync(bool isCustomized)
     {
-        var regimens = await _arvRegimensRepository.GetAllByFilterAsync(r => r.IsActive == true && r.IsCustomized == isCustomized, true);
+        var regimens = await _arvRegimensRepository.GetAllWithRelationsByFilterAsync(
+            filter: r => r.IsActive == true && r.IsCustomized == isCustomized,
+            useNoTracking: true,
+            includeFunc: query => query
+                .Include(tr => tr.Component1)
+                .Include(tr => tr.Component2)
+                .Include(tr => tr.Component3)
+                .Include(tr => tr.Component4)
+        );
         return _mapper.Map<List<ARVRegimensReadOnlyDTO>>(regimens);
     }
     
