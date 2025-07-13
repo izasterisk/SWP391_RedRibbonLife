@@ -17,6 +17,7 @@ using BLL.DTO.Article;
 using BLL.DTO.ARVComponent;
 using BLL.DTO.ARVRegimens;
 using BLL.DTO.Category;
+using BLL.DTO.DoctorCertificate;
 using BLL.DTO.DoctorSchedule;
 using BLL.DTO.Login;
 using BLL.DTO.Notification;
@@ -199,6 +200,12 @@ namespace BLL.Utils
             CreateMap<NotificationCreateDTO, Notification>().ReverseMap();
             CreateMap<Notification, NotificationDTO>().ReverseMap();
             CreateMap<NotificationUpdateDTO, Notification>().ReverseMap();
+            
+            CreateMap<DoctorCertificate, DoctorCertificateDTO>()
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.Doctor != null && src.Doctor.User != null ? src.Doctor.User.FullName : null));
+            CreateMap<DoctorCertificateCreateDTO, DoctorCertificate>().ReverseMap();
+            CreateMap<DoctorCertificateUpdateDTO, DoctorCertificate>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
             
             //Khi có 2 trường khác tên, ví dụ: studentName và Name
             //CreateMap<StudentDTO, Student>().ForMember(n => n.studentName, opt => opt.MapFrom(x => x.Name)).ReverseMap();

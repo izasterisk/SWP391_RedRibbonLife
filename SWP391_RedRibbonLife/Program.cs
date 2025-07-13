@@ -44,6 +44,7 @@ builder.Services.AddScoped<ITreatmentService, TreatmentService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<INotificationUtils, NotificationUtils>();
 builder.Services.AddScoped<IHangfireBackgroundJobService, HangfireBackgroundJobService>();
+builder.Services.AddScoped<IDoctorCertificateService, DoctorCertificateService>();
 
 builder.Services.AddScoped<IUserRepository<User>, UserRepository<User>>();
 builder.Services.AddScoped<IUserRepository<Doctor>, UserRepository<Doctor>>();
@@ -58,6 +59,7 @@ builder.Services.AddScoped<IUserRepository<TestResult>, UserRepository<TestResul
 builder.Services.AddScoped<IUserRepository<Arvcomponent>, UserRepository<Arvcomponent>>();
 builder.Services.AddScoped<IUserRepository<Treatment>, UserRepository<Treatment>>();
 builder.Services.AddScoped<IUserRepository<Notification>, UserRepository<Notification>>();
+builder.Services.AddScoped<IUserRepository<DoctorCertificate>, UserRepository<DoctorCertificate>>();
 
 //CORS
 builder.Services.AddCors(options =>
