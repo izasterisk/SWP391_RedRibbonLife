@@ -17,6 +17,9 @@ public partial class Category
     [StringLength(100)]
     public string CategoryName { get; set; } = null!;
 
+    [Column("isActive")]
+    public bool? IsActive { get; set; }
+
     [InverseProperty("Category")]
     public virtual ICollection<Article> Articles { get; set; } = new List<Article>();
 }

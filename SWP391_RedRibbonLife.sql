@@ -55,7 +55,8 @@ CREATE TABLE DoctorCertificates (
 -- 5. Bảng Category (Phân loại bài viết)
 CREATE TABLE Category (
     category_id INT PRIMARY KEY IDENTITY(1,1),
-    category_name NVARCHAR(100) NOT NULL
+    category_name NVARCHAR(100) NOT NULL,
+	isActive BIT DEFAULT 1
 );
 
 -- 6. Bảng Articles
