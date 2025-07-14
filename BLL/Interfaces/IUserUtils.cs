@@ -19,5 +19,6 @@ namespace BLL.Interfaces
         Task CheckTestResultExistAsync(int id);
         Task CheckTreatmentExistAsync(int id);
         Task CheckEmailExistAsync(string email);
+        Task CheckCategoryExistAsync(int id);
     }
 }

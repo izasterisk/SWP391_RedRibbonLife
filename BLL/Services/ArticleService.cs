@@ -29,7 +29,8 @@ public class ArticleService : IArticleService
     public async Task<List<ArticleReadOnlyDTO>> GetAllArticleAsync()
     {
         var articles = await _articleRepository.GetAllWithRelationsAsync(
-            query => query.Include(a => a.Category).Include(a => a.User)
+            query => query.Include(a => a.Category)
+                .Include(a => a.User)
         );
         var articleDTOs = _mapper.Map<List<ArticleReadOnlyDTO>>(articles);
         return articleDTOs;
@@ -40,7 +41,8 @@ public class ArticleService : IArticleService
         var article = await _articleRepository.GetWithRelationsAsync(
             a => a.ArticleId == id, 
             true, 
-            query => query.Include(a => a.Category).Include(a => a.User)
+            query => query.Include(a => a.Category)
+                .Include(a => a.User)
         );
         if (article == null)
         {
@@ -52,23 +54,16 @@ public class ArticleService : IArticleService
     public async Task<ArticleReadOnlyDTO> CreateArticleAsync(ArticleDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
+        await dto.CategoryId.ValidateIfNotNullAsync(_userUtils.CheckCategoryExistAsync);
+        await dto.UserId.ValidateIfNotNullAsync(_userUtils.CheckUserExistAsync);
+        var existingTitleExists = await _articleRepository.AnyAsync(u => u.Title.Equals(dto.Title));
+        if (existingTitleExists)
+        {
+            throw new Exception("Title already exists.");
+        }
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
-            var existingTitleExists = await _articleRepository.AnyAsync(u => u.Title.Equals(dto.Title));
-            if (existingTitleExists)
-            {
-                throw new Exception("Title already exists.");
-            }
-            await dto.UserId.ValidateIfNotNullAsync(_userUtils.CheckUserExistAsync);
-            if(dto.CategoryId != null)
-            {
-                var categoryExists = await _categoryRepository.AnyAsync(u => u.CategoryId == dto.CategoryId);
-                if (!categoryExists)
-                {
-                    throw new Exception("Category not found.");
-                }
-            }
             Article article = _mapper.Map<Article>(dto);
             article.IsActive = true;
             article.CreatedDate = DateOnly.FromDateTime(DateTime.Now);
@@ -77,7 +72,8 @@ public class ArticleService : IArticleService
             var articleWithRelations = await _articleRepository.GetWithRelationsAsync(
                 a => a.ArticleId == createdArticle.ArticleId, 
                 true, 
-                query => query.Include(a => a.Category).Include(a => a.User)
+                query => query.Include(a => a.Category)
+                    .Include(a => a.User)
             );
             return _mapper.Map<ArticleReadOnlyDTO>(articleWithRelations);
         }
@@ -91,6 +87,16 @@ public class ArticleService : IArticleService
     public async Task<ArticleReadOnlyDTO> UpdateArticleAsync(ArticleUpdateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
+        await dto.CategoryId.ValidateIfNotNullAsync(_userUtils.CheckCategoryExistAsync);
+        await dto.UserId.ValidateIfNotNullAsync(_userUtils.CheckUserExistAsync);
+        if (!string.IsNullOrWhiteSpace(dto.Title))
+        {
+            var titleExists = await _articleRepository.AnyAsync(u => u.Title.Equals(dto.Title) && u.ArticleId != dto.ArticleId);
+            if (titleExists)
+            {
+                throw new Exception("Title already exists.");
+            }
+        }
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
@@ -99,31 +105,14 @@ public class ArticleService : IArticleService
             {
                 throw new Exception("No article found.");
             }
-            
-            if (!string.IsNullOrWhiteSpace(dto.Title))
-            {
-                var titleExists = await _articleRepository.AnyAsync(u => u.Title.Equals(dto.Title) && u.ArticleId != dto.ArticleId);
-                if (titleExists)
-                {
-                    throw new Exception("Title already exists.");
-                }
-            }
-            await dto.UserId.ValidateIfNotNullAsync(_userUtils.CheckUserExistAsync);
-            if(dto.CategoryId.HasValue)
-            {
-                var categoryExists = await _categoryRepository.AnyAsync(u => u.CategoryId == dto.CategoryId);
-                if (!categoryExists)
-                {
-                    throw new Exception("Category not found.");
-                }
-            }
             _mapper.Map(dto, article);
             var updatedArticle = await _articleRepository.UpdateAsync(article);
             await transaction.CommitAsync();
             var articleWithRelations = await _articleRepository.GetWithRelationsAsync(
                 a => a.ArticleId == updatedArticle.ArticleId, 
                 true, 
-                query => query.Include(a => a.Category).Include(a => a.User)
+                query => query.Include(a => a.Category)
+                    .Include(a => a.User)
             );
             return _mapper.Map<ArticleReadOnlyDTO>(articleWithRelations);
         }

@@ -25,7 +25,8 @@ namespace BLL.Utils
         private readonly IUserRepository<Treatment> _treatmentRepository;
         private readonly IMapper _mapper;
         private readonly SWP391_RedRibbonLifeContext _dbContext;
-        public UserUtils(IUserRepository<Appointment> appointmentRepository, IUserRepository<User> userRepository, IUserRepository<Patient> patientRepository, IUserRepository<Doctor> doctorRepository, IUserRepository<TestType> testTypeRepository, IUserRepository<TestResult> testResultRepository, IUserRepository<Treatment> treatmentRepository, IMapper mapper, SWP391_RedRibbonLifeContext dbContext)
+        private readonly IUserRepository<Category> _categoryRepository;
+        public UserUtils(IUserRepository<Appointment> appointmentRepository, IUserRepository<User> userRepository, IUserRepository<Patient> patientRepository, IUserRepository<Doctor> doctorRepository, IUserRepository<TestType> testTypeRepository, IUserRepository<TestResult> testResultRepository, IUserRepository<Treatment> treatmentRepository, IMapper mapper, SWP391_RedRibbonLifeContext dbContext, IUserRepository<Category> categoryRepository)
         {
             _appointmentRepository = appointmentRepository;
             _userRepository = userRepository;
@@ -36,6 +37,7 @@ namespace BLL.Utils
             _treatmentRepository = treatmentRepository;
             _mapper = mapper;
             _dbContext = dbContext;
+            _categoryRepository = categoryRepository;
         }
         public string CreatePasswordHash(string password)
         {
@@ -150,6 +152,15 @@ namespace BLL.Utils
             if (emailExists)
             {
                 throw new Exception($"Email {email} already exists.");
+            }
+        }
+        
+        public async Task CheckCategoryExistAsync(int id)
+        {
+            var categoryExists = await _categoryRepository.AnyAsync(c => c.CategoryId == id && c.IsActive == true);
+            if (!categoryExists)
+            {
+                throw new Exception("Category not found.");
             }
         }
     }

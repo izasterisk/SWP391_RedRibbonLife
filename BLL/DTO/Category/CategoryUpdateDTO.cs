@@ -8,10 +8,11 @@ using System.Threading.Tasks;
 
 namespace BLL.DTO.Category
 {
-    public class CategoryDTO
+    public class CategoryUpdateDTO
     {
         public int CategoryId { get; set; }
         [Required(ErrorMessage = "Category name cannot be null")]
         public string CategoryName { get; set; } = null!;
+        // public bool? IsActive { get; set; }
     }
 }

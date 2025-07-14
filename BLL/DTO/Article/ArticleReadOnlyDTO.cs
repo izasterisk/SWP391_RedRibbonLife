@@ -10,13 +10,13 @@ public class ArticleReadOnlyDTO
     [StringLength(200, ErrorMessage = "Title must not exceed 200 characters.")]
     public string Title { get; set; } = null!;
     public string? Content { get; set; }
-    public int? CategoryId { get; set; }
+    // public int? CategoryId { get; set; }
     public bool? IsActive { get; set; }
     public DateOnly CreatedDate { get; set; }
     public int UserId { get; set; }
     public string? AuthorName { get; set; }
         
     //Category
+    public int? CategoryId { get; set; }
     public string? CategoryName { get; set; }
-    //public int? CategoryId { get; set; }
 }

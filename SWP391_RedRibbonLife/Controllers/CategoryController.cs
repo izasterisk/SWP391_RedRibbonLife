@@ -29,7 +29,7 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin, Manager, Staff, Doctor")]
-        public async Task<ActionResult<APIResponse>> CreateCategoryAsync(CategoryDTO dto)
+        public async Task<ActionResult<APIResponse>> CreateCategoryAsync(CategoryCreateDTO createDto)
         {
             var apiResponse = new APIResponse();
             if (!ModelState.IsValid)
@@ -43,7 +43,7 @@ namespace SWP391_RedRibbonLife.Controllers
             }
             try
             {
-                var categoryCreated = await _categoryService.CreateCategoryAsync(dto);
+                var categoryCreated = await _categoryService.CreateCategoryAsync(createDto);
                 apiResponse.Data = categoryCreated;
                 apiResponse.Status = true;
                 apiResponse.StatusCode = HttpStatusCode.Created;
@@ -68,7 +68,7 @@ namespace SWP391_RedRibbonLife.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin, Manager, Staff, Doctor")]
-        public async Task<ActionResult<APIResponse>> UpdateCategoryAsync(CategoryDTO dto)
+        public async Task<ActionResult<APIResponse>> UpdateCategoryAsync(CategoryUpdateDTO updateDto)
         {
             var apiResponse = new APIResponse();
             if (!ModelState.IsValid)
@@ -82,7 +82,7 @@ namespace SWP391_RedRibbonLife.Controllers
             }
             try
             {
-                var categoryUpdated = await _categoryService.UpdateCategoryAsync(dto);
+                var categoryUpdated = await _categoryService.UpdateCategoryAsync(updateDto);
                 apiResponse.Data = categoryUpdated;
                 apiResponse.Status = true;
                 apiResponse.StatusCode = HttpStatusCode.OK;

@@ -19,16 +19,17 @@ public class CategoryService : ICategoryService
         _categoryRepository = categoryRepository;
     }
     
-    public async Task<CategoryDTO> CreateCategoryAsync(CategoryDTO dto)
+    public async Task<CategoryReadonlyDTO> CreateCategoryAsync(CategoryCreateDTO updateDto)
     {
-        ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
+        ArgumentNullException.ThrowIfNull(updateDto, $"{nameof(updateDto)} is null");
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
-            var category = _mapper.Map<Category>(dto);
+            var category = _mapper.Map<Category>(updateDto);
+            category.IsActive = true;
             var createdCategory = await _categoryRepository.CreateAsync(category);
             await transaction.CommitAsync();
-            return _mapper.Map<CategoryDTO>(createdCategory);
+            return _mapper.Map<CategoryReadonlyDTO>(createdCategory);
         }
         catch (Exception)
         {
@@ -37,21 +38,21 @@ public class CategoryService : ICategoryService
         }
     }
     
-    public async Task<CategoryDTO> UpdateCategoryAsync(CategoryDTO dto)
+    public async Task<CategoryReadonlyDTO> UpdateCategoryAsync(CategoryUpdateDTO updateDto)
     {
-        ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
+        ArgumentNullException.ThrowIfNull(updateDto, $"{nameof(updateDto)} is null");
+        var category = await _categoryRepository.GetAsync(u => u.CategoryId == updateDto.CategoryId, true);
+        if (category == null)
+        {
+            throw new Exception("Category not found.");
+        }
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
-            var category = await _categoryRepository.GetAsync(u => u.CategoryId == dto.CategoryId, true);
-            if (category == null)
-            {
-                throw new Exception("Category not found.");
-            }
-            _mapper.Map(dto, category);
+            _mapper.Map(updateDto, category);
             var updatedCategory = await _categoryRepository.UpdateAsync(category);
             await transaction.CommitAsync();
-            return _mapper.Map<CategoryDTO>(updatedCategory);
+            return _mapper.Map<CategoryReadonlyDTO>(updatedCategory);
         }
         catch (Exception)
         {
@@ -60,20 +61,20 @@ public class CategoryService : ICategoryService
         }
     }
     
-    public async Task<List<CategoryDTO>> GetAllCategoryAsync()
+    public async Task<List<CategoryReadonlyDTO>> GetAllCategoryAsync()
     {
         var categories = await _categoryRepository.GetAllAsync();
-        return _mapper.Map<List<CategoryDTO>>(categories);
+        return _mapper.Map<List<CategoryReadonlyDTO>>(categories);
     }
     
-    public async Task<CategoryDTO> GetCategoryByIdAsync(int id)
+    public async Task<CategoryReadonlyDTO> GetCategoryByIdAsync(int id)
     {
         var category = await _categoryRepository.GetAsync(u => u.CategoryId == id, true);
         if (category == null)
         {
             throw new Exception("Category not found.");
         }
-        return _mapper.Map<CategoryDTO>(category);
+        return _mapper.Map<CategoryReadonlyDTO>(category);
     }
     
     public async Task<bool> DeleteCategoryByIdAsync(int id)

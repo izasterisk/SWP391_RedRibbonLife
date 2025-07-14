@@ -88,7 +88,10 @@ namespace BLL.Utils
             CreateMap<ArticleUpdateDTO, Article>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
             
-            CreateMap<CategoryDTO, Category>().ReverseMap();
+            CreateMap<CategoryUpdateDTO, Category>().ReverseMap()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));;
+            CreateMap<CategoryReadonlyDTO, Category>().ReverseMap();
+            CreateMap<CategoryCreateDTO, Category>().ReverseMap();
             
             CreateMap<AdminDTO, User>().ReverseMap();
             CreateMap<AdminReadOnlyDTO, User>().ReverseMap();
