@@ -24,6 +24,9 @@ public partial class TestType
     [Column("normal_range")]
     public string? NormalRange { get; set; }
 
+    [Column("isActive")]
+    public bool IsActive { get; set; }
+
     [InverseProperty("TestType")]
     public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
 

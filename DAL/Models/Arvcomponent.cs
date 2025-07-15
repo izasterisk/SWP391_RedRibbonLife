@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace DAL.Models;
 
 [Table("ARVComponents")]
-[Index("ComponentName", Name = "UQ__ARVCompo__2E7CCD4BBD466E0B", IsUnique = true)]
+[Index("ComponentName", Name = "UQ__ARVCompo__2E7CCD4B9F2CBC1A", IsUnique = true)]
 public partial class Arvcomponent
 {
     [Key]
@@ -21,6 +21,9 @@ public partial class Arvcomponent
 
     [Column("description")]
     public string? Description { get; set; }
+
+    [Column("isActive")]
+    public bool IsActive { get; set; }
 
     [InverseProperty("Component1")]
     public virtual ICollection<Arvregimen> ArvregimenComponent1s { get; set; } = new List<Arvregimen>();

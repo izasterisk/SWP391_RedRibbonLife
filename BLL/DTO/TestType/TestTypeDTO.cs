@@ -19,4 +19,6 @@ public class TestTypeDTO
 
     [StringLength(1000, ErrorMessage = "Normal range cannot exceed 1000 characters")]
     public string? NormalRange { get; set; }
+    
+    public bool IsActive { get; set; }
 }

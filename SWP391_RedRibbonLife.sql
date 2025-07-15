@@ -89,7 +89,8 @@ CREATE TABLE Appointments (
 CREATE TABLE ARVComponents (
     component_id INT PRIMARY KEY IDENTITY(1,1),
     component_name VARCHAR(100) NOT NULL UNIQUE,
-    description NVARCHAR(MAX)
+    description NVARCHAR(MAX),
+    isActive BIT DEFAULT 1 NOT NULL
 );
 
 -- 8. Bảng ARVRegimens (Các phác đồ điều trị ARV có sẵn và tùy chỉnh)
@@ -120,6 +121,7 @@ CREATE TABLE TestType (
     test_type_name NVARCHAR(200) NOT NULL,
     unit NVARCHAR(50) DEFAULT 'N/A' NOT NULL,
     normal_range NVARCHAR(MAX),
+    isActive BIT DEFAULT 1 NOT NULL,
     CONSTRAINT chk_unit CHECK (unit IN ('cells/mm³', 'copies/mL', 'mg/dL', 'g/L', 'IU/L', 'IU/mL', '%', 'mmHg', 'S/C', 'N/A'))
 );
 
