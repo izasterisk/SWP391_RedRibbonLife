@@ -49,7 +49,7 @@ namespace BLL.Utils
                 .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.User != null ? src.User.Address : null))
                 .ForMember(dest => dest.UserRole, opt => opt.MapFrom(src => src.User != null ? src.User.UserRole : null))
                 .ForMember(dest => dest.DoctorId, opt => opt.MapFrom(src => src.DoctorId))
-                .ForMember(dest => dest.DoctorImage, opt => opt.MapFrom(src => src.DoctorImage))
+                // .ForMember(dest => dest.DoctorImage, opt => opt.MapFrom(src => src.DoctorImage))
                 .ForMember(dest => dest.Bio, opt => opt.MapFrom(src => src.Bio));
             CreateMap<DoctorReadOnlyDTO, User>().ReverseMap();
             CreateMap<DoctorUpdateDTO, Doctor>()
@@ -174,7 +174,7 @@ namespace BLL.Utils
                 .ForMember(dest => dest.SpecialNotes, opt => opt.MapFrom(src => src.TestResult != null && src.TestResult.Patient != null ? src.TestResult.Patient.SpecialNotes : null))
                 .ForMember(dest => dest.DoctorId, opt => opt.MapFrom(src => src.TestResult != null ? src.TestResult.DoctorId : (int?)null))
                 .ForMember(dest => dest.DoctorName, opt => opt.MapFrom(src => src.TestResult != null && src.TestResult.Doctor != null && src.TestResult.Doctor.User != null ? src.TestResult.Doctor.User.FullName : null))
-                .ForMember(dest => dest.DoctorImage, opt => opt.MapFrom(src => src.TestResult != null && src.TestResult.Doctor != null ? src.TestResult.Doctor.DoctorImage : null))
+                // .ForMember(dest => dest.DoctorImage, opt => opt.MapFrom(src => src.TestResult != null && src.TestResult.Doctor != null ? src.TestResult.Doctor.DoctorImage : null))
                 .ForMember(dest => dest.RegimenName, opt => opt.MapFrom(src => src.Regimen != null ? src.Regimen.RegimenName : null))
                 .ForMember(dest => dest.Component1Id, opt => opt.MapFrom(src => src.Regimen != null ? src.Regimen.Component1Id : (int?)null))
                 .ForMember(dest => dest.Component1Name, opt => opt.MapFrom(src => src.Regimen != null && src.Regimen.Component1 != null ? src.Regimen.Component1.ComponentName : null))

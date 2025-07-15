@@ -27,6 +27,7 @@ public class ARVComponentService : IARVComponentService
         try
         {
             var arvComponent = _mapper.Map<Arvcomponent>(dto);
+            arvComponent.IsActive = true;
             var createdARVComponent = await _arvComponentRepository.CreateAsync(arvComponent);
             await transaction.CommitAsync();
             return _mapper.Map<ARVComponentDTO>(createdARVComponent);

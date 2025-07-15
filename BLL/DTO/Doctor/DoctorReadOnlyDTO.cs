@@ -56,7 +56,7 @@ namespace BLL.DTO.Doctor
 
         //public int? UserId { get; set; }
 
-        public string? DoctorImage { get; set; }
+        // public string? DoctorImage { get; set; }
 
         public string? Bio { get; set; }
     }

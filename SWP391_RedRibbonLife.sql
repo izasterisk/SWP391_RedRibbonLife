@@ -37,7 +37,6 @@ CREATE TABLE Patients (
 CREATE TABLE Doctors (
     doctor_id INT PRIMARY KEY IDENTITY(1,1),
     user_id INT NOT NULL,
-    doctor_image NVARCHAR(MAX),
     bio NVARCHAR(MAX)
 );
 
@@ -48,8 +47,7 @@ CREATE TABLE DoctorCertificates (
     certificate_name NVARCHAR(100),
     issued_by NVARCHAR(100),
     issue_date DATE,
-    expiry_date DATE,
-    certificate_image NVARCHAR(MAX)
+    expiry_date DATE
 );
 
 -- 5. Bảng Category (Phân loại bài viết)
@@ -402,19 +400,19 @@ VALUES
 (1, 'A+', 0, N'Không có ghi chú đặc biệt', GETDATE()),
 (2, 'B-', 1, N'Đang mang thai', GETDATE());
 
--- Chèn dữ liệu vào bảng Doctors (cho Doctor)
-INSERT INTO Doctors (user_id, doctor_image, bio)
+-- Chèn dữ liệu vào bảng Doctors (cho Doctor) -- ĐÃ SỬA
+INSERT INTO Doctors (user_id, bio)
 VALUES
-(3, 'doctor1.jpg', N'Bác sĩ chuyên khoa HIV'),
-(4, 'doctor2.jpg', N'Bác sĩ có kinh nghiệm trong điều trị HIV');
+(3, N'Bác sĩ chuyên khoa HIV'),
+(4, N'Bác sĩ có kinh nghiệm trong điều trị HIV');
 
--- Chèn dữ liệu vào bảng DoctorCertificates (cho Doctor)
-INSERT INTO DoctorCertificates (doctor_id, certificate_name, issued_by, issue_date, expiry_date, certificate_image)
+-- Chèn dữ liệu vào bảng DoctorCertificates (cho Doctor) -- ĐÃ SỬA
+INSERT INTO DoctorCertificates (doctor_id, certificate_name, issued_by, issue_date, expiry_date)
 VALUES
-(1, N'Bằng cấp Y khoa', N'Đại học Y Hà Nội', '2005-06-15', NULL, 'cert1.jpg'),
-(1, N'Chứng chỉ chuyên khoa HIV', N'Bộ Y tế', '2010-09-20', '2025-09-20', 'cert2.jpg'),
-(2, N'Bằng cấp Y khoa', N'Đại học Y Hồ Chí Minh', '2007-07-10', NULL, 'cert3.jpg'),
-(2, N'Chứng chỉ điều trị HIV', N'Hội Y học Việt Nam', '2012-11-15', '2027-11-15', 'cert4.jpg');
+(1, N'Bằng cấp Y khoa', N'Đại học Y Hà Nội', '2005-06-15', NULL),
+(1, N'Chứng chỉ chuyên khoa HIV', N'Bộ Y tế', '2010-09-20', '2025-09-20'),
+(2, N'Bằng cấp Y khoa', N'Đại học Y Hồ Chí Minh', '2007-07-10', NULL),
+(2, N'Chứng chỉ điều trị HIV', N'Hội Y học Việt Nam', '2012-11-15', '2027-11-15');
 
 -- Chèn dữ liệu vào bảng Category
 INSERT INTO Category (category_name)

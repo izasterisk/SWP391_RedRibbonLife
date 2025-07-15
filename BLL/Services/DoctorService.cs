@@ -50,7 +50,7 @@ namespace BLL.Services
                 Doctor doctor = new Doctor
                 {
                     UserId = createdUser.UserId,
-                    DoctorImage = dto.DoctorImage,
+                    // DoctorImage = dto.DoctorImage,
                     Bio = dto.Bio
                 };
                 var createdDoctor = await _doctorRepository.CreateAsync(doctor);
@@ -95,7 +95,6 @@ namespace BLL.Services
                     useNoTracking: true,
                     includeFunc: query => query.Include(d => d.User)
                 );
-                
                 return _mapper.Map<DoctorReadOnlyDTO>(detailedDoctor);
             }
             catch (Exception)

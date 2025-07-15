@@ -51,7 +51,7 @@ public class DoctorCreateDTO
 
     //public int? UserId { get; set; }
 
-    public string? DoctorImage { get; set; }
+    // public string? DoctorImage { get; set; }
 
     public string? Bio { get; set; }
 }

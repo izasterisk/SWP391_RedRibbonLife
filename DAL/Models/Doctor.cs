@@ -16,9 +16,6 @@ public partial class Doctor
     [Column("user_id")]
     public int UserId { get; set; }
 
-    [Column("doctor_image")]
-    public string? DoctorImage { get; set; }
-
     [Column("bio")]
     public string? Bio { get; set; }
 

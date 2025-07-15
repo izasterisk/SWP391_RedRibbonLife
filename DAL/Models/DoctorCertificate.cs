@@ -29,9 +29,6 @@ public partial class DoctorCertificate
     [Column("expiry_date")]
     public DateOnly? ExpiryDate { get; set; }
 
-    [Column("certificate_image")]
-    public string? CertificateImage { get; set; }
-
     [ForeignKey("DoctorId")]
     [InverseProperty("DoctorCertificates")]
     public virtual Doctor? Doctor { get; set; }

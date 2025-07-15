@@ -26,6 +26,7 @@ public class TestTypeService : ITestTypeService
         try
         {
             var testType = _mapper.Map<TestType>(dto);
+            testType.IsActive = true;
             var createdTestType = await _testTypeRepository.CreateAsync(testType);
             await transaction.CommitAsync();
             return _mapper.Map<TestTypeDTO>(createdTestType);
