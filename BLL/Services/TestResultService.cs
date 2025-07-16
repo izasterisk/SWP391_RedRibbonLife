@@ -94,22 +94,22 @@ public class TestResultService : ITestResultService
     public async Task<TestResultDTO> UpdateTestResultAsync(TestResultUpdateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-        await dto.PatientId.ValidateIfNotNullAsync(_userUtils.CheckPatientExistAsync);
-        await dto.DoctorId.ValidateIfNotNullAsync(_userUtils.CheckDoctorExistAsync);
-        var appointment = await _appointmentRepository.GetAsync(a => a.AppointmentId == dto.AppointmentId, true);
-        if (appointment == null)
-        {
-            throw new Exception("Appointment not found.");
-        }
+        // await dto.PatientId.ValidateIfNotNullAsync(_userUtils.CheckPatientExistAsync);
+        // await dto.DoctorId.ValidateIfNotNullAsync(_userUtils.CheckDoctorExistAsync);
+        // var appointment = await _appointmentRepository.GetAsync(a => a.AppointmentId == dto.AppointmentId, true);
+        // if (appointment == null)
+        // {
+        //     throw new Exception("Appointment not found.");
+        // }
         if (dto.TestTypeId != null)
         {
             await _userUtils.CheckTestTypeExistAsync(dto.TestTypeId.Value);
-            if(appointment.TestTypeId != null && appointment.TestTypeId != dto.TestTypeId)
-            {
-                throw new Exception($"Appointment with ID {dto.AppointmentId} already has a different test type with ID {appointment.TestTypeId}.");
-            }
+            // if(appointment.TestTypeId != null && appointment.TestTypeId != dto.TestTypeId)
+            // {
+            //     throw new Exception($"Appointment with ID {dto.AppointmentId} already has a different test type with ID {appointment.TestTypeId}.");
+            // }
         }
-        await dto.AppointmentId.ValidateIfNotNullAsync(_userUtils.CheckDuplicateAppointmentAsync);
+        // await dto.AppointmentId.ValidateIfNotNullAsync(_userUtils.CheckDuplicateAppointmentAsync);
         var testResult = await _testResultRepository.GetAsync(t => t.TestResultId == dto.TestResultId, true);
         if (testResult == null)
         {
@@ -120,7 +120,6 @@ public class TestResultService : ITestResultService
         {
             _mapper.Map(dto, testResult);
             var updatedTestResult = await _testResultRepository.UpdateAsync(testResult);
-            await transaction.CommitAsync();
             var fullTestResult = await _testResultRepository.GetWithRelationsAsync(
                 filter: t => t.TestResultId == updatedTestResult.TestResultId, 
                 useNoTracking: true,
@@ -129,6 +128,7 @@ public class TestResultService : ITestResultService
                               .Include(t => t.Doctor).ThenInclude(d => d.User)
                               .Include(t => t.Appointment)
             );
+            await transaction.CommitAsync();
             return _mapper.Map<TestResultDTO>(fullTestResult);
         }
         catch (Exception)

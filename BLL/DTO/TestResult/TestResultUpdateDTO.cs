@@ -9,14 +9,14 @@ public class TestResultUpdateDTO
     public int TestResultId { get; set; }
 
     // [Required(ErrorMessage = "Appointment ID is required")]
-    [Range(1, int.MaxValue, ErrorMessage = "Appointment ID must be a positive number")]
-    public int? AppointmentId { get; set; }
+    // [Range(1, int.MaxValue, ErrorMessage = "Appointment ID must be a positive number")]
+    // public int? AppointmentId { get; set; }
 
-    [Range(1, int.MaxValue, ErrorMessage = "Patient ID must be a positive number")]
-    public int? PatientId { get; set; }
-
-    [Range(1, int.MaxValue, ErrorMessage = "Doctor ID must be a positive number")]
-    public int? DoctorId { get; set; }
+    // [Range(1, int.MaxValue, ErrorMessage = "Patient ID must be a positive number")]
+    // public int? PatientId { get; set; }
+    //
+    // [Range(1, int.MaxValue, ErrorMessage = "Doctor ID must be a positive number")]
+    // public int? DoctorId { get; set; }
 
     // [Required(ErrorMessage = "Test type ID is required")]
     [Range(1, int.MaxValue, ErrorMessage = "Test type ID must be a positive number")]

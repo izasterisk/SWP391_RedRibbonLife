@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SWP391_RedRibbonLife")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+68d986bb3f94e8f50ccf30a8d780255448606eaa")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c47acee4af22426a289a90ba2ad37168a2d641b2")]
 [assembly: System.Reflection.AssemblyProductAttribute("SWP391_RedRibbonLife")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SWP391_RedRibbonLife")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
