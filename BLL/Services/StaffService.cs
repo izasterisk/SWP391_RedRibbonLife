@@ -34,7 +34,6 @@ public class StaffService : IStaffService
             {
                 throw new Exception($"Username {dto.Username} already exists.");
             }
-            // Check if email already exists
             await _userUtils.CheckEmailExistAsync(dto.Email);
             User user = _mapper.Map<User>(dto);
             user.IsActive = true;
