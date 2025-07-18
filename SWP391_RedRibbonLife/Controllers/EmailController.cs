@@ -19,7 +19,7 @@ namespace SWP391_RedRibbonLife.Controllers
         }
 
         [HttpPost]
-        [Route("SendVerifyEmail")]
+        [Route("SendEmail")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
