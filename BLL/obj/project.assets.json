@@ -3666,11 +3666,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Admin\\Documents\\source\\repos\\SWP391_RedRibbonLife\\BLL\\BLL.csproj",
+      "projectUniqueName": "C:\\Users\\Admin\\Documents\\source\\SWP391_RedRibbonLife\\BLL\\BLL.csproj",
       "projectName": "BLL",
-      "projectPath": "C:\\Users\\Admin\\Documents\\source\\repos\\SWP391_RedRibbonLife\\BLL\\BLL.csproj",
+      "projectPath": "C:\\Users\\Admin\\Documents\\source\\SWP391_RedRibbonLife\\BLL\\BLL.csproj",
       "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Admin\\Documents\\source\\repos\\SWP391_RedRibbonLife\\BLL\\obj\\",
+      "outputPath": "C:\\Users\\Admin\\Documents\\source\\SWP391_RedRibbonLife\\BLL\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -3691,8 +3691,8 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "C:\\Users\\Admin\\Documents\\source\\repos\\SWP391_RedRibbonLife\\DAL\\DAL.csproj": {
-              "projectPath": "C:\\Users\\Admin\\Documents\\source\\repos\\SWP391_RedRibbonLife\\DAL\\DAL.csproj"
+            "C:\\Users\\Admin\\Documents\\source\\SWP391_RedRibbonLife\\DAL\\DAL.csproj": {
+              "projectPath": "C:\\Users\\Admin\\Documents\\source\\SWP391_RedRibbonLife\\DAL\\DAL.csproj"
             }
           }
         }

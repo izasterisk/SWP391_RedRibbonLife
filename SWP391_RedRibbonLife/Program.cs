@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using BLL.Interfaces;
 using BLL.Services;
 using BLL.Utils;
@@ -139,19 +139,19 @@ builder.Services.AddAuthentication(options =>
 //    };
 //})
     .AddJwtBearer("LoginforLocaluser", options =>
-{
-    options.SaveToken = true;
-    options.TokenValidationParameters = new TokenValidationParameters()
     {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII
-            .GetBytes(builder.Configuration.GetValue<string>("JWTSecretforLocaluser"))),
-        ValidateIssuer = true,
-        ValidIssuer = LocalIssuer,
-        ValidateAudience = true,
-        ValidAudience = LocalAudience,
-    };
-});
+        options.SaveToken = true;
+        options.TokenValidationParameters = new TokenValidationParameters()
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII
+                .GetBytes(builder.Configuration.GetValue<string>("JWTSecretforLocaluser"))),
+            ValidateIssuer = true,
+            ValidIssuer = LocalIssuer,
+            ValidateAudience = true,
+            ValidAudience = LocalAudience,
+        };
+    });
 
 // Hangfire Configuration
 builder.Services.AddHangfire(configuration => configuration
@@ -201,7 +201,7 @@ if (app.Environment.IsDevelopment())
 using (var scope = app.Services.CreateScope())
 {
     var recurringJobManager = scope.ServiceProvider.GetRequiredService<IRecurringJobManager>();
-    
+
     // Morning job - 6:30 AM daily
     recurringJobManager.AddOrUpdate<IHangfireBackgroundJobService>(
         "morning-notifications",
@@ -209,10 +209,10 @@ using (var scope = app.Services.CreateScope())
         "30 6 * * *", // Cron expression for 6:30 AM daily
         TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time") // UTC+7
     );
-    
+
     // Evening job - 8:00 PM daily
     recurringJobManager.AddOrUpdate<IHangfireBackgroundJobService>(
-        "evening-notifications", 
+        "evening-notifications",
         service => service.ExecuteEveningJobAsync(),
         "0 20 * * *", // Cron expression for 8:00 PM daily
         TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time") // UTC+7

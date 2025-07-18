@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "m4bpJJQo/zI=",
+  "dgSpecHash": "iDgMyzzV3Zg=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Admin\\Documents\\source\\repos\\SWP391_RedRibbonLife\\BLL\\BLL.csproj",
+  "projectFilePath": "C:\\Users\\Admin\\Documents\\source\\SWP391_RedRibbonLife\\BLL\\BLL.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Admin\\.nuget\\packages\\automapper\\14.0.0\\automapper.14.0.0.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
