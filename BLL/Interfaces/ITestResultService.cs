@@ -8,5 +8,6 @@ public interface ITestResultService
     Task<TestResultDTO> UpdateTestResultAsync(TestResultUpdateDTO dto);
     Task<List<TestResultDTO>> GetAllTestResultAsync();
     Task<TestResultDTO> GetTestResultByIdAsync(int id);
+    Task<List<TestResultDTO>> GetTestResultByDoctorIdAsync(int doctorId);
     Task<bool> DeleteTestResultByIdAsync(int id);
 }

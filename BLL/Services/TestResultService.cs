@@ -166,6 +166,20 @@ public class TestResultService : ITestResultService
         return _mapper.Map<TestResultDTO>(testResult);
     }
     
+    public async Task<List<TestResultDTO>> GetTestResultByDoctorIdAsync(int doctorId)
+    {
+        await _userUtils.CheckDoctorExistAsync(doctorId);
+        var testResults = await _testResultRepository.GetAllWithRelationsByFilterAsync(
+            filter: t => t.DoctorId == doctorId,
+            useNoTracking: true,
+            includeFunc: query => query.Include(t => t.TestType)
+                          .Include(t => t.Patient).ThenInclude(p => p.User)
+                          .Include(t => t.Doctor).ThenInclude(d => d.User)
+                          .Include(t => t.Appointment)
+        );
+        return _mapper.Map<List<TestResultDTO>>(testResults);
+    }
+    
     public async Task<bool> DeleteTestResultByIdAsync(int id)
     {
         var testResult = await _testResultRepository.GetAsync(t => t.TestResultId == id, true);

@@ -174,6 +174,50 @@ namespace SWP391_RedRibbonLife.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("GetByDoctorID/{doctorId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [Authorize(AuthenticationSchemes = "LoginforLocaluser", Roles = "Admin, Manager, Staff, Doctor, Patient")]
+        public async Task<ActionResult<APIResponse>> GetTestResultByDoctorIdAsync(int doctorId)
+        {
+            var apiResponse = new APIResponse();
+            try
+            {
+                if (doctorId <= 0)
+                {
+                    apiResponse.Errors.Add("Doctor ID must be a positive integer.");
+                    apiResponse.StatusCode = HttpStatusCode.BadRequest;
+                    apiResponse.Status = false;
+                    return BadRequest(apiResponse);
+                }
+                var testResults = await _testResultService.GetTestResultByDoctorIdAsync(doctorId);
+                apiResponse.Data = testResults;
+                apiResponse.Status = true;
+                apiResponse.StatusCode = HttpStatusCode.OK;
+                return Ok(apiResponse);
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("not found") || ex.Message.Contains("not exist"))
+                {
+                    apiResponse.Errors.Add(ex.Message);
+                    apiResponse.StatusCode = HttpStatusCode.NotFound;
+                    apiResponse.Status = false;
+                    return NotFound(apiResponse);
+                }
+
+                apiResponse.Errors.Add(ex.Message);
+                apiResponse.StatusCode = HttpStatusCode.InternalServerError;
+                apiResponse.Status = false;
+                return StatusCode(500, apiResponse);
+            }
+        }
+
         [HttpDelete]
         [Route("Delete/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
