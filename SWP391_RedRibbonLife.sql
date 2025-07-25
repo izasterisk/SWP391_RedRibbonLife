@@ -1,4 +1,4 @@
-﻿-- Tạo cơ sở dữ liệu SWP391_RedRibbonLife
+-- Tạo cơ sở dữ liệu SWP391_RedRibbonLife
 CREATE DATABASE SWP391_RedRibbonLife;
 GO
 
@@ -380,41 +380,41 @@ VALUES
 -- Chèn dữ liệu cho vai trò Doctor
 INSERT INTO Users (username, password, email, phone_number, full_name, date_of_birth, gender, address, user_role, isActive, isVerified)
 VALUES
-('doctor1', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'hnnthcs3@gmail', '0123456780', N'Lê Văn C', '1980-02-02', 'Male', N'Đà Nẵng', 'Doctor', 1, 1),
-('doctor2', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'hnnthcs4@gmail', '0987654320', N'Phạm Thị D', '1985-06-06', 'Female', N'Hải Phòng', 'Doctor', 1, 1);
+('doctor1', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'hnnthcs3@gmail.com', '0123456780', N'Lê Văn H', '1980-02-02', 'Male', N'Đà Nẵng', 'Doctor', 1, 1),
+('doctor2', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'hnnthcs4@gmail.com', '0987654320', N'Phạm Thị I', '1985-06-06', 'Female', N'Hải Phòng', 'Doctor', 1, 1);
 
 -- Chèn dữ liệu cho vai trò Staff
 INSERT INTO Users (username, password, email, phone_number, full_name, date_of_birth, gender, address, user_role, isActive, isVerified)
 VALUES
-('staff1', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'hnnthcs5@gmail', '0123456781', N'Nguyễn Văn E', '1992-03-03', 'Male', N'Cần Thơ', 'Staff', 1, 1),
-('staff2', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'hnnthcs6@gmail', '0987654322', N'Trần Thị F', '1997-07-07', 'Female', N'Vũng Tàu', 'Staff', 1, 1);
+('staff1', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'hnnthcs5@gmail.com', '0123456781', N'Nguyễn Văn J', '1992-03-03', 'Male', N'Cần Thơ', 'Staff', 1, 1),
+('staff2', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'hnnthcs6@gmail.com', '0987654322', N'Trần Thị K', '1997-07-07', 'Female', N'Vũng Tàu', 'Staff', 1, 1);
 
 -- Chèn dữ liệu cho vai trò Manager
 INSERT INTO Users (username, password, email, phone_number, full_name, date_of_birth, gender, address, user_role, isActive, isVerified)
 VALUES
-('manager1', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'hnnthcs7@gmail', '0123456782', N'Lê Văn G', '1988-04-04', 'Male', N'Nha Trang', 'Manager', 1, 1);
+('manager1', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'hnnthcs7@gmail.com', '0123456782', N'Lê Văn L', '1988-04-04', 'Male', N'Nha Trang', 'Manager', 1, 1);
 
 -- Chèn dữ liệu cho vai trò Admin
 INSERT INTO Users (username, password, email, phone_number, full_name, date_of_birth, gender, address, user_role, isActive, isVerified)
 VALUES
-('admin1', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'hnnthcs8@gmail', '0987654323', N'Phạm Thị H', '1990-08-08', 'Female', N'Huế', 'Admin', 1, 1);
+('admin1', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'hnnthcs8@gmail.com', '0987654323', N'Phạm Thị M', '1990-08-08', 'Female', N'Huế', 'Admin', 1, 1);
 
 -- Chèn dữ liệu vào bảng Patients (cho Patient)
 INSERT INTO Patients (user_id, blood_type, is_pregnant, special_notes, createdAt)
 VALUES
 (1, 'A+', 0, N'Không có ghi chú đặc biệt', GETDATE()),
 (2, 'B-', 1, N'Đang mang thai', GETDATE()),
-(9, 'O+', 0, N'Bệnh nhân mới', GETDATE()),
-(10, 'AB+', 0, N'Có tiền sử dị ứng thuốc', GETDATE()),
-(11, 'A-', 0, N'Không có ghi chú đặc biệt', GETDATE()),
-(12, 'B+', 0, N'Bệnh nhân theo dõi định kỳ', GETDATE()),
-(13, 'O-', 0, N'Cần theo dõi đặc biệt', GETDATE());
+(3, 'O+', 0, N'Bệnh nhân mới', GETDATE()),
+(4, 'AB+', 0, N'Có tiền sử dị ứng thuốc', GETDATE()),
+(5, 'A-', 0, N'Không có ghi chú đặc biệt', GETDATE()),
+(6, 'B+', 0, N'Bệnh nhân theo dõi định kỳ', GETDATE()),
+(7, 'O-', 0, N'Cần theo dõi đặc biệt', GETDATE());
 
 -- Chèn dữ liệu vào bảng Doctors (cho Doctor) -- ĐÃ SỬA
 INSERT INTO Doctors (user_id, bio)
 VALUES
-(3, N'Bác sĩ chuyên khoa HIV'),
-(4, N'Bác sĩ có kinh nghiệm trong điều trị HIV');
+(8, N'Bác sĩ chuyên khoa HIV'),
+(9, N'Bác sĩ có kinh nghiệm trong điều trị HIV');
 
 -- Chèn dữ liệu vào bảng DoctorCertificates (cho Doctor) -- ĐÃ SỬA
 INSERT INTO DoctorCertificates (doctor_id, certificate_name, issued_by, issue_date, expiry_date)
@@ -435,14 +435,14 @@ VALUES
 -- Chèn dữ liệu vào bảng Articles
 INSERT INTO Articles (title, content, category_id, isActive, createdDate, user_id)
 VALUES
-(N'Giới thiệu về Red Ribbon Life', N'Red Ribbon Life là tổ chức hỗ trợ bệnh nhân HIV/AIDS với sứ mệnh cung cấp dịch vụ y tế, giáo dục và giảm kỳ thị. Chúng tôi cam kết mang lại cuộc sống tốt đẹp hơn cho cộng đồng.', 1, 1, '2025-06-01', 5), -- Nguyễn Văn E (Staff)
-(N'Dịch vụ y tế tại Red Ribbon Life', N'Chúng tôi cung cấp tư vấn, xét nghiệm và điều trị HIV/AIDS với đội ngũ bác sĩ chuyên môn cao và cơ sở vật chất hiện đại.', 1, 1, '2025-06-02', 6), -- Trần Thị F (Staff)
-(N'Hiểu biết cơ bản về HIV/AIDS', N'HIV là virus gây suy giảm miễn dịch ở người. Bài viết này giải thích cách lây truyền, phòng ngừa và điều trị HIV.', 2, 1, '2025-06-03', 5), -- Nguyễn Văn E (Staff)
-(N'Phòng ngừa HIV trong cộng đồng', N'Hướng dẫn các biện pháp phòng ngừa HIV như sử dụng bao cao su, xét nghiệm định kỳ và sử dụng PrEP.', 2, 1, '2025-06-04', 6), -- Trần Thị F (Staff)
-(N'Vượt qua kỳ thị: Câu chuyện của một bệnh nhân', N'Một bệnh nhân chia sẻ hành trình sống tạp với HIV và cách họ vượt qua định kiến xã hội.', 3, 1, '2025-06-05', 5), -- Nguyễn Văn E (Staff)
-(N'Tại sao cần nói không với kỳ thị HIV', N'Bài viết thảo luận về tác động của kỳ thị và cách cộng đồng có thể hỗ trợ bệnh nhân HIV.', 3, 1, '2025-06-06', 6), -- Trần Thị F (Staff)
-(N'Hành trình sống chung với HIV', N'Một bệnh nhân kể về trải nghiệm cá nhân, từ khi phát hiện bệnh đến việc duy trì lối sống tích cực.', 4, 1, '2025-06-07', 5), -- Nguyễn Văn E (Staff)
-(N'Kinh nghiệm hỗ trợ bệnh nhân HIV từ bác sĩ', N'Bác sĩ chia sẻ những bài học và câu chuyện từ quá trình làm việc với bệnh nhân HIV.', 4, 1, '2025-06-08', 6); -- Trần Thị F (Staff)
+(N'Giới thiệu về Red Ribbon Life', N'Red Ribbon Life là tổ chức hỗ trợ bệnh nhân HIV/AIDS với sứ mệnh cung cấp dịch vụ y tế, giáo dục và giảm kỳ thị. Chúng tôi cam kết mang lại cuộc sống tốt đẹp hơn cho cộng đồng.', 1, 1, '2025-06-01', 10), -- Nguyễn Văn J (Staff)
+(N'Dịch vụ y tế tại Red Ribbon Life', N'Chúng tôi cung cấp tư vấn, xét nghiệm và điều trị HIV/AIDS với đội ngũ bác sĩ chuyên môn cao và cơ sở vật chất hiện đại.', 1, 1, '2025-06-02', 11), -- Trần Thị K (Staff)
+(N'Hiểu biết cơ bản về HIV/AIDS', N'HIV là virus gây suy giảm miễn dịch ở người. Bài viết này giải thích cách lây truyền, phòng ngừa và điều trị HIV.', 2, 1, '2025-06-03', 10), -- Nguyễn Văn J (Staff)
+(N'Phòng ngừa HIV trong cộng đồng', N'Hướng dẫn các biện pháp phòng ngừa HIV như sử dụng bao cao su, xét nghiệm định kỳ và sử dụng PrEP.', 2, 1, '2025-06-04', 11), -- Trần Thị K (Staff)
+(N'Vượt qua kỳ thị: Câu chuyện của một bệnh nhân', N'Một bệnh nhân chia sẻ hành trình sống tạp với HIV và cách họ vượt qua định kiến xã hội.', 3, 1, '2025-06-05', 10), -- Nguyễn Văn J (Staff)
+(N'Tại sao cần nói không với kỳ thị HIV', N'Bài viết thảo luận về tác động của kỳ thị và cách cộng đồng có thể hỗ trợ bệnh nhân HIV.', 3, 1, '2025-06-06', 11), -- Trần Thị K (Staff)
+(N'Hành trình sống chung với HIV', N'Một bệnh nhân kể về trải nghiệm cá nhân, từ khi phát hiện bệnh đến việc duy trì lối sống tích cực.', 4, 1, '2025-06-07', 10), -- Nguyễn Văn J (Staff)
+(N'Kinh nghiệm hỗ trợ bệnh nhân HIV từ bác sĩ', N'Bác sĩ chia sẻ những bài học và câu chuyện từ quá trình làm việc với bệnh nhân HIV.', 4, 1, '2025-06-08', 11); -- Trần Thị K (Staff)
 
 -- Chèn dữ liệu vào bảng ARVComponents
 INSERT INTO ARVComponents (component_name, description)
@@ -594,62 +594,63 @@ VALUES
 
 -- Chèn dữ liệu vào bảng Appointments (SAU KHI ĐÃ CÓ TESTTYPE)
 -- Tạo appointments từ tháng 2 đến tháng 8/2025, mỗi tháng 3-7 bệnh nhân
+-- Doctor 1: Monday, Wednesday, Friday | Doctor 2: Tuesday, Thursday, Saturday
 INSERT INTO Appointments (patient_id, doctor_id, appointment_date, appointment_time, appointment_type, status, test_type_id, isAnonymous)
 VALUES
 -- THÁNG 2/2025
-(1, 1, '2025-02-03', '09:00:00', 'Appointment', 'Completed', NULL, 0),
-(2, 2, '2025-02-04', '10:00:00', 'Medication', 'Completed', 3, 0),
-(3, 1, '2025-02-05', '11:00:00', 'Appointment', 'Completed', NULL, 0),
-(4, 2, '2025-02-06', '14:00:00', 'Medication', 'Completed', 4, 0),
-(5, 1, '2025-02-07', '15:00:00', 'Appointment', 'Completed', NULL, 0),
+(1, 1, '2025-02-03', '09:00:00', 'Appointment', 'Completed', NULL, 0), -- Monday
+(2, 2, '2025-02-04', '10:00:00', 'Medication', 'Completed', 3, 0), -- Tuesday
+(3, 1, '2025-02-05', '11:00:00', 'Appointment', 'Completed', NULL, 0), -- Wednesday
+(4, 2, '2025-02-06', '14:00:00', 'Medication', 'Completed', 4, 0), -- Thursday
+(5, 1, '2025-02-07', '15:00:00', 'Appointment', 'Completed', NULL, 0), -- Friday
 
 -- THÁNG 3/2025
-(6, 2, '2025-03-04', '09:00:00', 'Appointment', 'Completed', NULL, 0),
-(7, 1, '2025-03-05', '10:00:00', 'Medication', 'Completed', 1, 0),
-(1, 2, '2025-03-06', '11:00:00', 'Appointment', 'Completed', NULL, 0),
-(2, 1, '2025-03-07', '14:00:00', 'Medication', 'Completed', 2, 0),
-(3, 2, '2025-03-08', '15:00:00', 'Appointment', 'Completed', NULL, 0),
-(4, 1, '2025-03-10', '16:00:00', 'Medication', 'Completed', 3, 0),
+(6, 2, '2025-03-04', '09:00:00', 'Appointment', 'Completed', NULL, 0), -- Tuesday
+(7, 1, '2025-03-05', '10:00:00', 'Medication', 'Completed', 1, 0), -- Wednesday
+(1, 2, '2025-03-06', '11:00:00', 'Appointment', 'Completed', NULL, 0), -- Thursday
+(2, 1, '2025-03-07', '14:00:00', 'Medication', 'Completed', 2, 0), -- Friday
+(3, 2, '2025-03-08', '15:00:00', 'Appointment', 'Completed', NULL, 0), -- Saturday
+(4, 1, '2025-03-10', '16:00:00', 'Medication', 'Completed', 3, 0), -- Monday
 
 -- THÁNG 4/2025
-(5, 2, '2025-04-01', '09:00:00', 'Appointment', 'Completed', NULL, 0),
-(6, 1, '2025-04-02', '10:00:00', 'Medication', 'Completed', 4, 0),
-(7, 2, '2025-04-03', '11:00:00', 'Appointment', 'Completed', NULL, 0),
-(1, 1, '2025-04-04', '14:00:00', 'Medication', 'Completed', 1, 0),
-(2, 2, '2025-04-05', '15:00:00', 'Appointment', 'Completed', NULL, 0),
-(3, 1, '2025-04-07', '16:00:00', 'Medication', 'Completed', 2, 0),
-(4, 2, '2025-04-08', '09:30:00', 'Appointment', 'Completed', NULL, 0),
+(5, 2, '2025-04-01', '09:00:00', 'Appointment', 'Completed', NULL, 0), -- Tuesday
+(6, 1, '2025-04-02', '10:00:00', 'Medication', 'Completed', 4, 0), -- Wednesday
+(7, 2, '2025-04-03', '11:00:00', 'Appointment', 'Completed', NULL, 0), -- Thursday
+(1, 1, '2025-04-04', '14:00:00', 'Medication', 'Completed', 1, 0), -- Friday
+(2, 2, '2025-04-05', '15:00:00', 'Appointment', 'Completed', NULL, 0), -- Saturday
+(3, 1, '2025-04-07', '16:00:00', 'Medication', 'Completed', 2, 0), -- Monday
+(4, 2, '2025-04-08', '09:30:00', 'Appointment', 'Completed', NULL, 0), -- Tuesday
 
 -- THÁNG 5/2025
-(5, 1, '2025-05-02', '09:00:00', 'Appointment', 'Completed', NULL, 0),
-(6, 2, '2025-05-06', '10:00:00', 'Medication', 'Completed', 3, 0),
-(7, 1, '2025-05-07', '11:00:00', 'Appointment', 'Completed', NULL, 0),
-(1, 2, '2025-05-08', '14:00:00', 'Medication', 'Completed', 4, 0),
-(2, 1, '2025-05-09', '15:00:00', 'Appointment', 'Completed', NULL, 0),
+(5, 1, '2025-05-02', '09:00:00', 'Appointment', 'Completed', NULL, 0), -- Friday
+(6, 2, '2025-05-06', '10:00:00', 'Medication', 'Completed', 3, 0), -- Tuesday
+(7, 1, '2025-05-07', '11:00:00', 'Appointment', 'Completed', NULL, 0), -- Wednesday
+(1, 2, '2025-05-08', '14:00:00', 'Medication', 'Completed', 4, 0), -- Thursday
+(2, 1, '2025-05-09', '15:00:00', 'Appointment', 'Completed', NULL, 0), -- Friday
 
 -- THÁNG 6/2025
-(3, 2, '2025-06-03', '09:00:00', 'Appointment', 'Completed', NULL, 0),
-(4, 1, '2025-06-04', '10:00:00', 'Medication', 'Completed', 1, 0),
-(5, 2, '2025-06-05', '11:00:00', 'Appointment', 'Completed', NULL, 0),
-(6, 1, '2025-06-06', '14:00:00', 'Medication', 'Completed', 2, 0),
-(7, 2, '2025-06-07', '15:00:00', 'Appointment', 'Completed', NULL, 0),
-(1, 1, '2025-06-09', '16:00:00', 'Medication', 'Completed', 3, 0),
+(3, 2, '2025-06-03', '09:00:00', 'Appointment', 'Completed', NULL, 0), -- Tuesday
+(4, 1, '2025-06-04', '10:00:00', 'Medication', 'Completed', 1, 0), -- Wednesday
+(5, 2, '2025-06-05', '11:00:00', 'Appointment', 'Completed', NULL, 0), -- Thursday
+(6, 1, '2025-06-06', '14:00:00', 'Medication', 'Completed', 2, 0), -- Friday
+(7, 2, '2025-06-07', '15:00:00', 'Appointment', 'Completed', NULL, 0), -- Saturday
+(1, 1, '2025-06-09', '16:00:00', 'Medication', 'Completed', 3, 0), -- Monday
 
 -- THÁNG 7/2025  
-(2, 2, '2025-07-01', '09:00:00', 'Appointment', 'Completed', NULL, 0),
-(3, 1, '2025-07-02', '10:00:00', 'Medication', 'Completed', 4, 0),
-(4, 2, '2025-07-03', '11:00:00', 'Appointment', 'Completed', NULL, 0),
-(5, 1, '2025-07-04', '14:00:00', 'Medication', 'Completed', 1, 0),
-(6, 2, '2025-07-05', '15:00:00', 'Appointment', 'Completed', NULL, 0),
-(7, 1, '2025-07-07', '16:00:00', 'Medication', 'Completed', 2, 0),
-(1, 2, '2025-07-08', '09:30:00', 'Appointment', 'Completed', NULL, 0),
+(2, 2, '2025-07-01', '09:00:00', 'Appointment', 'Completed', NULL, 0), -- Tuesday
+(3, 1, '2025-07-02', '10:00:00', 'Medication', 'Completed', 4, 0), -- Wednesday
+(4, 2, '2025-07-03', '11:00:00', 'Appointment', 'Completed', NULL, 0), -- Thursday
+(5, 1, '2025-07-04', '14:00:00', 'Medication', 'Completed', 1, 0), -- Friday
+(6, 2, '2025-07-05', '15:00:00', 'Appointment', 'Completed', NULL, 0), -- Saturday
+(7, 1, '2025-07-07', '16:00:00', 'Medication', 'Completed', 2, 0), -- Monday
+(1, 2, '2025-07-08', '09:30:00', 'Appointment', 'Completed', NULL, 0), -- Tuesday
 
 -- THÁNG 8/2025
-(2, 1, '2025-08-01', '09:00:00', 'Appointment', 'Completed', NULL, 0),
-(3, 2, '2025-08-05', '10:00:00', 'Medication', 'Completed', 3, 0),
-(4, 1, '2025-08-06', '11:00:00', 'Appointment', 'Completed', NULL, 0),
-(5, 2, '2025-08-07', '14:00:00', 'Medication', 'Completed', 4, 0),
-(6, 1, '2025-08-08', '15:00:00', 'Appointment', 'Completed', NULL, 0);
+(2, 1, '2025-08-01', '09:00:00', 'Appointment', 'Completed', NULL, 0), -- Friday
+(3, 2, '2025-08-05', '10:00:00', 'Medication', 'Completed', 3, 0), -- Tuesday
+(4, 1, '2025-08-06', '11:00:00', 'Appointment', 'Completed', NULL, 0), -- Wednesday
+(5, 2, '2025-08-07', '14:00:00', 'Medication', 'Completed', 4, 0), -- Thursday
+(6, 1, '2025-08-08', '15:00:00', 'Appointment', 'Completed', NULL, 0); -- Friday
 
 -- Chèn dữ liệu vào bảng TestResults (quan hệ 1-1 với Appointments)
 INSERT INTO TestResults (appointment_id, patient_id, doctor_id, test_type_id, result_value, notes)
