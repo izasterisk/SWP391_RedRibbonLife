@@ -45,6 +45,7 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<INotificationUtils, NotificationUtils>();
 builder.Services.AddScoped<IHangfireBackgroundJobService, HangfireBackgroundJobService>();
 builder.Services.AddScoped<IDoctorCertificateService, DoctorCertificateService>();
+builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 
 builder.Services.AddScoped<IUserRepository<User>, UserRepository<User>>();
 builder.Services.AddScoped<IUserRepository<Doctor>, UserRepository<Doctor>>();

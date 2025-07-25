@@ -369,8 +369,13 @@ ON Notifications (notification_type);
 -- Chèn dữ liệu cho vai trò Patient
 INSERT INTO Users (username, password, email, phone_number, full_name, date_of_birth, gender, address, user_role, isActive, isVerified)
 VALUES
-('patient1', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'hnnthcs1@gmail.com', '0123456789', N'Nguyễn Văn A', '1990-01-01', 'Male', N'Hà Nội', 'Patient', 1, 0),
-('patient2', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'hnnthcs2@gmail.com', '0987654321', N'Trần Thị B', '1995-05-05', 'Female', N'Hồ Chí Minh', 'Patient', 1, 1);
+('patient1', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'hnnthcs1@gmail.com', '0123456789', N'Nguyễn Văn A', '1990-01-01', 'Male', N'Hà Nội', 'Patient', 1, 1),
+('patient2', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'hnnthcs2@gmail.com', '0987654321', N'Trần Thị B', '1995-05-05', 'Female', N'Hồ Chí Minh', 'Patient', 1, 1),
+('patient3', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'hnnthcs9@gmail.com', '0123456790', N'Lê Văn C', '1985-03-10', 'Male', N'Đà Nẵng', 'Patient', 1, 1),
+('patient4', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'hnnthcs10@gmail.com', '0987654322', N'Phạm Thị D', '1992-07-15', 'Female', N'Hải Phòng', 'Patient', 1, 1),
+('patient5', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'hnnthcs11@gmail.com', '0123456791', N'Hoàng Văn E', '1988-09-20', 'Male', N'Cần Thơ', 'Patient', 1, 1),
+('patient6', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'hnnthcs12@gmail.com', '0987654323', N'Nguyễn Thị F', '1993-11-25', 'Female', N'Nha Trang', 'Patient', 1, 1),
+('patient7', 'k5NO/P09k0O5WkdqOLceCM8FWrxLD6FxcrYhtGGMoDw=', 'hnnthcs13@gmail.com', '0123456792', N'Trần Văn G', '1987-12-30', 'Male', N'Vũng Tàu', 'Patient', 1, 1);
 
 -- Chèn dữ liệu cho vai trò Doctor
 INSERT INTO Users (username, password, email, phone_number, full_name, date_of_birth, gender, address, user_role, isActive, isVerified)
@@ -398,7 +403,12 @@ VALUES
 INSERT INTO Patients (user_id, blood_type, is_pregnant, special_notes, createdAt)
 VALUES
 (1, 'A+', 0, N'Không có ghi chú đặc biệt', GETDATE()),
-(2, 'B-', 1, N'Đang mang thai', GETDATE());
+(2, 'B-', 1, N'Đang mang thai', GETDATE()),
+(9, 'O+', 0, N'Bệnh nhân mới', GETDATE()),
+(10, 'AB+', 0, N'Có tiền sử dị ứng thuốc', GETDATE()),
+(11, 'A-', 0, N'Không có ghi chú đặc biệt', GETDATE()),
+(12, 'B+', 0, N'Bệnh nhân theo dõi định kỳ', GETDATE()),
+(13, 'O-', 0, N'Cần theo dõi đặc biệt', GETDATE());
 
 -- Chèn dữ liệu vào bảng Doctors (cho Doctor) -- ĐÃ SỬA
 INSERT INTO Doctors (user_id, bio)
@@ -504,6 +514,62 @@ VALUES
     N'Bệnh nhân B (Phụ nữ mang thai)',
     N'Buồn nôn, tiêu chảy, tăng lipid máu (do DRV/RTV).',
     N'AZT+3TC: Uống 2 viên/ngày. DRV/RTV: Theo chỉ định của bác sĩ.',
+    2, 1, 1),
+
+-- Thêm các phác đồ tùy chỉnh cho các bệnh nhân khác
+(N'Phác đồ tùy chỉnh cho bệnh nhân C',
+    (SELECT component_id FROM ARVComponents WHERE component_name = 'ABC'),
+    (SELECT component_id FROM ARVComponents WHERE component_name = '3TC'),
+    (SELECT component_id FROM ARVComponents WHERE component_name = 'DTG'),
+    NULL,
+    N'Phác đồ tùy chỉnh cho bệnh nhân C, thay thế TDF bằng ABC do suy thận.',
+    N'Bệnh nhân C',
+    N'Phác đồ an toàn cho bệnh nhân có vấn đề về thận.',
+    N'Uống 1 viên/ngày vào buổi sáng.',
+    1, 1, 1),
+
+(N'Phác đồ tùy chỉnh cho bệnh nhân D',
+    (SELECT component_id FROM ARVComponents WHERE component_name = 'TDF'),
+    (SELECT component_id FROM ARVComponents WHERE component_name = '3TC'),
+    (SELECT component_id FROM ARVComponents WHERE component_name = 'EFV'),
+    NULL,
+    N'Phác đồ tùy chỉnh cho bệnh nhân D, sử dụng EFV thay vì DTG do tương tác thuốc.',
+    N'Bệnh nhân D',
+    N'Chóng mặt, ác mộng (với EFV) - uống buổi tối để giảm tác dụng phụ.',
+    N'Uống 1 viên/ngày vào buổi tối.',
+    1, 1, 1),
+
+(N'Phác đồ tùy chỉnh cho bệnh nhân E',
+    (SELECT component_id FROM ARVComponents WHERE component_name = 'AZT'),
+    (SELECT component_id FROM ARVComponents WHERE component_name = '3TC'),
+    (SELECT component_id FROM ARVComponents WHERE component_name = 'RAL'),
+    NULL,
+    N'Phác đồ tùy chỉnh cho bệnh nhân E, sử dụng RAL do không dung nạp được với DTG.',
+    N'Bệnh nhân E',
+    N'Ít tác dụng phụ với RAL.',
+    N'AZT+3TC: 2 viên/ngày. RAL: 2 viên/ngày.',
+    2, 1, 1),
+
+(N'Phác đồ tùy chỉnh cho bệnh nhân F',
+    (SELECT component_id FROM ARVComponents WHERE component_name = 'TDF'),
+    (SELECT component_id FROM ARVComponents WHERE component_name = '3TC'),
+    (SELECT component_id FROM ARVComponents WHERE component_name = 'NVP'),
+    NULL,
+    N'Phác đồ tùy chỉnh cho bệnh nhân F, sử dụng NVP thay vì DTG do chi phí.',
+    N'Bệnh nhân F',
+    N'Cần theo dõi phát ban với NVP.',
+    N'TDF+3TC: 1 viên/ngày. NVP: tăng liều dần.',
+    1, 1, 1),
+
+(N'Phác đồ tùy chỉnh cho bệnh nhân G',
+    (SELECT component_id FROM ARVComponents WHERE component_name = 'ABC'),
+    (SELECT component_id FROM ARVComponents WHERE component_name = '3TC'),
+    (SELECT component_id FROM ARVComponents WHERE component_name = 'RAL'),
+    NULL,
+    N'Phác đồ tùy chỉnh cho bệnh nhân G, phác đồ an toàn cho bệnh nhân có đa bệnh lý.',
+    N'Bệnh nhân G',
+    N'Phác đồ ít tương tác thuốc.',
+    N'ABC+3TC: 1 viên/ngày. RAL: 2 viên/ngày.',
     2, 1, 1);
 
 -- Chèn dữ liệu vào bảng TestType (PHẢI INSERT TRƯỚC KHI DÙNG TRONG APPOINTMENTS)
@@ -517,31 +583,189 @@ VALUES
 -- Chèn dữ liệu vào bảng DoctorSchedules
 INSERT INTO DoctorSchedules (doctor_id, work_day, start_time, end_time)
 VALUES
-(1, 'Monday', '08:00:00', '12:00:00'),
-(1, 'Wednesday', '13:00:00', '17:00:00'),
-(2, 'Tuesday', '09:00:00', '12:00:00'),
-(2, 'Thursday', '14:00:00', '18:00:00');
+-- Doctor 1 làm việc thứ 2, 4, 6 (Monday, Wednesday, Friday)
+(1, 'Monday', '08:00:00', '17:00:00'),
+(1, 'Wednesday', '08:00:00', '17:00:00'),
+(1, 'Friday', '08:00:00', '17:00:00'),
+-- Doctor 2 làm việc thứ 3, 5, 7 (Tuesday, Thursday, Saturday)
+(2, 'Tuesday', '08:00:00', '17:00:00'),
+(2, 'Thursday', '08:00:00', '17:00:00'),
+(2, 'Saturday', '08:00:00', '17:00:00');
 
 -- Chèn dữ liệu vào bảng Appointments (SAU KHI ĐÃ CÓ TESTTYPE)
+-- Tạo appointments từ tháng 2 đến tháng 8/2025, mỗi tháng 3-7 bệnh nhân
 INSERT INTO Appointments (patient_id, doctor_id, appointment_date, appointment_time, appointment_type, status, test_type_id, isAnonymous)
 VALUES
-(1, 1, '2025-06-30', '09:00:00', 'Appointment', 'Scheduled', NULL, 0),
-(2, 2, '2025-07-01', '10:00:00', 'Appointment', 'Scheduled', NULL, 1),
-(1, 2, '2025-07-05', '14:00:00', 'Medication', 'Scheduled', 3, 0);
+-- THÁNG 2/2025
+(1, 1, '2025-02-03', '09:00:00', 'Appointment', 'Completed', NULL, 0),
+(2, 2, '2025-02-04', '10:00:00', 'Medication', 'Completed', 3, 0),
+(3, 1, '2025-02-05', '11:00:00', 'Appointment', 'Completed', NULL, 0),
+(4, 2, '2025-02-06', '14:00:00', 'Medication', 'Completed', 4, 0),
+(5, 1, '2025-02-07', '15:00:00', 'Appointment', 'Completed', NULL, 0),
+
+-- THÁNG 3/2025
+(6, 2, '2025-03-04', '09:00:00', 'Appointment', 'Completed', NULL, 0),
+(7, 1, '2025-03-05', '10:00:00', 'Medication', 'Completed', 1, 0),
+(1, 2, '2025-03-06', '11:00:00', 'Appointment', 'Completed', NULL, 0),
+(2, 1, '2025-03-07', '14:00:00', 'Medication', 'Completed', 2, 0),
+(3, 2, '2025-03-08', '15:00:00', 'Appointment', 'Completed', NULL, 0),
+(4, 1, '2025-03-10', '16:00:00', 'Medication', 'Completed', 3, 0),
+
+-- THÁNG 4/2025
+(5, 2, '2025-04-01', '09:00:00', 'Appointment', 'Completed', NULL, 0),
+(6, 1, '2025-04-02', '10:00:00', 'Medication', 'Completed', 4, 0),
+(7, 2, '2025-04-03', '11:00:00', 'Appointment', 'Completed', NULL, 0),
+(1, 1, '2025-04-04', '14:00:00', 'Medication', 'Completed', 1, 0),
+(2, 2, '2025-04-05', '15:00:00', 'Appointment', 'Completed', NULL, 0),
+(3, 1, '2025-04-07', '16:00:00', 'Medication', 'Completed', 2, 0),
+(4, 2, '2025-04-08', '09:30:00', 'Appointment', 'Completed', NULL, 0),
+
+-- THÁNG 5/2025
+(5, 1, '2025-05-02', '09:00:00', 'Appointment', 'Completed', NULL, 0),
+(6, 2, '2025-05-06', '10:00:00', 'Medication', 'Completed', 3, 0),
+(7, 1, '2025-05-07', '11:00:00', 'Appointment', 'Completed', NULL, 0),
+(1, 2, '2025-05-08', '14:00:00', 'Medication', 'Completed', 4, 0),
+(2, 1, '2025-05-09', '15:00:00', 'Appointment', 'Completed', NULL, 0),
+
+-- THÁNG 6/2025
+(3, 2, '2025-06-03', '09:00:00', 'Appointment', 'Completed', NULL, 0),
+(4, 1, '2025-06-04', '10:00:00', 'Medication', 'Completed', 1, 0),
+(5, 2, '2025-06-05', '11:00:00', 'Appointment', 'Completed', NULL, 0),
+(6, 1, '2025-06-06', '14:00:00', 'Medication', 'Completed', 2, 0),
+(7, 2, '2025-06-07', '15:00:00', 'Appointment', 'Completed', NULL, 0),
+(1, 1, '2025-06-09', '16:00:00', 'Medication', 'Completed', 3, 0),
+
+-- THÁNG 7/2025  
+(2, 2, '2025-07-01', '09:00:00', 'Appointment', 'Completed', NULL, 0),
+(3, 1, '2025-07-02', '10:00:00', 'Medication', 'Completed', 4, 0),
+(4, 2, '2025-07-03', '11:00:00', 'Appointment', 'Completed', NULL, 0),
+(5, 1, '2025-07-04', '14:00:00', 'Medication', 'Completed', 1, 0),
+(6, 2, '2025-07-05', '15:00:00', 'Appointment', 'Completed', NULL, 0),
+(7, 1, '2025-07-07', '16:00:00', 'Medication', 'Completed', 2, 0),
+(1, 2, '2025-07-08', '09:30:00', 'Appointment', 'Completed', NULL, 0),
+
+-- THÁNG 8/2025
+(2, 1, '2025-08-01', '09:00:00', 'Appointment', 'Completed', NULL, 0),
+(3, 2, '2025-08-05', '10:00:00', 'Medication', 'Completed', 3, 0),
+(4, 1, '2025-08-06', '11:00:00', 'Appointment', 'Completed', NULL, 0),
+(5, 2, '2025-08-07', '14:00:00', 'Medication', 'Completed', 4, 0),
+(6, 1, '2025-08-08', '15:00:00', 'Appointment', 'Completed', NULL, 0);
 
 -- Chèn dữ liệu vào bảng TestResults (quan hệ 1-1 với Appointments)
 INSERT INTO TestResults (appointment_id, patient_id, doctor_id, test_type_id, result_value, notes)
 VALUES
--- Mỗi appointment chỉ có 1 kết quả xét nghiệm
-(1, 1, 1, 3, '500', N'Xét nghiệm tải lượng virus HIV - Kết quả cao, cần theo dõi'),
-(2, 2, 2, 4, '600', N'Xét nghiệm đếm tế bào CD4+ - Kết quả bình thường'),
-(3, 1, 2, 1, '0.85', N'Xét nghiệm kháng thể HIV - Kết quả âm tính');
+-- THÁNG 2/2025 (appointments 1-5)
+(1, 1, 1, 3, '850', N'Xét nghiệm tải lượng virus HIV - Kết quả cao, cần bắt đầu điều trị'),
+(2, 2, 2, 3, '450', N'Xét nghiệm tải lượng virus HIV - Kết quả trung bình'),
+(3, 3, 1, 4, '550', N'Xét nghiệm đếm tế bào CD4+ - Kết quả thấp, cần điều trị'),
+(4, 4, 2, 4, '750', N'Xét nghiệm đếm tế bào CD4+ - Kết quả bình thường'),
+(5, 5, 1, 1, '1.2', N'Xét nghiệm kháng thể HIV - Dương tính'),
+
+-- THÁNG 3/2025 (appointments 6-11)
+(6, 6, 2, 2, '0.6', N'Xét nghiệm kháng nguyên p24 - Dương tính'),
+(7, 7, 1, 1, '0.95', N'Xét nghiệm kháng thể HIV - Dương tính'),
+(8, 1, 2, 4, '600', N'Xét nghiệm CD4+ - Theo dõi điều trị'),
+(9, 2, 1, 2, '0.5', N'Xét nghiệm kháng nguyên p24 - Theo dõi điều trị'),
+(10, 3, 2, 3, '200', N'Xét nghiệm viral load - Giảm sau điều trị'),
+(11, 4, 1, 3, '100', N'Xét nghiệm viral load - Đáp ứng tốt'),
+
+-- THÁNG 4/2025 (appointments 12-18)
+(12, 5, 2, 4, '650', N'Xét nghiệm CD4+ - Cải thiện sau điều trị'),
+(13, 6, 1, 4, '700', N'Xét nghiệm CD4+ - Ổn định'),
+(14, 7, 2, 3, '150', N'Xét nghiệm viral load - Tiếp tục giảm'),
+(15, 1, 1, 1, '0.8', N'Xét nghiệm kháng thể HIV - Theo dõi'),
+(16, 2, 2, 4, '680', N'Xét nghiệm CD4+ - Tăng tốt'),
+(17, 3, 1, 2, '0.4', N'Xét nghiệm kháng nguyên p24 - Giảm'),
+(18, 4, 2, 3, '50', N'Xét nghiệm viral load - Đạt undetectable'),
+
+-- THÁNG 5/2025 (appointments 19-23)
+(19, 5, 1, 3, '80', N'Xét nghiệm viral load - Duy trì undetectable'),
+(20, 6, 2, 3, '120', N'Xét nghiệm viral load - Giảm tốt'),
+(21, 7, 1, 4, '720', N'Xét nghiệm CD4+ - Phục hồi miễn dịch tốt'),
+(22, 1, 2, 4, '650', N'Xét nghiệm CD4+ - Ổn định'),
+(23, 2, 1, 3, '30', N'Xét nghiệm viral load - Undetectable'),
+
+-- THÁNG 6/2025 (appointments 24-29)
+(24, 3, 2, 4, '680', N'Xét nghiệm CD4+ - Tiếp tục cải thiện'),
+(25, 4, 1, 1, '0.75', N'Xét nghiệm kháng thể HIV - Ổn định'),
+(26, 5, 2, 3, '40', N'Xét nghiệm viral load - Duy trì undetectable'),
+(27, 6, 1, 2, '0.3', N'Xét nghiệm kháng nguyên p24 - Giảm mạnh'),
+(28, 7, 2, 4, '750', N'Xét nghiệm CD4+ - Phục hồi tốt'),
+(29, 1, 1, 3, '25', N'Xét nghiệm viral load - Undetectable stable'),
+
+-- THÁNG 7/2025 (appointments 30-36)
+(30, 2, 2, 4, '700', N'Xét nghiệm CD4+ - Tăng ổn định'),
+(31, 3, 1, 4, '720', N'Xét nghiệm CD4+ - Duy trì tốt'),
+(32, 4, 2, 3, '35', N'Xét nghiệm viral load - Undetectable'),
+(33, 5, 1, 1, '0.7', N'Xét nghiệm kháng thể HIV - Ổn định'),
+(34, 6, 2, 3, '45', N'Xét nghiệm viral load - Undetectable'),
+(35, 7, 1, 2, '0.25', N'Xét nghiệm kháng nguyên p24 - Thấp'),
+(36, 1, 2, 4, '680', N'Xét nghiệm CD4+ - Duy trì tốt'),
+
+-- THÁNG 8/2025 (appointments 37-41)
+(37, 2, 1, 3, '20', N'Xét nghiệm viral load - Undetectable excellent'),
+(38, 3, 2, 3, '30', N'Xét nghiệm viral load - Undetectable'),
+(39, 4, 1, 4, '730', N'Xét nghiệm CD4+ - Rất tốt'),
+(40, 5, 2, 4, '710', N'Xét nghiệm CD4+ - Ổn định cao'),
+(41, 6, 1, 3, '40', N'Xét nghiệm viral load - Duy trì undetectable');
 
 -- Chèn dữ liệu vào bảng Treatment
 INSERT INTO Treatment (test_result_id, regimen_id, start_date, end_date, status, notes)
 VALUES
-(1, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ TDF + 3TC + DTG Chuẩn'), '2025-06-01', '2025-12-31', 'Active', N'Đang điều trị với phác đồ TDF + 3TC + DTG'),
-(2, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ AZT + 3TC + NVP Chuẩn'), '2025-06-05', '2025-12-31', 'Active', N'Đang điều trị với phác đồ AZT + 3TC + NVP');
+-- Treatments cho các kết quả xét nghiệm từ tháng 2/2025
+(1, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ TDF + 3TC + DTG Chuẩn'), '2025-02-03', '2025-12-31', 'Active', N'Bắt đầu điều trị với phác đồ chuẩn - Bệnh nhân A'),
+(2, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ tùy chỉnh cho bệnh nhân B (Phụ nữ mang thai)'), '2025-02-04', '2025-12-31', 'Active', N'Điều trị cho phụ nữ mang thai - Bệnh nhân B'),
+(3, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ tùy chỉnh cho bệnh nhân C'), '2025-02-05', '2025-12-31', 'Active', N'Phác đồ tùy chỉnh thay thế TDF - Bệnh nhân C'),
+(4, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ tùy chỉnh cho bệnh nhân D'), '2025-02-06', '2025-12-31', 'Active', N'Phác đồ tùy chỉnh với EFV - Bệnh nhân D'),
+(5, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ tùy chỉnh cho bệnh nhân E'), '2025-02-07', '2025-12-31', 'Active', N'Phác đồ tùy chỉnh với RAL - Bệnh nhân E'),
+(6, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ tùy chỉnh cho bệnh nhân F'), '2025-03-04', '2025-12-31', 'Active', N'Phác đồ tùy chỉnh với NVP - Bệnh nhân F'),
+(7, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ tùy chỉnh cho bệnh nhân G'), '2025-03-05', '2025-12-31', 'Active', N'Phác đồ tùy chỉnh ABC+RAL - Bệnh nhân G'),
+
+-- Treatments cho các lần tái khám và điều chỉnh phác đồ
+(8, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ TDF + 3TC + DTG Chuẩn'), '2025-03-06', '2025-12-31', 'Active', N'Điều chỉnh liều lượng - Bệnh nhân A'),
+(9, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ tùy chỉnh cho bệnh nhân B (Phụ nữ mang thai)'), '2025-03-07', '2025-12-31', 'Active', N'Theo dõi thai kỳ - Bệnh nhân B'),
+(10, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ tùy chỉnh cho bệnh nhân C'), '2025-03-08', '2025-12-31', 'Active', N'Đáp ứng tốt với phác đồ - Bệnh nhân C'),
+(11, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ tùy chỉnh cho bệnh nhân D'), '2025-03-10', '2025-12-31', 'Active', N'Giảm tác dụng phụ - Bệnh nhân D'),
+
+-- Tiếp tục với các treatments từ tháng 4-8
+(12, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ tùy chỉnh cho bệnh nhân E'), '2025-04-01', '2025-12-31', 'Active', N'Duy trì điều trị ổn định - Bệnh nhân E'),
+(13, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ tùy chỉnh cho bệnh nhân F'), '2025-04-02', '2025-12-31', 'Active', N'Không có phát ban với NVP - Bệnh nhân F'),
+(14, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ tùy chỉnh cho bệnh nhân G'), '2025-04-03', '2025-12-31', 'Active', N'Duy trì phác đồ an toàn - Bệnh nhân G'),
+(15, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ TDF + 3TC + DTG Chuẩn'), '2025-04-04', '2025-12-31', 'Active', N'Viral load giảm tốt - Bệnh nhân A'),
+(16, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ AZT + 3TC + NVP Chuẩn'), '2025-04-05', '2025-12-31', 'Active', N'Chuyển sang phác đồ chuẩn - Bệnh nhân B'),
+(17, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ tùy chỉnh cho bệnh nhân C'), '2025-04-07', '2025-12-31', 'Active', N'Kết quả xét nghiệm tốt - Bệnh nhân C'),
+(18, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ tùy chỉnh cho bệnh nhân D'), '2025-04-08', '2025-12-31', 'Active', N'Đạt undetectable - Bệnh nhân D'),
+
+-- Treatments tháng 5-8 (duy trì điều trị)
+(19, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ tùy chỉnh cho bệnh nhân E'), '2025-05-02', '2025-12-31', 'Active', N'Duy trì undetectable - Bệnh nhân E'),
+(20, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ tùy chỉnh cho bệnh nhân F'), '2025-05-06', '2025-12-31', 'Active', N'Điều trị ổn định - Bệnh nhân F'),
+(21, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ tùy chỉnh cho bệnh nhân G'), '2025-05-07', '2025-12-31', 'Active', N'Phục hồi miễn dịch tốt - Bệnh nhân G'),
+(22, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ TDF + 3TC + DTG Chuẩn'), '2025-05-08', '2025-12-31', 'Active', N'CD4 ổn định - Bệnh nhân A'),
+(23, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ AZT + 3TC + NVP Chuẩn'), '2025-05-09', '2025-12-31', 'Active', N'Đạt undetectable - Bệnh nhân B'),
+
+-- Treatments cuối (tháng 6-8)
+(24, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ tùy chỉnh cho bệnh nhân C'), '2025-06-03', '2025-12-31', 'Active', N'Tiếp tục cải thiện - Bệnh nhân C'),
+(25, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ tùy chỉnh cho bệnh nhân D'), '2025-06-04', '2025-12-31', 'Active', N'Kết quả ổn định - Bệnh nhân D'),
+(26, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ tùy chỉnh cho bệnh nhân E'), '2025-06-05', '2025-12-31', 'Active', N'Duy trì undetectable - Bệnh nhân E'),
+(27, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ tùy chỉnh cho bệnh nhân F'), '2025-06-06', '2025-12-31', 'Active', N'Giảm mạnh kháng nguyên - Bệnh nhân F'),
+(28, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ tùy chỉnh cho bệnh nhân G'), '2025-06-07', '2025-12-31', 'Active', N'Phục hồi tốt - Bệnh nhân G'),
+(29, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ TDF + 3TC + DTG Chuẩn'), '2025-06-09', '2025-12-31', 'Active', N'Undetectable ổn định - Bệnh nhân A'),
+
+-- Treatments tháng 7-8 (tiếp tục duy trì)
+(30, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ AZT + 3TC + NVP Chuẩn'), '2025-07-01', '2025-12-31', 'Active', N'CD4 tăng ổn định - Bệnh nhân B'),
+(31, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ tùy chỉnh cho bệnh nhân C'), '2025-07-02', '2025-12-31', 'Active', N'Duy trì tốt - Bệnh nhân C'),
+(32, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ tùy chỉnh cho bệnh nhân D'), '2025-07-03', '2025-12-31', 'Active', N'Undetectable - Bệnh nhân D'),
+(33, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ tùy chỉnh cho bệnh nhân E'), '2025-07-04', '2025-12-31', 'Active', N'Kết quả ổn định - Bệnh nhân E'),
+(34, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ tùy chỉnh cho bệnh nhân F'), '2025-07-05', '2025-12-31', 'Active', N'Undetectable - Bệnh nhân F'),
+(35, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ tùy chỉnh cho bệnh nhân G'), '2025-07-07', '2025-12-31', 'Active', N'Kháng nguyên thấp - Bệnh nhân G'),
+(36, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ TDF + 3TC + DTG Chuẩn'), '2025-07-08', '2025-12-31', 'Active', N'Duy trì tốt - Bệnh nhân A'),
+
+-- Treatments tháng 8
+(37, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ AZT + 3TC + NVP Chuẩn'), '2025-08-01', '2025-12-31', 'Active', N'Undetectable xuất sắc - Bệnh nhân B'),
+(38, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ tùy chỉnh cho bệnh nhân C'), '2025-08-05', '2025-12-31', 'Active', N'Undetectable - Bệnh nhân C'),
+(39, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ tùy chỉnh cho bệnh nhân D'), '2025-08-06', '2025-12-31', 'Active', N'CD4 rất tốt - Bệnh nhân D'),
+(40, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ tùy chỉnh cho bệnh nhân E'), '2025-08-07', '2025-12-31', 'Active', N'Ổn định cao - Bệnh nhân E'),
+(41, (SELECT regimen_id FROM ARVRegimens WHERE regimen_name = N'Phác đồ tùy chỉnh cho bệnh nhân F'), '2025-08-08', '2025-12-31', 'Active', N'Duy trì undetectable - Bệnh nhân F');
 
 ---- Chèn dữ liệu vào bảng Notifications
 --INSERT INTO Notifications (user_id, appointment_id, treatment_id, notification_type, scheduled_time, status)
