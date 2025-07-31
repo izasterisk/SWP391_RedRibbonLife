@@ -70,6 +70,7 @@ builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IARVRegimensRepository, ARVRegimensRepository>();
 builder.Services.AddScoped<ITreatmentRepository, TreatmentRepository>();
 builder.Services.AddScoped<IARVComponentRepository, ARVComponentRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
 //CORS
 builder.Services.AddCors(options =>

@@ -8,21 +8,19 @@ namespace BLL.Utils;
 
 public class ARVRegimenUtils : IARVRegimenUtils
 {
-    private readonly IRepository<Arvcomponent> _arvComponentRepository;
-    private readonly IMapper _mapper;
-    private readonly IRepository<Arvregimen> _arvRegimensRepository;
-    private readonly IRepository<Treatment> _treatmentRepository;
-    public ARVRegimenUtils(IRepository<Arvcomponent> arvComponentRepository, IMapper mapper, IRepository<Arvregimen> arvRegimensRepository, IRepository<Treatment> treatmentRepository)
+    private readonly ITreatmentRepository _treatmentRepository;
+    private readonly IARVComponentRepository _arvComponentRepository;
+    private readonly IARVRegimensRepository _arvRegimensRepository;
+    public ARVRegimenUtils(ITreatmentRepository treatmentRepository, IARVComponentRepository arvComponentRepository, IARVRegimensRepository arvRegimensRepository)
     {
-        _arvComponentRepository = arvComponentRepository;
-        _mapper = mapper;
-        _arvRegimensRepository = arvRegimensRepository;
         _treatmentRepository = treatmentRepository;
+        _arvComponentRepository = arvComponentRepository;
+        _arvRegimensRepository = arvRegimensRepository;
     }
     
     public async Task CheckARVComponentExistAsync(int id)
     {
-        var arvComponent = await _arvComponentRepository.GetAsync(u => u.ComponentId == id, true);
+        var arvComponent = await _arvComponentRepository.GetARVComponentToCheckAsync(id);
         if (arvComponent == null)
         {
             throw new Exception($"ARVComponent with ID {id} not found");
@@ -31,7 +29,7 @@ public class ARVRegimenUtils : IARVRegimenUtils
     
     public async Task CheckARVRegimenExistAsync(int id)
     {
-        var arvRegimen = await _arvRegimensRepository.GetAsync(u => u.RegimenId == id, true);
+        var arvRegimen = await _arvRegimensRepository.GetARVRegimensToCheckAsync(id);
         if (arvRegimen == null)
         {
             throw new Exception($"ARVRegimen with ID {id} not found");
@@ -44,7 +42,7 @@ public class ARVRegimenUtils : IARVRegimenUtils
 
     public async Task CheckIfAnyTreatmentLinkedAsync(int id)
     {
-        var treatment = await _treatmentRepository.GetAsync(u => u.RegimenId == id, true);
+        var treatment = await _treatmentRepository.GetTreatmentToCheckAsync(id);
         if (treatment != null)
         {
             throw new Exception("This regimen is linked to a treatment, cannot delete. Delete that treatment first and this regimen will be deleted automatically.");
