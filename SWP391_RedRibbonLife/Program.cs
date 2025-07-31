@@ -64,6 +64,7 @@ builder.Services.AddScoped<IRepository<DoctorCertificate>, Repository<DoctorCert
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 
 //CORS
 builder.Services.AddCors(options =>
