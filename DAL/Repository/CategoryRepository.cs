@@ -4,13 +4,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Repository
 {
-    public class CategoryRepository : Repository<Category>, ICategoryRepository
+    public class CategoryRepository : ICategoryRepository
     {
         private readonly SWP391_RedRibbonLifeContext _dbContext;
-
-        public CategoryRepository(SWP391_RedRibbonLifeContext dbContext) : base(dbContext)
+        private readonly IRepository<Category> _categoryRepository;
+        public CategoryRepository(SWP391_RedRibbonLifeContext dbContext, IRepository<Category> categoryRepository)
         {
             _dbContext = dbContext;
+            _categoryRepository = categoryRepository;
         }
 
         public async Task<Category> CreateCategoryWithTransactionAsync(Category category)
@@ -19,7 +20,7 @@ namespace DAL.Repository
             try
             {
                 category.IsActive = true;
-                var createdCategory = await CreateAsync(category);
+                var createdCategory = await _categoryRepository.CreateAsync(category);
                 await transaction.CommitAsync();
                 return createdCategory;
             }
@@ -35,7 +36,7 @@ namespace DAL.Repository
             await using var transaction = await _dbContext.Database.BeginTransactionAsync();
             try
             {
-                var updatedCategory = await UpdateAsync(category);
+                var updatedCategory = await _categoryRepository.UpdateAsync(category);
                 await transaction.CommitAsync();
                 return updatedCategory;
             }
@@ -51,7 +52,7 @@ namespace DAL.Repository
             await using var transaction = await _dbContext.Database.BeginTransactionAsync();
             try
             {
-                var result = await DeleteAsync(category);
+                var result = await _categoryRepository.DeleteAsync(category);
                 await transaction.CommitAsync();
                 return result;
             }
@@ -62,19 +63,19 @@ namespace DAL.Repository
             }
         }
 
-        public async Task<bool> IsCategoryExistAsync(int categoryId)
-        {
-            return await AnyAsync(c => c.CategoryId == categoryId);
-        }
-
         public async Task<Category?> GetCategoryByIdAsync(int categoryId)
         {
-            return await GetAsync(c => c.CategoryId == categoryId, useNoTracking: true);
+            return await _categoryRepository.GetAsync(c => c.CategoryId == categoryId, useNoTracking: true);
         }
         
         public async Task<bool> IsCategoryNameExistsAsync(string categoryName)
         {
-            return await AnyAsync(c => c.CategoryName == categoryName);
+            return await _categoryRepository.AnyAsync(c => c.CategoryName == categoryName);
+        }
+        
+        public async Task<List<Category>> GetAllAsync()
+        {
+            return await _categoryRepository.GetAllAsync();
         }
     }
 }
