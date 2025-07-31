@@ -9,67 +9,47 @@ namespace BLL.Services;
 public class TestTypeService : ITestTypeService
 {
     private readonly IMapper _mapper;
-    private readonly SWP391_RedRibbonLifeContext _dbContext;
-    private readonly IRepository<TestType> _testTypeRepository;
+    private readonly ITestTypeRepository _testTypeRepository;
 
-    public TestTypeService(IMapper mapper, SWP391_RedRibbonLifeContext dbContext, IRepository<TestType> testTypeRepository)
+    public TestTypeService(IMapper mapper, ITestTypeRepository testTypeRepository)
     {
         _mapper = mapper;
-        _dbContext = dbContext;
         _testTypeRepository = testTypeRepository;
     }
 
     public async Task<TestTypeDTO> CreateTestTypeAsync(TestTypeCreateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
-        try
-        {
-            var testType = _mapper.Map<TestType>(dto);
-            testType.IsActive = true;
-            var createdTestType = await _testTypeRepository.CreateAsync(testType);
-            await transaction.CommitAsync();
-            return _mapper.Map<TestTypeDTO>(createdTestType);
-        }
-        catch (Exception)
-        {
-            await transaction.RollbackAsync();
-            throw;
-        }
+        
+        var testType = _mapper.Map<TestType>(dto);
+        var createdTestType = await _testTypeRepository.CreateTestTypeWithTransactionAsync(testType);
+        return _mapper.Map<TestTypeDTO>(createdTestType);
     }
 
     public async Task<TestTypeDTO> UpdateTestTypeAsync(TestTypeUpdateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
-        try
+        
+        var testType = await _testTypeRepository.GetTestTypeForUpdateAsync(dto.TestTypeId);
+        if (testType == null)
         {
-            var testType = await _testTypeRepository.GetAsync(u => u.TestTypeId == dto.TestTypeId, true);
-            if (testType == null)
-            {
-                throw new Exception("TestType not found.");
-            }
-            _mapper.Map(dto, testType);
-            var updatedTestType = await _testTypeRepository.UpdateAsync(testType);
-            await transaction.CommitAsync();
-            return _mapper.Map<TestTypeDTO>(updatedTestType);
+            throw new Exception("TestType not found.");
         }
-        catch (Exception)
-        {
-            await transaction.RollbackAsync();
-            throw;
-        }
+        
+        _mapper.Map(dto, testType);
+        var updatedTestType = await _testTypeRepository.UpdateTestTypeWithTransactionAsync(testType);
+        return _mapper.Map<TestTypeDTO>(updatedTestType);
     }
 
     public async Task<List<TestTypeDTO>> GetAllTestTypeAsync()
     {
-        var testTypes = await _testTypeRepository.GetAllAsync();
+        var testTypes = await _testTypeRepository.GetAllTestTypesAsync();
         return _mapper.Map<List<TestTypeDTO>>(testTypes);
     }
 
     public async Task<TestTypeDTO> GetTestTypeByIdAsync(int id)
     {
-        var testType = await _testTypeRepository.GetAsync(u => u.TestTypeId == id, true);
+        var testType = await _testTypeRepository.GetTestTypeByIdAsync(id, true);
         if (testType == null)
         {
             throw new Exception("TestType not found.");
@@ -79,12 +59,11 @@ public class TestTypeService : ITestTypeService
 
     public async Task<bool> DeleteTestTypeByIdAsync(int id)
     {
-        var testType = await _testTypeRepository.GetAsync(u => u.TestTypeId == id, true);
+        var testType = await _testTypeRepository.GetTestTypeForUpdateAsync(id);
         if (testType == null)
         {
             throw new Exception("TestType not found.");
         }
-        await _testTypeRepository.DeleteAsync(testType);
-        return true;
+        return await _testTypeRepository.DeleteTestTypeWithTransactionAsync(testType);
     }
 }

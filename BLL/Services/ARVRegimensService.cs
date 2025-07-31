@@ -4,24 +4,20 @@ using BLL.Interfaces;
 using BLL.Utils;
 using DAL.IRepository;
 using DAL.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace BLL.Services;
 
 public class ARVRegimensService : IARVRegimensService
 {
-    private readonly IRepository<Arvcomponent> _arvComponentRepository;
     private readonly IMapper _mapper;
-    private readonly IRepository<Arvregimen> _arvRegimensRepository;
+    private readonly IARVRegimensRepository _arvRegimensRepository;
     private readonly IARVRegimenUtils _arvRegimenUtils;
-    private readonly SWP391_RedRibbonLifeContext _dbContext;
-    public ARVRegimensService(IRepository<Arvcomponent> arvComponentRepository, IMapper mapper, IRepository<Arvregimen> arvRegimensRepository, IARVRegimenUtils arvRegimenUtils, SWP391_RedRibbonLifeContext dbContext)
+    
+    public ARVRegimensService(IMapper mapper, IARVRegimensRepository arvRegimensRepository, IARVRegimenUtils arvRegimenUtils)
     {
-        _arvComponentRepository = arvComponentRepository;
         _mapper = mapper;
         _arvRegimensRepository = arvRegimensRepository;
         _arvRegimenUtils = arvRegimenUtils;
-        _dbContext = dbContext;
     }
 
     public async Task<ARVRegimensReadOnlyDTO> CreateARVRegimensAsync(ARVRegimensCreateDTO dto)
@@ -56,29 +52,11 @@ public class ARVRegimensService : IARVRegimensService
             if (string.IsNullOrWhiteSpace(dto.UsageInstructions))
                 throw new ArgumentException("UsageInstructions is required when IsCustomized is not true.");
         }
-        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
-        try
-        {
-            var arvRegimen = _mapper.Map<Arvregimen>(dto);
-            arvRegimen.IsActive = true;
-            var createdRegimen = await _arvRegimensRepository.CreateAsync(arvRegimen);
-            var detailedRegimen = await _arvRegimensRepository.GetWithRelationsAsync(
-                filter: r => r.RegimenId == createdRegimen.RegimenId,
-                useNoTracking: true,
-                includeFunc: query => query
-                    .Include(tr => tr.Component1)
-                    .Include(tr => tr.Component2)
-                    .Include(tr => tr.Component3)
-                    .Include(tr => tr.Component4)
-            );
-            await transaction.CommitAsync();
-            return _mapper.Map<ARVRegimensReadOnlyDTO>(detailedRegimen);
-        }
-        catch (Exception)
-        {
-            await transaction.RollbackAsync();
-            throw;
-        }
+
+        var arvRegimen = _mapper.Map<Arvregimen>(dto);
+        var createdRegimen = await _arvRegimensRepository.CreateARVRegimensWithTransactionAsync(arvRegimen);
+        var detailedRegimen = await _arvRegimensRepository.GetARVRegimensWithRelationsAsync(createdRegimen.RegimenId, true);
+        return _mapper.Map<ARVRegimensReadOnlyDTO>(detailedRegimen);
     }
 
     public async Task<ARVRegimensReadOnlyDTO> UpdateARVRegimensAsync(ARVRegimensUpdateDTO dto)
@@ -100,60 +78,27 @@ public class ARVRegimensService : IARVRegimensService
         {
             throw new ArgumentException("Component 2 is required when Component 4 is provided.");
         }
-        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
-        try
+        
+        var regimen = await _arvRegimensRepository.GetARVRegimensForUpdateAsync(dto.RegimenId);
+        if (regimen == null)
         {
-            var regimen = await _arvRegimensRepository.GetAsync(r => r.RegimenId == dto.RegimenId, true);
-            if (regimen == null)
-            {
-                throw new Exception("ARV Regimen not found.");
-            }
-            _mapper.Map(dto, regimen);
-            var updatedRegimen = await _arvRegimensRepository.UpdateAsync(regimen);
-            var detailedRegimen = await _arvRegimensRepository.GetWithRelationsAsync(
-                filter: r => r.RegimenId == updatedRegimen.RegimenId,
-                useNoTracking: true,
-                includeFunc: query => query
-                    .Include(tr => tr.Component1)
-                    .Include(tr => tr.Component2)
-                    .Include(tr => tr.Component3)
-                    .Include(tr => tr.Component4)
-            );
-            await transaction.CommitAsync();
-            return _mapper.Map<ARVRegimensReadOnlyDTO>(detailedRegimen);
+            throw new Exception("ARV Regimen not found.");
         }
-        catch (Exception)
-        {
-            await transaction.RollbackAsync();
-            throw;
-        }
+        _mapper.Map(dto, regimen);
+        var updatedRegimen = await _arvRegimensRepository.UpdateARVRegimensWithTransactionAsync(regimen);
+        var detailedRegimen = await _arvRegimensRepository.GetARVRegimensWithRelationsAsync(updatedRegimen.RegimenId, true);
+        return _mapper.Map<ARVRegimensReadOnlyDTO>(detailedRegimen);
     }
 
     public async Task<List<ARVRegimensReadOnlyDTO>> GetAllARVRegimensAsync()
     {
-        var regimens = await _arvRegimensRepository.GetAllWithRelationsByFilterAsync(
-            filter: r => r.IsActive == true,
-            useNoTracking: true,
-            includeFunc: query => query
-                .Include(tr => tr.Component1)
-                .Include(tr => tr.Component2)
-                .Include(tr => tr.Component3)
-                .Include(tr => tr.Component4)
-        );
+        var regimens = await _arvRegimensRepository.GetAllARVRegimensWithRelationsAsync();
         return _mapper.Map<List<ARVRegimensReadOnlyDTO>>(regimens);
     }
 
     public async Task<ARVRegimensReadOnlyDTO> GetARVRegimensByIdAsync(int id)
     {
-        var detailedRegimen = await _arvRegimensRepository.GetWithRelationsAsync(
-            filter: r => r.RegimenId == id && r.IsActive == true,
-            useNoTracking: true,
-            includeFunc: query => query
-                .Include(tr => tr.Component1)
-                .Include(tr => tr.Component2)
-                .Include(tr => tr.Component3)
-                .Include(tr => tr.Component4)
-        );
+        var detailedRegimen = await _arvRegimensRepository.GetARVRegimensWithRelationsAsync(id, true);
         if (detailedRegimen == null)
         {
             throw new Exception("ARV Regimen not found.");
@@ -163,27 +108,19 @@ public class ARVRegimensService : IARVRegimensService
 
     public async Task<List<ARVRegimensReadOnlyDTO>> GetARVRegimensByIsCustomizedAsync(bool isCustomized)
     {
-        var regimens = await _arvRegimensRepository.GetAllWithRelationsByFilterAsync(
-            filter: r => r.IsActive == true && r.IsCustomized == isCustomized,
-            useNoTracking: true,
-            includeFunc: query => query
-                .Include(tr => tr.Component1)
-                .Include(tr => tr.Component2)
-                .Include(tr => tr.Component3)
-                .Include(tr => tr.Component4)
-        );
+        var regimens = await _arvRegimensRepository.GetARVRegimensByIsCustomizedWithRelationsAsync(isCustomized);
         return _mapper.Map<List<ARVRegimensReadOnlyDTO>>(regimens);
     }
     
     public async Task<bool> DeleteARVRegimensAsync(int id)
     {
-        var regimen = await _arvRegimensRepository.GetAsync(r => r.RegimenId == id, true);
+        var regimen = await _arvRegimensRepository.GetARVRegimensForUpdateAsync(id);
         if (regimen == null)
         {
             throw new Exception("ARV Regimen not found.");
         }
         await _arvRegimenUtils.CheckIfAnyTreatmentLinkedAsync(id);
-        await _arvRegimensRepository.DeleteAsync(regimen);
+        await _arvRegimensRepository.DeleteARVRegimensWithTransactionAsync(regimen);
         return true;
     }
 }

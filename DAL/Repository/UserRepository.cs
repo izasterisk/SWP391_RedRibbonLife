@@ -123,7 +123,8 @@ namespace DAL.Repository
 
         public async Task CheckEmailExistAsync(string email)
         {
-            var emailExists = await AnyAsync(u => u.Email.Equals(email));
+            var lowercaseEmail = email.ToLowerInvariant();
+            var emailExists = await AnyAsync(u => u.Email.Equals(lowercaseEmail));
             if (emailExists)
             {
                 throw new Exception($"Email {email} already exists.");
