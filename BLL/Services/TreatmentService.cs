@@ -12,10 +12,10 @@ public class TreatmentService : ITreatmentService
 {
     private readonly IMapper _mapper;
     private readonly SWP391_RedRibbonLifeContext _dbContext;
-    private readonly IUserRepository<Treatment> _treatmentRepository;
+    private readonly IRepository<Treatment> _treatmentRepository;
     private readonly IARVRegimenUtils _arvRegimenUtils;
     private readonly IUserUtils _userUtils;
-    public TreatmentService(IMapper mapper, SWP391_RedRibbonLifeContext dbContext, IUserRepository<Treatment> treatmentRepository, IARVRegimenUtils arvRegimenUtils, IUserUtils userUtils)
+    public TreatmentService(IMapper mapper, SWP391_RedRibbonLifeContext dbContext, IRepository<Treatment> treatmentRepository, IARVRegimenUtils arvRegimenUtils, IUserUtils userUtils)
     {
         _mapper = mapper;
         _dbContext = dbContext;

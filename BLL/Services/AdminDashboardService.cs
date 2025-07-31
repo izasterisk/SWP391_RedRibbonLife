@@ -12,15 +12,15 @@ public class AdminDashboardService : IAdminDashboardService
 {
     private readonly IMapper _mapper;
     private readonly SWP391_RedRibbonLifeContext _dbContext;
-    private readonly IUserRepository<Appointment> _appointmentRepository;
-    private readonly IUserRepository<Patient> _patientRepository;
-    private readonly IUserRepository<Doctor> _doctorRepository;
-    private readonly IUserRepository<DoctorSchedule> _doctorScheduleRepository;
+    private readonly IRepository<Appointment> _appointmentRepository;
+    private readonly IRepository<Patient> _patientRepository;
+    private readonly IRepository<Doctor> _doctorRepository;
+    private readonly IRepository<DoctorSchedule> _doctorScheduleRepository;
     private readonly IUserUtils _userUtils;
     private readonly IDoctorScheduleUtils _doctorScheduleUtils;
     private readonly SendGridEmailUtil _sendGridUtil;
     
-    public AdminDashboardService(IMapper mapper, SWP391_RedRibbonLifeContext dbContext, IUserRepository<Appointment> appointmentRepository, IUserRepository<Patient> patientRepository, IUserRepository<Doctor> doctorRepository, IUserRepository<DoctorSchedule> doctorScheduleRepository, IUserUtils userUtils, IDoctorScheduleUtils doctorScheduleUtils, SendGridEmailUtil sendGridUtil)
+    public AdminDashboardService(IMapper mapper, SWP391_RedRibbonLifeContext dbContext, IRepository<Appointment> appointmentRepository, IRepository<Patient> patientRepository, IRepository<Doctor> doctorRepository, IRepository<DoctorSchedule> doctorScheduleRepository, IUserUtils userUtils, IDoctorScheduleUtils doctorScheduleUtils, SendGridEmailUtil sendGridUtil)
     {
         _mapper = mapper;
         _dbContext = dbContext;

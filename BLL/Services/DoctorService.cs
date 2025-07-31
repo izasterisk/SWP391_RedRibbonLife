@@ -11,15 +11,15 @@ namespace BLL.Services
     {
         private readonly IMapper _mapper;
         private readonly SWP391_RedRibbonLifeContext _dbContext;
-        private readonly IUserRepository<User> _userRepository;
-        private readonly IUserRepository<Doctor> _doctorRepository;
+        private readonly IRepository<User> _repository;
+        private readonly IRepository<Doctor> _doctorRepository;
         private readonly IUserUtils _userUtils;
 
-        public DoctorService(IMapper mapper, SWP391_RedRibbonLifeContext dbContext, IUserRepository<User> userRepository, IUserRepository<Doctor> doctorRepository, IUserUtils userUtils)
+        public DoctorService(IMapper mapper, SWP391_RedRibbonLifeContext dbContext, IRepository<User> repository, IRepository<Doctor> doctorRepository, IUserUtils userUtils)
         {
             _mapper = mapper;
             _dbContext = dbContext;
-            _userRepository = userRepository;
+            _repository = repository;
             _doctorRepository = doctorRepository;
             _userUtils = userUtils;
         }
@@ -27,12 +27,12 @@ namespace BLL.Services
         public async Task<DoctorReadOnlyDTO> CreateDoctorAsync(DoctorCreateDTO dto)
         {
             ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-            var usernameExists = await _userRepository.AnyAsync(u => u.Username.Equals(dto.Username));
+            var usernameExists = await _repository.AnyAsync(u => u.Username.Equals(dto.Username));
             if (usernameExists)
             {
                 throw new Exception($"Username {dto.Username} already exists.");
             }
-            var emailExists = await _userRepository.AnyAsync(u => u.Email.Equals(dto.Email));
+            var emailExists = await _repository.AnyAsync(u => u.Email.Equals(dto.Email));
             if (emailExists)
             {
                 throw new Exception($"Email {dto.Email} already exists.");
@@ -46,7 +46,7 @@ namespace BLL.Services
                 user.UserRole = "Doctor";
                 user.IsVerified = false;
                 user.Password = _userUtils.CreatePasswordHash(dto.Password);
-                var createdUser = await _userRepository.CreateAsync(user);
+                var createdUser = await _repository.CreateAsync(user);
                 Doctor doctor = new Doctor
                 {
                     UserId = createdUser.UserId,
@@ -80,14 +80,14 @@ namespace BLL.Services
                 {
                     throw new Exception("Doctor not found.");
                 }
-                var user = await _userRepository.GetAsync(u => u.UserId == doctor.UserId, true);
+                var user = await _repository.GetAsync(u => u.UserId == doctor.UserId, true);
                 if (user == null)
                 {
                     throw new Exception($"User associated with doctor ID {dto.DoctorId} not found.");
                 }
                 _mapper.Map(dto, user);
                 _mapper.Map(dto, doctor);
-                var updatedUser = await _userRepository.UpdateAsync(user);
+                var updatedUser = await _repository.UpdateAsync(user);
                 var updatedDoctor = await _doctorRepository.UpdateAsync(doctor);
                 await transaction.CommitAsync();
                 var detailedDoctor = await _doctorRepository.GetWithRelationsAsync(
@@ -134,13 +134,13 @@ namespace BLL.Services
             {
                 throw new Exception("Doctor not found.");
             }
-            var user = await _userRepository.GetAsync(u => u.UserId == doctor.UserId, true);
+            var user = await _repository.GetAsync(u => u.UserId == doctor.UserId, true);
             if (user == null)
             {
                 throw new Exception($"User associated with Doctor ID {id} not found.");
             }
             await _doctorRepository.DeleteAsync(doctor);
-            await _userRepository.DeleteAsync(user);
+            await _repository.DeleteAsync(user);
             return true;
         }
     }

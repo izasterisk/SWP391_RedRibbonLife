@@ -10,18 +10,18 @@ namespace BLL.Services;
 
 public class TestResultService : ITestResultService
 {
-    private readonly IUserRepository<User> _userRepository;
-    private readonly IUserRepository<Patient> _patientRepository;
-    private readonly IUserRepository<TestType> _testTypeRepository;
-    private readonly IUserRepository<TestResult> _testResultRepository;
-    private readonly IUserRepository<Doctor> _doctorRepository;
-    private readonly IUserRepository<Appointment> _appointmentRepository;
+    private readonly IRepository<User> _repository;
+    private readonly IRepository<Patient> _patientRepository;
+    private readonly IRepository<TestType> _testTypeRepository;
+    private readonly IRepository<TestResult> _testResultRepository;
+    private readonly IRepository<Doctor> _doctorRepository;
+    private readonly IRepository<Appointment> _appointmentRepository;
     private readonly IMapper _mapper;
     private readonly IUserUtils _userUtils;
     private readonly SWP391_RedRibbonLifeContext _dbContext;
-    public TestResultService(IUserRepository<User> userRepository, IUserRepository<Patient> patientRepository, IUserRepository<TestType> testTypeRepository, IUserRepository<TestResult> testResultRepository, IUserRepository<Doctor> doctorRepository, IUserRepository<Appointment> appointmentRepository, IMapper mapper, IUserUtils userUtils, SWP391_RedRibbonLifeContext dbContext)
+    public TestResultService(IRepository<User> repository, IRepository<Patient> patientRepository, IRepository<TestType> testTypeRepository, IRepository<TestResult> testResultRepository, IRepository<Doctor> doctorRepository, IRepository<Appointment> appointmentRepository, IMapper mapper, IUserUtils userUtils, SWP391_RedRibbonLifeContext dbContext)
     {
-        _userRepository = userRepository;
+        _repository = repository;
         _patientRepository = patientRepository;
         _testTypeRepository = testTypeRepository;
         _testResultRepository = testResultRepository;

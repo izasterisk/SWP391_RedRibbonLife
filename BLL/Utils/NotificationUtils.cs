@@ -9,13 +9,13 @@ namespace BLL.Utils;
 
 public class NotificationUtils : INotificationUtils
 {
-    private readonly IUserRepository<Appointment> _appointmentRepository;
-    private readonly IUserRepository<Treatment> _treatmentRepository;
-    private readonly IUserRepository<Notification> _notificationRepository;
+    private readonly IRepository<Appointment> _appointmentRepository;
+    private readonly IRepository<Treatment> _treatmentRepository;
+    private readonly IRepository<Notification> _notificationRepository;
     private readonly IMapper _mapper;
     private readonly SWP391_RedRibbonLifeContext _dbContext;
     private readonly IUserUtils _userUtils;
-    public NotificationUtils(IUserRepository<Appointment> appointmentRepository, IUserRepository<Treatment> treatmentRepository, IUserRepository<Notification> notificationRepository, IMapper mapper, SWP391_RedRibbonLifeContext dbContext, IUserUtils userUtils)
+    public NotificationUtils(IRepository<Appointment> appointmentRepository, IRepository<Treatment> treatmentRepository, IRepository<Notification> notificationRepository, IMapper mapper, SWP391_RedRibbonLifeContext dbContext, IUserUtils userUtils)
     {
         _appointmentRepository = appointmentRepository;
         _treatmentRepository = treatmentRepository;

@@ -12,14 +12,14 @@ public class AdminService : IAdminService
 {
     private readonly IMapper _mapper;
     private readonly SWP391_RedRibbonLifeContext _dbContext;
-    private readonly IUserRepository<User> _userRepository;
+    private readonly IRepository<User> _repository;
     private readonly IUserUtils _userUtils;
     
-    public AdminService(IMapper mapper, SWP391_RedRibbonLifeContext dbContext, IUserRepository<User> userRepository, IUserUtils userUtils)
+    public AdminService(IMapper mapper, SWP391_RedRibbonLifeContext dbContext, IRepository<User> repository, IUserUtils userUtils)
     {
         _mapper = mapper;
         _dbContext = dbContext;
-        _userRepository = userRepository;
+        _repository = repository;
         _userUtils = userUtils;
     }
     
@@ -29,7 +29,7 @@ public class AdminService : IAdminService
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
-            var usernameExists = await _userRepository.AnyAsync(u => u.Username.Equals(dto.Username));
+            var usernameExists = await _repository.AnyAsync(u => u.Username.Equals(dto.Username));
             if (usernameExists)
             {
                 throw new Exception($"Username {dto.Username} already exists.");
@@ -41,7 +41,7 @@ public class AdminService : IAdminService
             user.UserRole = "Admin";
             user.IsVerified = true;
             user.Password = _userUtils.CreatePasswordHash(dto.Password);
-            var createdAdmin = await _userRepository.CreateAsync(user);
+            var createdAdmin = await _repository.CreateAsync(user);
             await transaction.CommitAsync();
             return _mapper.Map<AdminReadOnlyDTO>(createdAdmin);
         }
@@ -58,7 +58,7 @@ public class AdminService : IAdminService
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
-            var admin = await _userRepository.GetAsync(u => u.UserId == dto.UserId, true);
+            var admin = await _repository.GetAsync(u => u.UserId == dto.UserId, true);
             if (admin == null)
             {
                 throw new Exception("Admin not found.");
@@ -77,7 +77,7 @@ public class AdminService : IAdminService
             }
             // Update admin
             _mapper.Map(dto, admin);
-            var updatedAdmin = await _userRepository.UpdateAsync(admin);
+            var updatedAdmin = await _repository.UpdateAsync(admin);
             await transaction.CommitAsync();
             return _mapper.Map<AdminReadOnlyDTO>(updatedAdmin);
         }
@@ -90,13 +90,13 @@ public class AdminService : IAdminService
     
     public async Task<List<AdminReadOnlyDTO>> GetAllAdminsAsync()
     {
-        var admins = await _userRepository.GetAllByFilterAsync(u => u.IsActive && u.UserRole == "Admin", true);
+        var admins = await _repository.GetAllByFilterAsync(u => u.IsActive && u.UserRole == "Admin", true);
         return _mapper.Map<List<AdminReadOnlyDTO>>(admins);
     }
     
     public async Task<AdminReadOnlyDTO> GetAdminByUserIdAsync(int id)
     {
-        var admin = await _userRepository.GetAsync(u => u.IsActive && u.UserId == id, true);
+        var admin = await _repository.GetAsync(u => u.IsActive && u.UserId == id, true);
         if (admin == null)
         {
             throw new Exception("Admin not found.");
@@ -106,7 +106,7 @@ public class AdminService : IAdminService
     
     public async Task<bool> DeleteAdminByIdAsync(int id)
     {
-        var admin = await _userRepository.GetAsync(u => u.UserId == id, true);
+        var admin = await _repository.GetAsync(u => u.UserId == id, true);
         if (admin == null)
         {
             throw new Exception("Admin not found.");
@@ -115,7 +115,7 @@ public class AdminService : IAdminService
         {
             throw new Exception("This account is not admin.");
         }
-        await _userRepository.DeleteAsync(admin);
+        await _repository.DeleteAsync(admin);
         return true;
     }
 }

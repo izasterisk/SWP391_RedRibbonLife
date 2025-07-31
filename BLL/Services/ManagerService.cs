@@ -12,14 +12,14 @@ public class ManagerService : IManagerService
 {
     private readonly IMapper _mapper;
     private readonly SWP391_RedRibbonLifeContext _dbContext;
-    private readonly IUserRepository<User> _userRepository;
+    private readonly IRepository<User> _repository;
     private readonly IUserUtils _userUtils;
     
-    public ManagerService(IMapper mapper, SWP391_RedRibbonLifeContext dbContext, IUserRepository<User> userRepository, IUserUtils userUtils)
+    public ManagerService(IMapper mapper, SWP391_RedRibbonLifeContext dbContext, IRepository<User> repository, IUserUtils userUtils)
     {
         _mapper = mapper;
         _dbContext = dbContext;
-        _userRepository = userRepository;
+        _repository = repository;
         _userUtils = userUtils;
     }
     
@@ -29,7 +29,7 @@ public class ManagerService : IManagerService
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
-            var usernameExists = await _userRepository.AnyAsync(u => u.Username.Equals(dto.Username));
+            var usernameExists = await _repository.AnyAsync(u => u.Username.Equals(dto.Username));
             if (usernameExists)
             {
                 throw new Exception($"Username {dto.Username} already exists.");
@@ -41,7 +41,7 @@ public class ManagerService : IManagerService
             user.UserRole = "Manager";
             user.IsVerified = true;
             user.Password = _userUtils.CreatePasswordHash(dto.Password);
-            var createdManager = await _userRepository.CreateAsync(user);
+            var createdManager = await _repository.CreateAsync(user);
             await transaction.CommitAsync();
             return _mapper.Map<ManagerReadOnlyDTO>(createdManager);
         }
@@ -58,7 +58,7 @@ public class ManagerService : IManagerService
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
-            var manager = await _userRepository.GetAsync(u => u.UserId == dto.UserId, true);
+            var manager = await _repository.GetAsync(u => u.UserId == dto.UserId, true);
             if (manager == null)
             {
                 throw new Exception("Manager not found.");
@@ -77,7 +77,7 @@ public class ManagerService : IManagerService
             }
             // Update manager
             _mapper.Map(dto, manager);
-            var updatedManager = await _userRepository.UpdateAsync(manager);
+            var updatedManager = await _repository.UpdateAsync(manager);
             await transaction.CommitAsync();
             return _mapper.Map<ManagerReadOnlyDTO>(updatedManager);
         }
@@ -90,13 +90,13 @@ public class ManagerService : IManagerService
     
     public async Task<List<ManagerReadOnlyDTO>> GetAllManagersAsync()
     {
-        var managers = await _userRepository.GetAllByFilterAsync(u => u.IsActive && u.UserRole == "Manager", true);
+        var managers = await _repository.GetAllByFilterAsync(u => u.IsActive && u.UserRole == "Manager", true);
         return _mapper.Map<List<ManagerReadOnlyDTO>>(managers);
     }
     
     public async Task<ManagerReadOnlyDTO> GetManagerByIdAsync(int id)
     {
-        var manager = await _userRepository.GetAsync(u => u.IsActive && u.UserId == id, true);
+        var manager = await _repository.GetAsync(u => u.IsActive && u.UserId == id, true);
         if (manager == null)
         {
             throw new Exception("Manager not found.");
@@ -106,7 +106,7 @@ public class ManagerService : IManagerService
     
     public async Task<bool> DeleteManagerByIdAsync(int id)
     {
-        var manager = await _userRepository.GetAsync(u => u.UserId == id, true);
+        var manager = await _repository.GetAsync(u => u.UserId == id, true);
         if (manager == null)
         {
             throw new Exception("Manager not found.");
@@ -115,7 +115,7 @@ public class ManagerService : IManagerService
         {
             throw new Exception("This account is not manager.");
         }
-        await _userRepository.DeleteAsync(manager);
+        await _repository.DeleteAsync(manager);
         return true;
     }
 }

@@ -21,9 +21,9 @@ namespace BLL.Services
     public class LoginService : ILoginService
     {
         private readonly IMapper _mapper;
-        private readonly IUserRepository<User> _userRepository;
-        private readonly IUserRepository<Patient> _patientRepository;
-        private readonly IUserRepository<Doctor> _doctorRepository;
+        private readonly IRepository<User> _repository;
+        private readonly IRepository<Patient> _patientRepository;
+        private readonly IRepository<Doctor> _doctorRepository;
         private readonly IUserService _userService;
         private readonly IPatientService _patientService;
         private readonly IDoctorService _doctorService;
@@ -32,14 +32,14 @@ namespace BLL.Services
         private readonly IAdminService _adminService;
         private readonly IConfiguration _configuration;
 
-        public LoginService(IMapper mapper, IUserRepository<User> userRepository, IUserService userService, 
-            IUserRepository<Patient> patientRepository, IUserRepository<Doctor> doctorRepository,
+        public LoginService(IMapper mapper, IRepository<User> repository, IUserService userService, 
+            IRepository<Patient> patientRepository, IRepository<Doctor> doctorRepository,
             IPatientService patientService, IDoctorService doctorService,
             IStaffService staffService, IManagerService managerService, IAdminService adminService,
             IConfiguration configuration)
         {
             _mapper = mapper;
-            _userRepository = userRepository;
+            _repository = repository;
             _userService = userService;
             _patientRepository = patientRepository;
             _doctorRepository = doctorRepository;
@@ -55,7 +55,7 @@ namespace BLL.Services
         {
             ArgumentNullException.ThrowIfNull(username, $"{nameof(username)} is null");
             ArgumentNullException.ThrowIfNull(password, $"{nameof(password)} is null");
-            var user = await _userRepository.GetAsync(u => u.Username.Equals(username) && u.IsActive);
+            var user = await _repository.GetAsync(u => u.Username.Equals(username) && u.IsActive);
             if (user == null)
             {
                 return null;
@@ -136,7 +136,7 @@ namespace BLL.Services
         public async Task<object> GetMeAsync(int userId)
         {
             ArgumentNullException.ThrowIfNull(userId, $"{nameof(userId)} is null");
-            var user = await _userRepository.GetAsync(u => u.UserId == userId && u.IsActive);
+            var user = await _repository.GetAsync(u => u.UserId == userId && u.IsActive);
             if (user == null)
             {
                 throw new Exception("User not found or this account has been deactivated.");
@@ -175,7 +175,7 @@ namespace BLL.Services
         public async Task<object> ChangePasswordAsync(ChangePasswordDTO dto)
         {
             ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-            var user = await _userRepository.GetAsync(u => u.Email.Equals(dto.Email) && u.IsActive);
+            var user = await _repository.GetAsync(u => u.Email.Equals(dto.Email) && u.IsActive);
             if (user == null)
             {
                 throw new Exception("User not found or this account has been deactivated.");
@@ -186,7 +186,7 @@ namespace BLL.Services
                 throw new Exception("Old password is incorrect.");
             }
             user.Password = _userService.CreatePasswordHash(dto.newPassword);
-            var user1 = await _userRepository.UpdateAsync(user);
+            var user1 = await _repository.UpdateAsync(user);
             switch (user.UserRole)
             {
                 case "Patient":

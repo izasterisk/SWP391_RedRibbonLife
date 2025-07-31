@@ -9,13 +9,13 @@ namespace BLL.Utils;
 
 public class DoctorScheduleUtils : IDoctorScheduleUtils
 {
-    private readonly IUserRepository<DoctorSchedule> _doctorScheduleRepository;
-    private readonly IUserRepository<Doctor> _doctorRepository;
-    private readonly IUserRepository<Appointment> _appointmentRepository;
+    private readonly IRepository<DoctorSchedule> _doctorScheduleRepository;
+    private readonly IRepository<Doctor> _doctorRepository;
+    private readonly IRepository<Appointment> _appointmentRepository;
     private readonly IMapper _mapper;
     private readonly IUserUtils _userUtils;
     private readonly SWP391_RedRibbonLifeContext _dbContext;
-    public DoctorScheduleUtils(IUserRepository<DoctorSchedule> doctorScheduleRepository, IUserRepository<Doctor> doctorRepository, IUserRepository<Appointment> appointmentRepository, IMapper mapper, IUserUtils userUtils, SWP391_RedRibbonLifeContext dbContext)
+    public DoctorScheduleUtils(IRepository<DoctorSchedule> doctorScheduleRepository, IRepository<Doctor> doctorRepository, IRepository<Appointment> appointmentRepository, IMapper mapper, IUserUtils userUtils, SWP391_RedRibbonLifeContext dbContext)
     {
         _doctorScheduleRepository = doctorScheduleRepository;
         _doctorRepository = doctorRepository;

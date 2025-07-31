@@ -10,12 +10,12 @@ namespace BLL.Services;
 
 public class ARVRegimensService : IARVRegimensService
 {
-    private readonly IUserRepository<Arvcomponent> _arvComponentRepository;
+    private readonly IRepository<Arvcomponent> _arvComponentRepository;
     private readonly IMapper _mapper;
-    private readonly IUserRepository<Arvregimen> _arvRegimensRepository;
+    private readonly IRepository<Arvregimen> _arvRegimensRepository;
     private readonly IARVRegimenUtils _arvRegimenUtils;
     private readonly SWP391_RedRibbonLifeContext _dbContext;
-    public ARVRegimensService(IUserRepository<Arvcomponent> arvComponentRepository, IMapper mapper, IUserRepository<Arvregimen> arvRegimensRepository, IARVRegimenUtils arvRegimenUtils, SWP391_RedRibbonLifeContext dbContext)
+    public ARVRegimensService(IRepository<Arvcomponent> arvComponentRepository, IMapper mapper, IRepository<Arvregimen> arvRegimensRepository, IARVRegimenUtils arvRegimenUtils, SWP391_RedRibbonLifeContext dbContext)
     {
         _arvComponentRepository = arvComponentRepository;
         _mapper = mapper;

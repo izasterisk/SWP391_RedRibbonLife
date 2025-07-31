@@ -10,9 +10,9 @@ public class TestTypeService : ITestTypeService
 {
     private readonly IMapper _mapper;
     private readonly SWP391_RedRibbonLifeContext _dbContext;
-    private readonly IUserRepository<TestType> _testTypeRepository;
+    private readonly IRepository<TestType> _testTypeRepository;
 
-    public TestTypeService(IMapper mapper, SWP391_RedRibbonLifeContext dbContext, IUserRepository<TestType> testTypeRepository)
+    public TestTypeService(IMapper mapper, SWP391_RedRibbonLifeContext dbContext, IRepository<TestType> testTypeRepository)
     {
         _mapper = mapper;
         _dbContext = dbContext;

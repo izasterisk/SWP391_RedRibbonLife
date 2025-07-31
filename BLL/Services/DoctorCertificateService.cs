@@ -15,10 +15,10 @@ public class DoctorCertificateService : IDoctorCertificateService
 {
     private readonly IMapper _mapper;
     private readonly SWP391_RedRibbonLifeContext _dbContext;
-    private readonly IUserRepository<DoctorCertificate> _certificateRepository;
+    private readonly IRepository<DoctorCertificate> _certificateRepository;
     private readonly IUserUtils _userUtils;
 
-    public DoctorCertificateService(IMapper mapper, SWP391_RedRibbonLifeContext dbContext, IUserRepository<DoctorCertificate> certificateRepository, IUserUtils userUtils)
+    public DoctorCertificateService(IMapper mapper, SWP391_RedRibbonLifeContext dbContext, IRepository<DoctorCertificate> certificateRepository, IUserUtils userUtils)
     {
         _mapper = mapper;
         _dbContext = dbContext;

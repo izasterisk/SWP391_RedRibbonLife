@@ -12,17 +12,17 @@ public class ArticleService : IArticleService
 {
     private readonly IMapper _mapper;
     private readonly SWP391_RedRibbonLifeContext _dbContext;
-    private readonly IUserRepository<Article> _articleRepository;
-    private readonly IUserRepository<Category> _categoryRepository;
-    private readonly IUserRepository<User> _userRepository;
+    private readonly IRepository<Article> _articleRepository;
+    private readonly IRepository<Category> _categoryRepository;
+    private readonly IRepository<User> _repository;
     private readonly IUserUtils _userUtils;
-    public ArticleService(IMapper mapper, SWP391_RedRibbonLifeContext dbContext, IUserRepository<Article> articleRepository, IUserRepository<Category> categoryRepository, IUserRepository<User> userRepository, IUserUtils userUtils)
+    public ArticleService(IMapper mapper, SWP391_RedRibbonLifeContext dbContext, IRepository<Article> articleRepository, IRepository<Category> categoryRepository, IRepository<User> repository, IUserUtils userUtils)
     {
         _mapper = mapper;
         _dbContext = dbContext;
         _articleRepository = articleRepository;
         _categoryRepository = categoryRepository;
-        _userRepository = userRepository;
+        _repository = repository;
         _userUtils = userUtils;
     }
     

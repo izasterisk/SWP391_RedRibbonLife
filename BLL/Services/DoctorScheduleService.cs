@@ -12,12 +12,12 @@ public class DoctorScheduleService : IDoctorScheduleService
 {
     private readonly IMapper _mapper;
     private readonly SWP391_RedRibbonLifeContext _dbContext;
-    private readonly IUserRepository<DoctorSchedule> _doctorScheduleRepository;
-    private readonly IUserRepository<Doctor> _doctorRepository;
+    private readonly IRepository<DoctorSchedule> _doctorScheduleRepository;
+    private readonly IRepository<Doctor> _doctorRepository;
     private readonly IUserUtils _userUtils;
     private readonly IDoctorScheduleUtils _doctorScheduleUtils;
     
-    public DoctorScheduleService(IMapper mapper, SWP391_RedRibbonLifeContext dbContext, IUserRepository<DoctorSchedule> doctorScheduleRepository, IUserRepository<Doctor> doctorRepository, IUserUtils userUtils, IDoctorScheduleUtils doctorScheduleUtils)
+    public DoctorScheduleService(IMapper mapper, SWP391_RedRibbonLifeContext dbContext, IRepository<DoctorSchedule> doctorScheduleRepository, IRepository<Doctor> doctorRepository, IUserUtils userUtils, IDoctorScheduleUtils doctorScheduleUtils)
     {
         _mapper = mapper;
         _dbContext = dbContext;

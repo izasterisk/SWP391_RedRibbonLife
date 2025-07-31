@@ -13,15 +13,15 @@ namespace BLL.Services
     public class EmailService : IEmailService
     {
         private readonly SendGridEmailUtil _sendGridUtil;
-        private readonly IUserRepository<User> _userRepository;
-        private readonly IUserRepository<Treatment> _treatmentRepository;
+        private readonly IRepository<User> _repository;
+        private readonly IRepository<Treatment> _treatmentRepository;
         private static readonly ConcurrentDictionary<string, string> _verificationCodes = new();
         private readonly IUserUtils _userUtils;
 
-        public EmailService(SendGridEmailUtil sendGridUtil, IUserRepository<User> userRepository, IUserRepository<Treatment> treatmentRepository, IUserUtils userUtils)
+        public EmailService(SendGridEmailUtil sendGridUtil, IRepository<User> repository, IRepository<Treatment> treatmentRepository, IUserUtils userUtils)
         {
             _sendGridUtil = sendGridUtil;
-            _userRepository = userRepository;
+            _repository = repository;
             _treatmentRepository = treatmentRepository;
             _userUtils = userUtils;
         }
@@ -31,7 +31,7 @@ namespace BLL.Services
             try
             {
                 // Find user by email who is not verified
-                var user = await _userRepository.GetAsync(u => u.Email.Equals(email) && !u.IsVerified);
+                var user = await _repository.GetAsync(u => u.Email.Equals(email) && !u.IsVerified);
                 if (user == null)
                 {
                     throw new Exception("User not found or already verified");
@@ -137,14 +137,14 @@ namespace BLL.Services
                     throw new Exception("Invalid verification code");
                 }
                 // Find user by email
-                var user = await _userRepository.GetAsync(u => u.Email.Equals(email));
+                var user = await _repository.GetAsync(u => u.Email.Equals(email));
                 if (user == null)
                 {
                     throw new Exception("User not found");
                 }
                 // Update user verification status
                 user.IsVerified = true;
-                await _userRepository.UpdateAsync(user);
+                await _repository.UpdateAsync(user);
                 // Remove verification code after successful verification
                 _verificationCodes.TryRemove(email, out _);
                 return true;
@@ -160,7 +160,7 @@ namespace BLL.Services
             try
             {
                 // Find user by email who is verified and active
-                var user = await _userRepository.GetAsync(u => u.Email.Equals(email));
+                var user = await _repository.GetAsync(u => u.Email.Equals(email));
                 if (user == null)
                 {
                     throw new Exception("User not found");
@@ -187,14 +187,14 @@ namespace BLL.Services
                     throw new Exception("Invalid verification code");
                 }
                 // Find user by email
-                var user = await _userRepository.GetAsync(u => u.Email.Equals(email));
+                var user = await _repository.GetAsync(u => u.Email.Equals(email));
                 if (user == null)
                 {
                     throw new Exception("User not found");
                 }
                 // Update user password using UserUtils
                 user.Password = _userUtils.CreatePasswordHash(newPassword);
-                await _userRepository.UpdateAsync(user);
+                await _repository.UpdateAsync(user);
                 // Remove verification code after successful password change
                 _verificationCodes.TryRemove(email, out _);
                 return true;

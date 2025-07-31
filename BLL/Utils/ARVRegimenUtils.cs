@@ -8,11 +8,11 @@ namespace BLL.Utils;
 
 public class ARVRegimenUtils : IARVRegimenUtils
 {
-    private readonly IUserRepository<Arvcomponent> _arvComponentRepository;
+    private readonly IRepository<Arvcomponent> _arvComponentRepository;
     private readonly IMapper _mapper;
-    private readonly IUserRepository<Arvregimen> _arvRegimensRepository;
-    private readonly IUserRepository<Treatment> _treatmentRepository;
-    public ARVRegimenUtils(IUserRepository<Arvcomponent> arvComponentRepository, IMapper mapper, IUserRepository<Arvregimen> arvRegimensRepository, IUserRepository<Treatment> treatmentRepository)
+    private readonly IRepository<Arvregimen> _arvRegimensRepository;
+    private readonly IRepository<Treatment> _treatmentRepository;
+    public ARVRegimenUtils(IRepository<Arvcomponent> arvComponentRepository, IMapper mapper, IRepository<Arvregimen> arvRegimensRepository, IRepository<Treatment> treatmentRepository)
     {
         _arvComponentRepository = arvComponentRepository;
         _mapper = mapper;

@@ -11,9 +11,9 @@ public class ARVComponentService : IARVComponentService
 {
     private readonly IMapper _mapper;
     private readonly SWP391_RedRibbonLifeContext _dbContext;
-    private readonly IUserRepository<Arvcomponent> _arvComponentRepository;
+    private readonly IRepository<Arvcomponent> _arvComponentRepository;
 
-    public ARVComponentService(IMapper mapper, SWP391_RedRibbonLifeContext dbContext, IUserRepository<Arvcomponent> arvComponentRepository)
+    public ARVComponentService(IMapper mapper, SWP391_RedRibbonLifeContext dbContext, IRepository<Arvcomponent> arvComponentRepository)
     {
         _mapper = mapper;
         _dbContext = dbContext;
