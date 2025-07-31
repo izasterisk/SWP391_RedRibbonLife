@@ -16,11 +16,11 @@ namespace BLL.Services
     public class UserService : IUserService
     {
         private readonly IMapper _mapper;
-        private readonly IUserRepository<User> _userRepository;
-        public UserService(IUserRepository<User> userRepository, IMapper mapper)
+        private readonly IRepository<User> _repository;
+        public UserService(IRepository<User> repository, IMapper mapper)
         {
             _mapper = mapper;
-            _userRepository = userRepository;
+            _repository = repository;
         }
         public string CreatePasswordHash(string password)
         {
@@ -51,7 +51,7 @@ namespace BLL.Services
                 throw new ArgumentNullException(nameof(dto.PhoneNumber), "Phone number is required.");
             
             // Check if username already exists
-            var existingUser = await _userRepository.GetAsync(u => u.Username.Equals(dto.Username));
+            var existingUser = await _repository.GetAsync(u => u.Username.Equals(dto.Username));
             if (existingUser != null)
             {
                 throw new Exception($"Username {dto.Username} already exists.");
@@ -60,7 +60,7 @@ namespace BLL.Services
             // Check if email already exists (only if email is provided)
             if (!string.IsNullOrWhiteSpace(dto.Email))
             {
-                var existingUserByEmail = await _userRepository.GetAsync(u => u.Email.Equals(dto.Email));
+                var existingUserByEmail = await _repository.GetAsync(u => u.Email.Equals(dto.Email));
                 if (existingUserByEmail != null)
                 {
                     throw new Exception($"Email {dto.Email} already exists.");
@@ -73,18 +73,18 @@ namespace BLL.Services
             user.IsVerified = dto.IsVerified; // Set IsVerified from DTO
             user.Password = CreatePasswordHash(dto.Password);
             
-            await _userRepository.CreateAsync(user);
+            await _repository.CreateAsync(user);
             return true;
         }
         public async Task<List<UserReadonlyDTO>> GetAllUserAsync()
         {
-            var users = await _userRepository.GetAllByFilterAsync(u => u.IsActive);
+            var users = await _repository.GetAllByFilterAsync(u => u.IsActive);
             return _mapper.Map<List<UserReadonlyDTO>>(users);
         }
         public async Task<UserReadonlyDTO> GetUserByFullnameAsync(string fullname)
         {
             ArgumentNullException.ThrowIfNull(fullname, $"{nameof(fullname)} is null");
-            var user = await _userRepository.GetAsync(u => u.IsActive && u.FullName.Equals(fullname));
+            var user = await _repository.GetAsync(u => u.IsActive && u.FullName.Equals(fullname));
             if (user == null)
             {
                 throw new KeyNotFoundException($"User with fullname {fullname} not found.");
@@ -94,12 +94,12 @@ namespace BLL.Services
         public async Task<bool> UpdateUserAsync(UserDTO dto)
         {
             ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-            var existingUser = await _userRepository.GetAsync(u => u.IsActive && u.UserId == dto.UserId, true);
+            var existingUser = await _repository.GetAsync(u => u.IsActive && u.UserId == dto.UserId, true);
             if (existingUser == null)
             {
                 throw new KeyNotFoundException($"User with ID {dto.UserId} not found.");
             }
-            var userWithSameUsername = await _userRepository.GetAsync(u => u.Username.Equals(dto.Username) && u.UserId != dto.UserId);
+            var userWithSameUsername = await _repository.GetAsync(u => u.Username.Equals(dto.Username) && u.UserId != dto.UserId);
             if (userWithSameUsername != null)
             {
                 throw new Exception($"Username {dto.Username} already exists.");
@@ -121,7 +121,7 @@ namespace BLL.Services
                 existingUser.Password = CreatePasswordHash(dto.Password);
             }
             
-            await _userRepository.UpdateAsync(existingUser);
+            await _repository.UpdateAsync(existingUser);
             return true;
         }
     }

@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using BLL.DTO.Category;
 using BLL.Interfaces;
 using DAL.IRepository;
@@ -9,56 +9,41 @@ namespace BLL.Services;
 public class CategoryService : ICategoryService
 {
     private readonly IMapper _mapper;
-    private readonly SWP391_RedRibbonLifeContext _dbContext;
-    private readonly IUserRepository<Category> _categoryRepository;
+    private readonly ICategoryRepository _categoryRepository;
 
-    public CategoryService(IMapper mapper, SWP391_RedRibbonLifeContext dbContext, IUserRepository<Category> categoryRepository)
+    public CategoryService(IMapper mapper, ICategoryRepository categoryRepository)
     {
         _mapper = mapper;
-        _dbContext = dbContext;
         _categoryRepository = categoryRepository;
     }
     
-    public async Task<CategoryReadonlyDTO> CreateCategoryAsync(CategoryCreateDTO updateDto)
+    public async Task<CategoryReadonlyDTO> CreateCategoryAsync(CategoryCreateDTO createDto)
     {
-        ArgumentNullException.ThrowIfNull(updateDto, $"{nameof(updateDto)} is null");
-        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
-        try
+        ArgumentNullException.ThrowIfNull(createDto, $"{nameof(createDto)} is null");
+        if (await _categoryRepository.IsCategoryNameExistsAsync(createDto.CategoryName))
         {
-            var category = _mapper.Map<Category>(updateDto);
-            category.IsActive = true;
-            var createdCategory = await _categoryRepository.CreateAsync(category);
-            await transaction.CommitAsync();
-            return _mapper.Map<CategoryReadonlyDTO>(createdCategory);
+            throw new InvalidOperationException("Category name already exists.");
         }
-        catch (Exception)
-        {
-            await transaction.RollbackAsync();
-            throw;
-        }
+        var category = _mapper.Map<Category>(createDto);
+        var createdCategory = await _categoryRepository.CreateCategoryWithTransactionAsync(category);
+        return _mapper.Map<CategoryReadonlyDTO>(createdCategory);
     }
     
     public async Task<CategoryReadonlyDTO> UpdateCategoryAsync(CategoryUpdateDTO updateDto)
     {
         ArgumentNullException.ThrowIfNull(updateDto, $"{nameof(updateDto)} is null");
-        var category = await _categoryRepository.GetAsync(u => u.CategoryId == updateDto.CategoryId, true);
+        var category = await _categoryRepository.GetCategoryByIdAsync(updateDto.CategoryId);
         if (category == null)
         {
             throw new Exception("Category not found.");
         }
-        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
-        try
+        if (await _categoryRepository.IsCategoryNameExistsAsync(updateDto.CategoryName))
         {
-            _mapper.Map(updateDto, category);
-            var updatedCategory = await _categoryRepository.UpdateAsync(category);
-            await transaction.CommitAsync();
-            return _mapper.Map<CategoryReadonlyDTO>(updatedCategory);
+            throw new InvalidOperationException("Category name already exists.");
         }
-        catch (Exception)
-        {
-            await transaction.RollbackAsync();
-            throw;
-        }
+        _mapper.Map(updateDto, category);
+        var updatedCategory = await _categoryRepository.UpdateCategoryWithTransactionAsync(category);
+        return _mapper.Map<CategoryReadonlyDTO>(updatedCategory);
     }
     
     public async Task<List<CategoryReadonlyDTO>> GetAllCategoryAsync()
@@ -69,7 +54,11 @@ public class CategoryService : ICategoryService
     
     public async Task<CategoryReadonlyDTO> GetCategoryByIdAsync(int id)
     {
-        var category = await _categoryRepository.GetAsync(u => u.CategoryId == id, true);
+        if (id <= 0)
+        {
+            throw new ArgumentException("Category ID must be greater than 0.", nameof(id));
+        }
+        var category = await _categoryRepository.GetCategoryByIdAsync(id);
         if (category == null)
         {
             throw new Exception("Category not found.");
@@ -79,12 +68,15 @@ public class CategoryService : ICategoryService
     
     public async Task<bool> DeleteCategoryByIdAsync(int id)
     {
-        var category = await _categoryRepository.GetAsync(u => u.CategoryId == id, true);
+        if (id <= 0)
+        {
+            throw new ArgumentException("Category ID must be greater than 0.", nameof(id));
+        }
+        var category = await _categoryRepository.GetCategoryByIdAsync(id);
         if (category == null)
         {
             throw new Exception("Category not found.");
         }
-        await _categoryRepository.DeleteAsync(category);
-        return true;
+        return await _categoryRepository.DeleteCategoryWithTransactionAsync(category);
     }
 }

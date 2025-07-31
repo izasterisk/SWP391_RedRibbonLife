@@ -47,20 +47,40 @@ builder.Services.AddScoped<IHangfireBackgroundJobService, HangfireBackgroundJobS
 builder.Services.AddScoped<IDoctorCertificateService, DoctorCertificateService>();
 builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 
-builder.Services.AddScoped<IUserRepository<User>, UserRepository<User>>();
-builder.Services.AddScoped<IUserRepository<Doctor>, UserRepository<Doctor>>();
-builder.Services.AddScoped<IUserRepository<Article>, UserRepository<Article>>();
-builder.Services.AddScoped<IUserRepository<Category>, UserRepository<Category>>();
-builder.Services.AddScoped<IUserRepository<Patient>, UserRepository<Patient>>();
-builder.Services.AddScoped<IUserRepository<Appointment>, UserRepository<Appointment>>();
-builder.Services.AddScoped<IUserRepository<DoctorSchedule>, UserRepository<DoctorSchedule>>();
-builder.Services.AddScoped<IUserRepository<Arvregimen>, UserRepository<Arvregimen>>();
-builder.Services.AddScoped<IUserRepository<TestType>, UserRepository<TestType>>();
-builder.Services.AddScoped<IUserRepository<TestResult>, UserRepository<TestResult>>();
-builder.Services.AddScoped<IUserRepository<Arvcomponent>, UserRepository<Arvcomponent>>();
-builder.Services.AddScoped<IUserRepository<Treatment>, UserRepository<Treatment>>();
-builder.Services.AddScoped<IUserRepository<Notification>, UserRepository<Notification>>();
-builder.Services.AddScoped<IUserRepository<DoctorCertificate>, UserRepository<DoctorCertificate>>();
+builder.Services.AddScoped<IRepository<User>, Repository<User>>();
+builder.Services.AddScoped<IRepository<Doctor>, Repository<Doctor>>();
+builder.Services.AddScoped<IRepository<Article>, Repository<Article>>();
+builder.Services.AddScoped<IRepository<Category>, Repository<Category>>();
+builder.Services.AddScoped<IRepository<Patient>, Repository<Patient>>();
+builder.Services.AddScoped<IRepository<Appointment>, Repository<Appointment>>();
+builder.Services.AddScoped<IRepository<DAL.Models.DoctorSchedule>, Repository<DAL.Models.DoctorSchedule>>();
+builder.Services.AddScoped<IRepository<Arvregimen>, Repository<Arvregimen>>();
+builder.Services.AddScoped<IRepository<TestType>, Repository<TestType>>();
+builder.Services.AddScoped<IRepository<TestResult>, Repository<TestResult>>();
+builder.Services.AddScoped<IRepository<Arvcomponent>, Repository<Arvcomponent>>();
+builder.Services.AddScoped<IRepository<Treatment>, Repository<Treatment>>();
+builder.Services.AddScoped<IRepository<Notification>, Repository<Notification>>();
+builder.Services.AddScoped<IRepository<DoctorCertificate>, Repository<DoctorCertificate>>();
+
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IAdminRepository, AdminRepository>();
+builder.Services.AddScoped<IDoctorScheduleRepository, DoctorScheduleRepository>();
+builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+builder.Services.AddScoped<IARVRegimensRepository, ARVRegimensRepository>();
+builder.Services.AddScoped<ITreatmentRepository, TreatmentRepository>();
+builder.Services.AddScoped<IARVComponentRepository, ARVComponentRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<IArticleRepository, ArticleRepository>();
+builder.Services.AddScoped<IDoctorCertificateRepository, DoctorCertificateRepository>();
+builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
+builder.Services.AddScoped<IEmailRepository, EmailRepository>();
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+builder.Services.AddScoped<IManagerRepository, ManagerRepository>();
+builder.Services.AddScoped<IPatientRepository, PatientRepository>();
+builder.Services.AddScoped<IStaffRepository, StaffRepository>();
+builder.Services.AddScoped<ITestTypeRepository, TestTypeRepository>();
+builder.Services.AddScoped<ITestResultRepository, TestResultRepository>();
 
 //CORS
 builder.Services.AddCors(options =>

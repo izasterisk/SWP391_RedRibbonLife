@@ -4,23 +4,18 @@ using BLL.Interfaces;
 using BLL.Utils;
 using DAL.IRepository;
 using DAL.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace BLL.Services;
 
 public class PatientService : IPatientService
 {
     private readonly IMapper _mapper;
-    private readonly SWP391_RedRibbonLifeContext _dbContext;
-    private readonly IUserRepository<User> _userRepository;
-    private readonly IUserRepository<Patient> _patientRepository;
+    private readonly IPatientRepository _patientRepository;
     private readonly IUserUtils _userUtils;
     
-    public PatientService(IMapper mapper, SWP391_RedRibbonLifeContext dbContext, IUserRepository<User> userRepository, IUserRepository<Patient> patientRepository, IUserUtils userUtils)
+    public PatientService(IMapper mapper, IPatientRepository patientRepository, IUserUtils userUtils)
     {
         _mapper = mapper;
-        _dbContext = dbContext;
-        _userRepository = userRepository;
         _patientRepository = patientRepository;
         _userUtils = userUtils;
     }
@@ -28,101 +23,80 @@ public class PatientService : IPatientService
     public async Task<PatientReadOnlyDTO> CreatePatientAsync(PatientCreateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-        var usernameExists = await _userRepository.AnyAsync(u => u.Username.Equals(dto.Username));
+        
+        if (string.IsNullOrEmpty(dto.Username))
+        {
+            throw new ArgumentException("Username cannot be null or empty.");
+        }
+        if (string.IsNullOrEmpty(dto.Email))
+        {
+            throw new ArgumentException("Email cannot be null or empty.");
+        }
+        
+        var usernameExists = await _patientRepository.CheckUsernameExistsAsync(dto.Username);
         if (usernameExists)
         {
             throw new Exception($"Username {dto.Username} already exists.");
         }
         await _userUtils.CheckEmailExistAsync(dto.Email);
-        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
-        try
+        
+        // Create User entity
+        User user = _mapper.Map<User>(dto);
+        user.IsActive = true;
+        user.UserRole = "Patient";
+        user.IsVerified = false;
+        user.Password = _userUtils.CreatePasswordHash(dto.Password);
+        
+        // Create Patient entity
+        Patient patient = _mapper.Map<Patient>(dto);
+        
+        var createdPatient = await _patientRepository.CreatePatientWithTransactionAsync(user, patient);
+        var detailedPatient = await _patientRepository.GetPatientWithUserAsync(createdPatient.PatientId, true);
+        
+        if (detailedPatient == null)
         {
-            // Create User entity
-            User user = _mapper.Map<User>(dto);
-            user.IsActive = true;
-            user.UserRole = "Patient";
-            user.IsVerified = false;
-            user.Password = _userUtils.CreatePasswordHash(dto.Password);
-            // Save User first to get UserId
-            var createdUser = await _userRepository.CreateAsync(user);
-            // Create Patient entity
-            Patient patient = _mapper.Map<Patient>(dto);
-            patient.UserId = createdUser.UserId;
-            var createdPatient = await _patientRepository.CreateAsync(patient);
-            await transaction.CommitAsync();
-            var detailedPatient = await _patientRepository.GetWithRelationsAsync(
-                filter: p => p.PatientId == createdPatient.PatientId,
-                useNoTracking: true,
-                includeFunc: query => query.Include(p => p.User)
-            );
-            if (detailedPatient == null)
-            {
-                throw new Exception("Patient after created not found.");
-            }
-            return _mapper.Map<PatientReadOnlyDTO>(detailedPatient);
+            throw new Exception("Patient after created not found.");
         }
-        catch (Exception)
-        {
-            await transaction.RollbackAsync();
-            throw;
-        }
+        return _mapper.Map<PatientReadOnlyDTO>(detailedPatient);
     }
     
     public async Task<PatientReadOnlyDTO> UpdatePatientAsync(PatientUpdateDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-        var patient = await _patientRepository.GetAsync(p => p.PatientId == dto.PatientId, true);
+        
+        var patient = await _patientRepository.GetPatientForUpdateAsync(dto.PatientId);
         if (patient == null)
         {
             throw new Exception("Patient not found.");
         }
-        var user = await _userRepository.GetAsync(u => u.UserId == patient.UserId, true);
+        var user = await _patientRepository.GetUserByUserIdAsync(patient.UserId, false);
         if (user == null)
         {
             throw new Exception($"User associated with patient ID {dto.PatientId} not found.");
         }
-        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
-        try
+        
+        _mapper.Map(dto, user);
+        _mapper.Map(dto, patient);
+        
+        var updatedPatient = await _patientRepository.UpdatePatientWithTransactionAsync(user, patient);
+        var detailedPatient = await _patientRepository.GetPatientWithUserAsync(updatedPatient.PatientId, true);
+        
+        if (detailedPatient == null)
         {
-            _mapper.Map(dto, user);
-            _mapper.Map(dto, patient);
-            await _userRepository.UpdateAsync(user);
-            var updatedPatient = await _patientRepository.UpdateAsync(patient);
-            await transaction.CommitAsync();
-            var detailedPatient = await _patientRepository.GetWithRelationsAsync(
-                filter: p => p.PatientId == updatedPatient.PatientId,
-                useNoTracking: true,
-                includeFunc: query => query.Include(p => p.User)
-            );
-            if (detailedPatient == null)
-            {
-                throw new Exception("Patient after updated not found.");
-            }
-            return _mapper.Map<PatientReadOnlyDTO>(detailedPatient);
+            throw new Exception("Patient after updated not found.");
         }
-        catch (Exception)
-        {
-            await transaction.RollbackAsync();
-            throw;
-        }
+        return _mapper.Map<PatientReadOnlyDTO>(detailedPatient);
     }
 
     public async Task<List<PatientReadOnlyDTO>> GetAllActivePatientsAsync()
     {
-        var patients = await _patientRepository.GetAllWithRelationsAsync(
-            includeFunc: query => query.Include(p => p.User)
-                .Where(p => p.User.IsActive && p.User.UserRole == "Patient")
-        );
+        var patients = await _patientRepository.GetAllActivePatientsWithUserAsync();
         return _mapper.Map<List<PatientReadOnlyDTO>>(patients);
     }
 
     public async Task<PatientReadOnlyDTO> GetPatientByPatientIDAsync(int id)
     {
-        var patient = await _patientRepository.GetWithRelationsAsync(
-            filter: p => p.PatientId == id,
-            useNoTracking: true,
-            includeFunc: query => query.Include(p => p.User)
-        );
+        var patient = await _patientRepository.GetPatientWithUserAsync(id, true);
         if (patient == null)
         {
             throw new Exception("Patient not found.");
@@ -132,20 +106,18 @@ public class PatientService : IPatientService
     
     public async Task<bool> DeletePatientAsync(int id)
     {
-        var patient = await _patientRepository.GetAsync(p => p.PatientId == id, true);
+        var patient = await _patientRepository.GetPatientForUpdateAsync(id);
         if (patient == null)
         {
             throw new Exception("Patient not found.");
         }
         
-        var user = await _userRepository.GetAsync(u => u.UserId == patient.UserId, true);
+        var user = await _patientRepository.GetUserByUserIdAsync(patient.UserId, false);
         if (user == null)
         {
             throw new Exception($"User associated with Patient ID {id} not found.");
         }
         
-        await _patientRepository.DeleteAsync(patient);
-        await _userRepository.DeleteAsync(user);
-        return true;
+        return await _patientRepository.DeletePatientWithTransactionAsync(patient, user);
     }
 }

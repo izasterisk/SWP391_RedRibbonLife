@@ -21,9 +21,7 @@ namespace BLL.Services
     public class LoginService : ILoginService
     {
         private readonly IMapper _mapper;
-        private readonly IUserRepository<User> _userRepository;
-        private readonly IUserRepository<Patient> _patientRepository;
-        private readonly IUserRepository<Doctor> _doctorRepository;
+        private readonly IAuthRepository _authRepository;
         private readonly IUserService _userService;
         private readonly IPatientService _patientService;
         private readonly IDoctorService _doctorService;
@@ -32,17 +30,14 @@ namespace BLL.Services
         private readonly IAdminService _adminService;
         private readonly IConfiguration _configuration;
 
-        public LoginService(IMapper mapper, IUserRepository<User> userRepository, IUserService userService, 
-            IUserRepository<Patient> patientRepository, IUserRepository<Doctor> doctorRepository,
+        public LoginService(IMapper mapper, IAuthRepository authRepository, IUserService userService, 
             IPatientService patientService, IDoctorService doctorService,
             IStaffService staffService, IManagerService managerService, IAdminService adminService,
             IConfiguration configuration)
         {
             _mapper = mapper;
-            _userRepository = userRepository;
+            _authRepository = authRepository;
             _userService = userService;
-            _patientRepository = patientRepository;
-            _doctorRepository = doctorRepository;
             _patientService = patientService;
             _doctorService = doctorService;
             _staffService = staffService;
@@ -55,7 +50,7 @@ namespace BLL.Services
         {
             ArgumentNullException.ThrowIfNull(username, $"{nameof(username)} is null");
             ArgumentNullException.ThrowIfNull(password, $"{nameof(password)} is null");
-            var user = await _userRepository.GetAsync(u => u.Username.Equals(username) && u.IsActive);
+            var user = await _authRepository.GetUserByUsernameAsync(username);
             if (user == null)
             {
                 return null;
@@ -77,9 +72,10 @@ namespace BLL.Services
                 throw new Exception("Invalid username or password");
             }
             // Generate JWT Token
-            string audience = _configuration.GetValue<string>("LocalAudience");
-            string issuer = _configuration.GetValue<string>("LocalIssuer");
-            byte[] key = Encoding.ASCII.GetBytes(_configuration.GetValue<string>("JWTSecretforLocaluser"));
+            string audience = _configuration.GetValue<string>("LocalAudience") ?? throw new InvalidOperationException("LocalAudience configuration is missing");
+            string issuer = _configuration.GetValue<string>("LocalIssuer") ?? throw new InvalidOperationException("LocalIssuer configuration is missing");
+            string jwtSecret = _configuration.GetValue<string>("JWTSecretforLocaluser") ?? throw new InvalidOperationException("JWTSecretforLocaluser configuration is missing");
+            byte[] key = Encoding.ASCII.GetBytes(jwtSecret);
             var tokenHandler = new JwtSecurityTokenHandler();
             var tokenDescriptor = new SecurityTokenDescriptor()
             {
@@ -98,18 +94,18 @@ namespace BLL.Services
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);
             // Get detailed user information based on role
-            object userDetails = null;
+            object? userDetails = null;
             switch (user.UserRole)
             {
                 case "Patient":
-                    var patient = await _patientRepository.GetAsync(p => p.UserId == user.UserId);
+                    var patient = await _authRepository.GetPatientByUserIdAsync(user.UserId);
                     if (patient != null)
                     {
                         userDetails = await _patientService.GetPatientByPatientIDAsync(patient.PatientId);
                     }
                     break;
                 case "Doctor":
-                    var doctor = await _doctorRepository.GetAsync(d => d.UserId == user.UserId);
+                    var doctor = await _authRepository.GetDoctorByUserIdAsync(user.UserId);
                     if (doctor != null)
                     {
                         userDetails = await _doctorService.GetDoctorByDoctorIDAsync(doctor.DoctorId);
@@ -136,24 +132,24 @@ namespace BLL.Services
         public async Task<object> GetMeAsync(int userId)
         {
             ArgumentNullException.ThrowIfNull(userId, $"{nameof(userId)} is null");
-            var user = await _userRepository.GetAsync(u => u.UserId == userId && u.IsActive);
+            var user = await _authRepository.GetUserByIdAsync(userId);
             if (user == null)
             {
                 throw new Exception("User not found or this account has been deactivated.");
             }
             // Get detailed user information based on role
-            object userDetails = null;
+            object? userDetails = null;
             switch (user.UserRole)
             {
                 case "Patient":
-                    var patient = await _patientRepository.GetAsync(p => p.UserId == user.UserId);
+                    var patient = await _authRepository.GetPatientByUserIdAsync(user.UserId);
                     if (patient != null)
                     {
                         userDetails = await _patientService.GetPatientByPatientIDAsync(patient.PatientId);
                     }
                     break;
                 case "Doctor":
-                    var doctor = await _doctorRepository.GetAsync(d => d.UserId == user.UserId);
+                    var doctor = await _authRepository.GetDoctorByUserIdAsync(user.UserId);
                     if (doctor != null)
                     {
                         userDetails = await _doctorService.GetDoctorByDoctorIDAsync(doctor.DoctorId);
@@ -169,13 +165,13 @@ namespace BLL.Services
                     userDetails = await _adminService.GetAdminByUserIdAsync(user.UserId);
                     break;
             }
-            return userDetails;
+            return userDetails ?? throw new Exception("Unable to retrieve user details");
         }
 
         public async Task<object> ChangePasswordAsync(ChangePasswordDTO dto)
         {
             ArgumentNullException.ThrowIfNull(dto, $"{nameof(dto)} is null");
-            var user = await _userRepository.GetAsync(u => u.Email.Equals(dto.Email) && u.IsActive);
+            var user = await _authRepository.GetUserByEmailAsync(dto.Email);
             if (user == null)
             {
                 throw new Exception("User not found or this account has been deactivated.");
@@ -186,18 +182,18 @@ namespace BLL.Services
                 throw new Exception("Old password is incorrect.");
             }
             user.Password = _userService.CreatePasswordHash(dto.newPassword);
-            var user1 = await _userRepository.UpdateAsync(user);
+            var user1 = await _authRepository.UpdateUserAsync(user);
             switch (user.UserRole)
             {
                 case "Patient":
-                    var patient = await _patientRepository.GetAsync(p => p.UserId == user.UserId);
+                    var patient = await _authRepository.GetPatientByUserIdAsync(user.UserId);
                     if (patient != null)
                     {
                         return await _patientService.GetPatientByPatientIDAsync(patient.PatientId);
                     }
                     break;
                 case "Doctor":
-                    var doctor = await _doctorRepository.GetAsync(d => d.UserId == user.UserId);
+                    var doctor = await _authRepository.GetDoctorByUserIdAsync(user.UserId);
                     if (doctor != null)
                     {
                         return await _doctorService.GetDoctorByDoctorIDAsync(doctor.DoctorId);
@@ -210,7 +206,7 @@ namespace BLL.Services
                 case "Admin":
                     return await _adminService.GetAdminByUserIdAsync(user.UserId);
             }
-            return null;
+            throw new Exception("Unable to retrieve user details for the specified role");
         }
     }
 } 

@@ -9,22 +9,14 @@ namespace BLL.Utils;
 
 public class DoctorScheduleUtils : IDoctorScheduleUtils
 {
-    private readonly IUserRepository<DoctorSchedule> _doctorScheduleRepository;
-    private readonly IUserRepository<Doctor> _doctorRepository;
-    private readonly IUserRepository<Appointment> _appointmentRepository;
-    private readonly IMapper _mapper;
-    private readonly IUserUtils _userUtils;
-    private readonly SWP391_RedRibbonLifeContext _dbContext;
-    public DoctorScheduleUtils(IUserRepository<DoctorSchedule> doctorScheduleRepository, IUserRepository<Doctor> doctorRepository, IUserRepository<Appointment> appointmentRepository, IMapper mapper, IUserUtils userUtils, SWP391_RedRibbonLifeContext dbContext)
+    private readonly IDoctorScheduleRepository _doctorScheduleRepository;
+    private readonly IAppointmentRepository _appointmentRepository;
+    
+    public DoctorScheduleUtils(IDoctorScheduleRepository doctorScheduleRepository, IAppointmentRepository appointmentRepository)
     {
         _doctorScheduleRepository = doctorScheduleRepository;
-        _doctorRepository = doctorRepository;
         _appointmentRepository = appointmentRepository;
-        _mapper = mapper;
-        _userUtils = userUtils;
-        _dbContext = dbContext;
     }
-    
     public async Task CheckDoctorScheduleExistAsync(int id, string day)
     {
         if (!Enum.TryParse<DayOfWeek>(day, true, out _))
@@ -32,10 +24,7 @@ public class DoctorScheduleUtils : IDoctorScheduleUtils
             throw new ArgumentException("Invalid day of the week.");
         }
         day = char.ToUpper(day[0]) + day.Substring(1).ToLower();
-        var doctorSchedule = await _doctorScheduleRepository.GetAsync(
-            u => u.DoctorId == id && u.WorkDay == day, 
-            true
-        );
+        var doctorSchedule = await _doctorScheduleRepository.GetDoctorScheduleToCheckAsync(id, day);
         if (doctorSchedule != null)
         {
             throw new Exception("Doctor schedule already exists on this day.");
@@ -45,8 +34,7 @@ public class DoctorScheduleUtils : IDoctorScheduleUtils
     public async Task CheckDoctorIfAvailableAsync(int id, DateOnly date, TimeOnly time)
     {
         string dayOfWeek = date.DayOfWeek.ToString();
-        var doctorSchedule = await _doctorScheduleRepository.GetAsync(
-            u => u.DoctorId == id && u.WorkDay == dayOfWeek, true);
+        var doctorSchedule = await _doctorScheduleRepository.GetDoctorScheduleToCheckAsync(id, dayOfWeek);
         if (doctorSchedule == null)
         {
             throw new Exception("Doctor is not going to work on this day.");
@@ -55,8 +43,7 @@ public class DoctorScheduleUtils : IDoctorScheduleUtils
         {
             throw new Exception("Doctor is not available at this time.");
         }
-        var appointment = await _appointmentRepository.GetAsync(
-            u => u.DoctorId == id && u.AppointmentDate == date && u.AppointmentTime == time && (u.Status == "Confirmed" || u.Status == "Scheduled"), true);
+        var appointment = await _appointmentRepository.GetAppointmentToCheckAsync(id, date, time);
         if (appointment != null)
         {
             throw new Exception("This doctor is already booked at this time.");

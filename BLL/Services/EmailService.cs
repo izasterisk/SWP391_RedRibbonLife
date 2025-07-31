@@ -13,16 +13,14 @@ namespace BLL.Services
     public class EmailService : IEmailService
     {
         private readonly SendGridEmailUtil _sendGridUtil;
-        private readonly IUserRepository<User> _userRepository;
-        private readonly IUserRepository<Treatment> _treatmentRepository;
+        private readonly IEmailRepository _emailRepository;
         private static readonly ConcurrentDictionary<string, string> _verificationCodes = new();
         private readonly IUserUtils _userUtils;
 
-        public EmailService(SendGridEmailUtil sendGridUtil, IUserRepository<User> userRepository, IUserRepository<Treatment> treatmentRepository, IUserUtils userUtils)
+        public EmailService(SendGridEmailUtil sendGridUtil, IEmailRepository emailRepository, IUserUtils userUtils)
         {
             _sendGridUtil = sendGridUtil;
-            _userRepository = userRepository;
-            _treatmentRepository = treatmentRepository;
+            _emailRepository = emailRepository;
             _userUtils = userUtils;
         }
 
@@ -31,7 +29,7 @@ namespace BLL.Services
             try
             {
                 // Find user by email who is not verified
-                var user = await _userRepository.GetAsync(u => u.Email.Equals(email) && !u.IsVerified);
+                var user = await _emailRepository.GetUnverifiedUserByEmailAsync(email);
                 if (user == null)
                 {
                     throw new Exception("User not found or already verified");
@@ -52,29 +50,7 @@ namespace BLL.Services
         {
             try
             {
-                var treatment = await _treatmentRepository.GetWithRelationsAsync(
-                    filter: t => t.TreatmentId == id,
-                    useNoTracking: true,
-                    includeFunc: query => query
-                        .Include(t => t.Regimen)
-                            .ThenInclude(tr => tr.Component1)
-                        .Include(t => t.Regimen)
-                            .ThenInclude(tr => tr.Component2)
-                        .Include(t => t.Regimen)
-                            .ThenInclude(tr => tr.Component3)
-                        .Include(t => t.Regimen)
-                            .ThenInclude(tr => tr.Component4)
-                        .Include(t => t.TestResult)
-                            .ThenInclude(tr => tr.Patient)
-                            .ThenInclude(p => p.User)
-                        .Include(t => t.TestResult)
-                            .ThenInclude(tr => tr.Doctor)
-                            .ThenInclude(d => d.User)
-                        .Include(t => t.TestResult)
-                            .ThenInclude(tr => tr.Appointment)
-                        .Include(t => t.TestResult)
-                            .ThenInclude(tr => tr.TestType)
-                );
+                var treatment = await _emailRepository.GetTreatmentWithRelationsAsync(id);
                 if (treatment == null)
                 {
                     throw new Exception("Treatment not found.");
@@ -137,14 +113,13 @@ namespace BLL.Services
                     throw new Exception("Invalid verification code");
                 }
                 // Find user by email
-                var user = await _userRepository.GetAsync(u => u.Email.Equals(email));
+                var user = await _emailRepository.GetUserByEmailAsync(email);
                 if (user == null)
                 {
                     throw new Exception("User not found");
                 }
                 // Update user verification status
-                user.IsVerified = true;
-                await _userRepository.UpdateAsync(user);
+                await _emailRepository.UpdateUserVerificationStatusAsync(user, true);
                 // Remove verification code after successful verification
                 _verificationCodes.TryRemove(email, out _);
                 return true;
@@ -160,7 +135,7 @@ namespace BLL.Services
             try
             {
                 // Find user by email who is verified and active
-                var user = await _userRepository.GetAsync(u => u.Email.Equals(email));
+                var user = await _emailRepository.GetUserByEmailAsync(email);
                 if (user == null)
                 {
                     throw new Exception("User not found");
@@ -187,14 +162,14 @@ namespace BLL.Services
                     throw new Exception("Invalid verification code");
                 }
                 // Find user by email
-                var user = await _userRepository.GetAsync(u => u.Email.Equals(email));
+                var user = await _emailRepository.GetUserByEmailAsync(email);
                 if (user == null)
                 {
                     throw new Exception("User not found");
                 }
                 // Update user password using UserUtils
-                user.Password = _userUtils.CreatePasswordHash(newPassword);
-                await _userRepository.UpdateAsync(user);
+                var passwordHash = _userUtils.CreatePasswordHash(newPassword);
+                await _emailRepository.UpdateUserPasswordAsync(user, passwordHash);
                 // Remove verification code after successful password change
                 _verificationCodes.TryRemove(email, out _);
                 return true;

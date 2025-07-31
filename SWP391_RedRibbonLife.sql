@@ -1,4 +1,4 @@
--- Tạo cơ sở dữ liệu SWP391_RedRibbonLife
+﻿-- Tạo cơ sở dữ liệu SWP391_RedRibbonLife
 CREATE DATABASE SWP391_RedRibbonLife;
 GO
 

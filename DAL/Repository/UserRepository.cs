@@ -1,128 +1,143 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 using DAL.IRepository;
 using DAL.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Repository
 {
-    public class UserRepository<T> : IUserRepository<T> where T : class
+    public class UserRepository : Repository<User>, IUserRepository
     {
-        private readonly SWP391_RedRibbonLifeContext _dbContext;
-        private DbSet<T> _dbSet;
-        public UserRepository(SWP391_RedRibbonLifeContext dbContext)
+        private readonly IRepository<Doctor> _doctorRepository;
+        private readonly IRepository<Patient> _patientRepository;
+        private readonly IRepository<Appointment> _appointmentRepository;
+        private readonly IRepository<TestType> _testTypeRepository;
+        private readonly IRepository<TestResult> _testResultRepository;
+        private readonly IRepository<Treatment> _treatmentRepository;
+        private readonly IRepository<Category> _categoryRepository;
+
+        public UserRepository(SWP391_RedRibbonLifeContext dbContext,
+            IRepository<Doctor> doctorRepository,
+            IRepository<Patient> patientRepository,
+            IRepository<Appointment> appointmentRepository,
+            IRepository<TestType> testTypeRepository,
+            IRepository<TestResult> testResultRepository,
+            IRepository<Treatment> treatmentRepository,
+            IRepository<Category> categoryRepository) : base(dbContext)
         {
-            _dbContext = dbContext;
-            _dbSet = _dbContext.Set<T>();
-        }
-        public async Task<T> CreateAsync(T dbRecord)
-        {
-            _dbSet.Add(dbRecord);
-            await _dbContext.SaveChangesAsync();
-            return dbRecord;
+            _doctorRepository = doctorRepository;
+            _patientRepository = patientRepository;
+            _appointmentRepository = appointmentRepository;
+            _testTypeRepository = testTypeRepository;
+            _testResultRepository = testResultRepository;
+            _treatmentRepository = treatmentRepository;
+            _categoryRepository = categoryRepository;
         }
 
-        public async Task<bool> DeleteAsync(T dbRecord)
+        public async Task CheckDoctorExistAsync(int doctorId)
         {
-            _dbSet.Remove(dbRecord);
-            await _dbContext.SaveChangesAsync();
-            return true;
-        }
-
-        public async Task<List<T>> GetAllAsync()
-        {
-            return await _dbSet.ToListAsync();
-        }
-
-        public async Task<List<T>> GetAllWithRelationsAsync(Func<IQueryable<T>, IQueryable<T>> includeFunc = null)
-        {
-            IQueryable<T> query = _dbSet;
-            if (includeFunc != null)
+            var doctorExists = await _doctorRepository.AnyAsync(u => u.DoctorId == doctorId);
+            if (!doctorExists)
             {
-                query = includeFunc(query);
-            }
-            return await query.ToListAsync();
-        }
-
-        public async Task<T?> GetWithRelationsAsync(Expression<Func<T, bool>> filter, bool useNoTracking = false, Func<IQueryable<T>, IQueryable<T>> includeFunc = null)
-        {
-            IQueryable<T> query = _dbSet;
-            if (useNoTracking)
-            {
-                query = query.AsNoTracking();
-            }
-            if (includeFunc != null)
-            {
-                query = includeFunc(query);
-            }
-            return await query.Where(filter).FirstOrDefaultAsync();
-        }
-
-        public async Task<T> GetAsync(Expression<Func<T, bool>> filter, bool useNoTracking = false)
-        {
-            if (useNoTracking)
-            {
-                return await _dbSet.AsNoTracking().Where(filter).FirstOrDefaultAsync();
-            }
-            else
-            {
-                return await _dbSet.Where(filter).FirstOrDefaultAsync();
-            }
-        }
-        public async Task<List<T>> GetAllByFilterAsync(Expression<Func<T, bool>> filter, bool useNoTracking = false)
-        {
-            if (useNoTracking)
-            {
-                return await _dbSet.AsNoTracking().Where(filter).ToListAsync();
-            }
-            else
-            {
-                return await _dbSet.Where(filter).ToListAsync();
+                throw new Exception("Doctor not found.");
             }
         }
 
-        //public async Task<T> GetByNameAsync(Expression<Func<T, bool>> filter)
-        //{
-        //    return await _dbSet.Where(filter).FirstOrDefaultAsync();
-        //}
-
-        public async Task<T> UpdateAsync(T dbRecord)
+        public async Task CheckPatientExistAsync(int patientId)
         {
-            _dbContext.Update(dbRecord);
-            await _dbContext.SaveChangesAsync();
-            return dbRecord;
+            var patient = await _patientRepository.GetWithRelationsAsync(
+                u => u.PatientId == patientId, 
+                useNoTracking: true,
+                includeFunc: q => q.Include(p => p.User));
+            
+            if (patient == null)
+            {
+                throw new Exception("Patient not found.");
+            }
+            if (patient.User.IsActive == false)
+            {
+                throw new Exception("This account has been deactivated.");
+            }
+            if (patient.User.IsVerified == false)
+            {
+                throw new Exception("This account has not been verified.");
+            }
         }
 
-        public async Task<List<T>> GetAllWithRelationsByFilterAsync(Expression<Func<T, bool>> filter, bool useNoTracking = false, Func<IQueryable<T>, IQueryable<T>> includeFunc = null)
+        public async Task CheckUserExistAsync(int userId)
         {
-            IQueryable<T> query = _dbSet;
-            if (useNoTracking)
+            var userExists = await AnyAsync(u => u.UserId == userId);
+            if (!userExists)
             {
-                query = query.AsNoTracking();
+                throw new Exception("User not found.");
             }
-            if (includeFunc != null)
-            {
-                query = includeFunc(query);
-            }
-            return await query.Where(filter).ToListAsync();
         }
 
-        public async Task<int> CountAsync(Expression<Func<T, bool>> filter = null)
+        public async Task CheckAppointmentExistAsync(int appointmentId)
         {
-            if (filter != null)
+            var appointmentExists = await _appointmentRepository.AnyAsync(a => a.AppointmentId == appointmentId);
+            if (!appointmentExists)
             {
-                return await _dbSet.Where(filter).CountAsync();
+                throw new Exception("Appointment not found.");
             }
-            return await _dbSet.CountAsync();
         }
 
-        public async Task<bool> AnyAsync(Expression<Func<T, bool>> filter)
+        public async Task CheckDuplicateAppointmentAsync(int appointmentId)
         {
-            return await _dbSet.AnyAsync(filter);
+            var duplicateAppointmentExists = await _testResultRepository.AnyAsync(a => a.AppointmentId == appointmentId);
+            if (duplicateAppointmentExists)
+            {
+                throw new Exception("1 appointment can only have 1 test result.");
+            }
+        }
+
+        public async Task CheckTestTypeExistAsync(int testTypeId)
+        {
+            var testTypeExists = await _testTypeRepository.AnyAsync(t => t.TestTypeId == testTypeId);
+            if (!testTypeExists)
+            {
+                throw new Exception("Test type not found.");
+            }
+        }
+
+        public async Task CheckTestResultExistAsync(int id)
+        {
+            var testResultExists = await _testResultRepository.AnyAsync(t => t.TestResultId == id);
+            if (!testResultExists)
+            {
+                throw new Exception("Test result not found.");
+            }
+            var treatmentExists = await _treatmentRepository.AnyAsync(t => t.TestResultId == id);
+            if (treatmentExists)
+            {
+                throw new Exception("1 test result can only link to 1 treatment.");
+            }
+        }
+
+        public async Task CheckTreatmentExistAsync(int id)
+        {
+            var treatmentExists = await _treatmentRepository.AnyAsync(t => t.TreatmentId == id);
+            if (!treatmentExists)
+            {
+                throw new Exception("Treatment not found.");
+            }
+        }
+
+        public async Task CheckEmailExistAsync(string email)
+        {
+            var lowercaseEmail = email.ToLowerInvariant();
+            var emailExists = await AnyAsync(u => u.Email.Equals(lowercaseEmail));
+            if (emailExists)
+            {
+                throw new Exception($"Email {email} already exists.");
+            }
+        }
+
+        public async Task CheckCategoryExistAsync(int id)
+        {
+            var categoryExists = await _categoryRepository.AnyAsync(c => c.CategoryId == id && c.IsActive == true);
+            if (!categoryExists)
+            {
+                throw new Exception("Category not found.");
+            }
         }
     }
 }
